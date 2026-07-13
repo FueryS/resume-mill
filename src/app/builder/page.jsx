@@ -81,6 +81,9 @@ export default function BuilderPage() {
   // State representing the fullscreen preview overlay modal visibility
   const [showFullscreenPreview, setShowFullscreenPreview] = useState(false);
 
+  // State representing whether to support us with a watermark in A4 outputs
+  const [supportWithWatermark, setSupportWithWatermark] = useState(true);
+
   // Step names and icons list
   const steps = [
     { name: 'Profile & Summary', icon: <User size={18} /> },
@@ -343,6 +346,8 @@ export default function BuilderPage() {
                   handleDownloadPortfolio={handleDownloadPortfolio}
                   handleClearDraft={handleClearDraft}
                   onShowPreview={() => setShowFullscreenPreview(true)}
+                  supportWithWatermark={supportWithWatermark}
+                  setSupportWithWatermark={setSupportWithWatermark}
                 />
               )}
             </div>
@@ -387,6 +392,7 @@ export default function BuilderPage() {
             activeTemplate={activeTemplate}
             showFullscreen={showFullscreenPreview}
             setShowFullscreen={setShowFullscreenPreview}
+            supportWithWatermark={supportWithWatermark}
           />
 
         </div>

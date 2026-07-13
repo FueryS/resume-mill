@@ -23,7 +23,8 @@ export default function ResumePreview({
   formData, 
   activeTemplate,
   showFullscreen,
-  setShowFullscreen
+  setShowFullscreen,
+  supportWithWatermark = true
 }) {
   const [zoomPercent, setZoomPercent] = useState(85);
   const [viewportWidth, setViewportWidth] = useState(1200);
@@ -201,15 +202,16 @@ export default function ResumePreview({
               left: 0
             }}
           >
-            {activeTemplate === 'modern' && <Modern_Page data={formData} />}
-            {activeTemplate === 'elegant' && <Elegant_Page data={formData} />}
-            {activeTemplate === 'creative' && <Creative_Page data={formData} />}
+            {activeTemplate === 'modern' && <Modern_Page data={formData} showWatermark={supportWithWatermark} />}
+            {activeTemplate === 'elegant' && <Elegant_Page data={formData} showWatermark={supportWithWatermark} />}
+            {activeTemplate === 'creative' && <Creative_Page data={formData} showWatermark={supportWithWatermark} />}
           </div>
         </div>
       </div>
 
       {/* Floating Controls Bar (Fit to Screen & Full Screen) */}
       <div 
+        className="no-print"
         style={{
           display: 'flex',
           alignItems: 'center',
@@ -283,7 +285,7 @@ export default function ResumePreview({
       {/* Fullscreen Overlay Modal (Responsive Scaling) */}
       {showFullscreen && (
         <div 
-          className="fullscreen-modal-overlay" 
+          className="no-print fullscreen-modal-overlay" 
           onClick={() => setShowFullscreen(false)}
           style={{
             position: 'fixed',
@@ -352,9 +354,9 @@ export default function ResumePreview({
                 backgroundColor: '#ffffff'
               }}
             >
-              {activeTemplate === 'modern' && <Modern_Page data={formData} />}
-              {activeTemplate === 'elegant' && <Elegant_Page data={formData} />}
-              {activeTemplate === 'creative' && <Creative_Page data={formData} />}
+              {activeTemplate === 'modern' && <Modern_Page data={formData} showWatermark={supportWithWatermark} />}
+              {activeTemplate === 'elegant' && <Elegant_Page data={formData} showWatermark={supportWithWatermark} />}
+              {activeTemplate === 'creative' && <Creative_Page data={formData} showWatermark={supportWithWatermark} />}
             </div>
           </div>
         </div>

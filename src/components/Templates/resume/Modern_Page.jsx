@@ -10,7 +10,7 @@
 import React from 'react';
 import styles from './ResumeTemplates.module.css';
 
-export default function Modern_Page({ data }) {
+export default function Modern_Page({ data, showWatermark = true }) {
   const { personal, experience, projects, education, skills } = data;
 
   // Helpers to check if sections are populated
@@ -147,6 +147,34 @@ export default function Modern_Page({ data }) {
           <h3 className={styles.secTitle}>Skills & Technologies</h3>
           <div className={styles.secDivider}></div>
           <p className={styles.skillsText}>{skills}</p>
+        </div>
+      )}
+
+      {/* Semi-transparent Branding Watermark */}
+      {showWatermark && (
+        <div 
+          style={{
+            position: 'absolute',
+            bottom: '16px',
+            right: '24px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px',
+            opacity: 0.2,
+            pointerEvents: 'none',
+            userSelect: 'none',
+            color: '#1e293b',
+            zIndex: 10
+          }}
+        >
+          <img 
+            src="/logo.jpg" 
+            alt="ResumeMill Logo" 
+            style={{ width: '12px', height: '12px', borderRadius: '2px', objectFit: 'cover' }} 
+          />
+          <span style={{ fontSize: '9px', fontWeight: '800', letterSpacing: '0.05em', textTransform: 'uppercase', fontFamily: 'sans-serif' }}>
+            Resume<span style={{ color: '#4f46e5' }}>Mill</span>
+          </span>
         </div>
       )}
 

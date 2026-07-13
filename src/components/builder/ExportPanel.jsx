@@ -5,14 +5,15 @@
  * Renders the options for Step 5 of the resume builder:
  * Navigating to change resume and portfolio templates.
  * Displaying the fullscreen layout preview.
- * Triggering document compilation and export actions (PDF downloads, ZIP portfolio exports, and clear drafts).
+ * Controlling the optional branding watermark.
+ * Triggering document compilation and export actions.
  */
 
 'use client';
 
 import React from 'react';
 import { useRouter } from 'next/navigation';
-import { Download, FileDown, Eye, Settings } from 'lucide-react';
+import { Download, FileDown, Eye } from 'lucide-react';
 import styles from '@/app/builder/page.module.css';
 
 export default function ExportPanel({
@@ -21,7 +22,9 @@ export default function ExportPanel({
   handleDownloadPDF,
   handleDownloadPortfolio,
   handleClearDraft,
-  onShowPreview
+  onShowPreview,
+  supportWithWatermark,
+  setSupportWithWatermark
 }) {
   const router = useRouter();
 
@@ -104,6 +107,40 @@ export default function ExportPanel({
         <h4>Generate Files</h4>
         <p>Both downloads run 100% in your browser. No personal data ever leaves your device.</p>
         
+        {/* Support Us Watermark Checkbox */}
+        <div 
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '10px',
+            margin: '16px 0',
+            padding: '10px 14px',
+            backgroundColor: 'var(--bg-tertiary)',
+            borderRadius: 'var(--radius-md)',
+            border: '1px solid var(--border-color)',
+            cursor: 'pointer',
+            width: '100%',
+            userSelect: 'none'
+          }} 
+          onClick={() => setSupportWithWatermark(!supportWithWatermark)}
+        >
+          <input 
+            type="checkbox" 
+            checked={supportWithWatermark} 
+            onChange={(e) => setSupportWithWatermark(e.target.checked)}
+            onClick={(e) => e.stopPropagation()} // Prevent double trigger with parent div onClick
+            style={{ 
+              cursor: 'pointer',
+              width: '16px',
+              height: '16px',
+              accentColor: 'var(--primary)'
+            }}
+          />
+          <span style={{ fontSize: '13px', fontWeight: '600', color: 'var(--text-main)' }}>
+            Support us with a tiny watermark (Bottom Right)
+          </span>
+        </div>
+
         <div className={styles.actionsVertical}>
           {/* Download A4 PDF button */}
           <button 

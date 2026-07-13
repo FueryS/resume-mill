@@ -145,6 +145,16 @@ p {
 
 /* Print styles for A4 exports */
 @media print {
+  /* Force browsers to print background colors, sidebars, and graphics exactly as shown */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  @page {
+    margin: 0 !important;
+  }
+
   html, body {
     width: 794px;
     height: 1123px;
@@ -161,6 +171,7 @@ p {
   aside,
   button,
   .no-print,
+  .fullscreen-modal-overlay,
   [class*="Header_"],
   [class*="Footer_"],
   [class*="formPanel_"],
@@ -205,5 +216,14 @@ p {
     box-shadow: none !important;
     margin: 0 !important;
     padding: 0 !important;
+  }
+
+  /* Collapse the entire page body to zero natural height so the browser
+     only sees the fixed-position A4 sheet and never generates a second page */
+  body > * {
+    height: 0 !important;
+    overflow: hidden !important;
+    padding: 0 !important;
+    margin: 0 !important;
   }
 }
