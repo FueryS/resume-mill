@@ -19,9 +19,13 @@ import Elegant_Page from '@/components/Templates/resume/Elegant_Page';
 import Creative_Page from '@/components/Templates/resume/Creative_Page';
 import styles from '@/app/builder/page.module.css';
 
-export default function ResumePreview({ formData, activeTemplate }) {
+export default function ResumePreview({ 
+  formData, 
+  activeTemplate,
+  showFullscreen,
+  setShowFullscreen
+}) {
   const [zoomPercent, setZoomPercent] = useState(85);
-  const [showFullscreen, setShowFullscreen] = useState(false);
   const [viewportWidth, setViewportWidth] = useState(1200);
   
   const containerRef = useRef(null);

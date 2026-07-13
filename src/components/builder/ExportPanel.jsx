@@ -3,14 +3,16 @@
  * 
  * Purpose:
  * Renders the options for Step 5 of the resume builder:
- * Selecting a print template (Modern Minimalist vs Elegant Executive).
- * Triggering document compilation and export actions (PDF print layouts, ZIP portfolio exports, and clear draft triggers).
+ * Navigating to change resume and portfolio templates.
+ * Displaying the fullscreen layout preview.
+ * Triggering document compilation and export actions (PDF downloads, ZIP portfolio exports, and clear drafts).
  */
 
 'use client';
 
 import React from 'react';
-import { Download, FileDown, Eye } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { Download, FileDown, Eye, Settings } from 'lucide-react';
 import styles from '@/app/builder/page.module.css';
 
 export default function ExportPanel({
@@ -18,34 +20,82 @@ export default function ExportPanel({
   setActiveTemplate,
   handleDownloadPDF,
   handleDownloadPortfolio,
-  handleClearDraft
+  handleClearDraft,
+  onShowPreview
 }) {
+  const router = useRouter();
+
+  const handleRedirectResume = () => {
+    router.push('/templates/resume');
+  };
+
+  const handleRedirectPortfolio = () => {
+    router.push('/templates/portfolio');
+  };
+
   return (
     <div className={`${styles.formSection} ${styles.finalStepPanel} animate-scale-in`}>
       
-      {/* 1. Template selection boxes */}
+      {/* 1. Template actions */}
       <div className={styles.templateSelectionBox}>
-        <h4>Choose Resume Template</h4>
-        <div className={styles.templateSelectors}>
-          {/* Option A: Modern Minimalist */}
-          <button 
-            type="button"
-            className={`${styles.templateBtn} ${activeTemplate === 'modern' ? styles.active : ''}`}
-            onClick={() => setActiveTemplate('modern')}
-          >
-            <FileDown size={18} />
-            <span>Modern Minimalist (Recommended)</span>
-          </button>
+        <h4>Template Configuration</h4>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', width: '100%' }}>
           
-          {/* Option B: Elegant Executive */}
+          {/* Show Preview Button */}
           <button 
             type="button"
-            className={`${styles.templateBtn} ${activeTemplate === 'elegant' ? styles.active : ''}`}
-            onClick={() => setActiveTemplate('elegant')}
+            className="btn btn-secondary"
+            onClick={onShowPreview}
+            style={{ 
+              width: '100%', 
+              display: 'flex', 
+              alignItems: 'center', 
+              justifyContent: 'center', 
+              gap: '8px',
+              padding: '12px',
+              fontWeight: '600'
+            }}
           >
             <Eye size={18} />
-            <span>Elegant Executive</span>
+            <span>Show Preview</span>
           </button>
+
+          {/* Grid for changing templates */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', width: '100%' }}>
+            
+            {/* Change Resume Template */}
+            <button 
+              type="button"
+              className={styles.templateBtn}
+              onClick={handleRedirectResume}
+              style={{ 
+                padding: '12px 8px', 
+                margin: 0, 
+                justifyContent: 'center',
+                textAlign: 'center',
+                fontSize: '13px'
+              }}
+            >
+              <span>Change Resume Template</span>
+            </button>
+            
+            {/* Change Portfolio Template */}
+            <button 
+              type="button"
+              className={styles.templateBtn}
+              onClick={handleRedirectPortfolio}
+              style={{ 
+                padding: '12px 8px', 
+                margin: 0, 
+                justifyContent: 'center',
+                textAlign: 'center',
+                fontSize: '13px'
+              }}
+            >
+              <span>Change Portfolio Template</span>
+            </button>
+
+          </div>
         </div>
       </div>
 

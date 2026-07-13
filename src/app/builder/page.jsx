@@ -78,6 +78,9 @@ export default function BuilderPage() {
   // State representing the active resume design template ('modern' or 'elegant')
   const [activeTemplate, setActiveTemplate] = useState('modern');
 
+  // State representing the fullscreen preview overlay modal visibility
+  const [showFullscreenPreview, setShowFullscreenPreview] = useState(false);
+
   // Step names and icons list
   const steps = [
     { name: 'Profile & Summary', icon: <User size={18} /> },
@@ -339,6 +342,7 @@ export default function BuilderPage() {
                   handleDownloadPDF={handleDownloadPDF}
                   handleDownloadPortfolio={handleDownloadPortfolio}
                   handleClearDraft={handleClearDraft}
+                  onShowPreview={() => setShowFullscreenPreview(true)}
                 />
               )}
             </div>
@@ -381,6 +385,8 @@ export default function BuilderPage() {
           <ResumePreview 
             formData={formData}
             activeTemplate={activeTemplate}
+            showFullscreen={showFullscreenPreview}
+            setShowFullscreen={setShowFullscreenPreview}
           />
 
         </div>
