@@ -5,8 +5,8 @@
  * Renders the live-updating printable A4 resume page preview in the builder.
  * Swaps template components based on the selected layout theme ('modern', 'elegant', or 'creative').
  * Reuses the same templates folder structure to ensure modularity.
- * Implements a width-first responsive layout container for perfect mobile support.
- * Implements two-finger touch navigation panning on mobile.
+ * Implements a width-first responsive layout container with safe centering to avoid scroll clipping.
+ * Implements Google Maps-style pinch-to-zoom and two-finger panning touch gestures.
  * Features a fullscreen preview modal with device-fit scaling and history back button interceptor.
  */
 
@@ -26,7 +26,14 @@ export default function ResumePreview({ formData, activeTemplate }) {
   
   const containerRef = useRef(null);
   const isFirstRender = useRef(true);
-  const touchStartRef = useRef({ x1: 0, y1: 0, x2: 0, y2: 0, scrollTop: 0, scrollLeft: 0 });
+  const touchStartRef = useRef({ 
+    x1: 0, y1: 0, 
+    x2: 0, y2: 0, 
+    distance: 0, 
+    zoom: 85,
+    scrollTop: 0, 
+    scrollLeft: 0 
+  });
 
   // Monitor resize to auto-fit A4 preview scale and track viewport width for fullscreen scale
   useEffect(() => {
@@ -78,17 +85,21 @@ export default function ResumePreview({ formData, activeTemplate }) {
     }
   };
 
-  // Two-finger touch navigation panning on mobile
+  // Touch handlers for Google Maps-style pinch-to-zoom and two-finger panning
   const handleTouchStart = (e) => {
     if (e.touches.length === 2) {
       const t1 = e.touches[0];
       const t2 = e.touches[1];
+      const dist = Math.hypot(t2.clientX - t1.clientX, t2.clientY - t1.clientY);
+      
       if (containerRef.current) {
         touchStartRef.current = {
           x1: t1.clientX,
           y1: t1.clientY,
           x2: t2.clientX,
           y2: t2.clientY,
+          distance: dist,
+          zoom: zoomPercent,
           scrollTop: containerRef.current.scrollTop,
           scrollLeft: containerRef.current.scrollLeft
         };
@@ -98,12 +109,21 @@ export default function ResumePreview({ formData, activeTemplate }) {
 
   const handleTouchMove = (e) => {
     if (e.touches.length === 2 && containerRef.current) {
-      // Prevent browser default panning/scrolling
+      // Prevent browser default pinch-zooming of the viewport page
       e.preventDefault();
       
       const t1 = e.touches[0];
       const t2 = e.touches[1];
       
+      // 1. Pinch to Zoom
+      const dist = Math.hypot(t2.clientX - t1.clientX, t2.clientY - t1.clientY);
+      if (touchStartRef.current.distance > 0) {
+        const scaleFactor = dist / touchStartRef.current.distance;
+        const newZoom = Math.max(30, Math.min(150, Math.round(touchStartRef.current.zoom * scaleFactor)));
+        setZoomPercent(newZoom);
+      }
+      
+      // 2. Pan/Scroll Panning
       const initialMidX = (touchStartRef.current.x1 + touchStartRef.current.x2) / 2;
       const initialMidY = (touchStartRef.current.y1 + touchStartRef.current.y2) / 2;
       const currentMidX = (t1.clientX + t2.clientX) / 2;
@@ -143,12 +163,13 @@ export default function ResumePreview({ formData, activeTemplate }) {
           borderRadius: 'var(--radius-sm)',
           border: '1px solid var(--border-color)',
           display: 'flex',
-          justifyContent: 'center',
+          justifyContent: 'flex-start', // Use flex-start to prevent left scrollbar clipping
           alignItems: 'flex-start',
-          touchAction: 'pan-x pan-y' // Allow default browser swipe-scrolling unless two fingers are used
+          touchAction: 'none' // Block default browser viewport pinch-zoom to allow custom gestures
         }}
       >
-        {/* Outer responsive layout wrapper: behaves as a width-first container. */}
+        {/* Outer responsive layout wrapper: behaves as a width-first container.
+            Uses margin: 0 auto to center it when smaller, and scroll cleanly when larger. */}
         <div 
           className="printable-layout-wrapper"
           style={{
@@ -157,7 +178,9 @@ export default function ResumePreview({ formData, activeTemplate }) {
             position: 'relative',
             flexShrink: 0,
             boxShadow: '0 10px 30px rgba(0,0,0,0.1)',
-            overflow: 'hidden'
+            overflow: 'hidden',
+            marginLeft: 'auto',
+            marginRight: 'auto'
           }}
         >
           {/* Inner A4 Page: Scaled via transform-origin: top left */}
