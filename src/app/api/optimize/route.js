@@ -37,6 +37,9 @@ Input Text to Rewrite:\n"${text}"`;
 
     const model = process.env.GEMINI_MODEL || 'gemini-3.5-flash';
 
+    // Summary sections are short; experience/project bullets can be longer
+    const maxOutputTokens = (section === 'summary') ? 1024 : 2048;
+
     // Call Gemini API via native REST endpoint
     const response = await fetch(
       `https://generativelanguage.googleapis.com/v1/models/${model}:generateContent?key=${apiKey}`,
@@ -53,7 +56,7 @@ Input Text to Rewrite:\n"${text}"`;
           ],
           generationConfig: {
             temperature: 0.3,
-            maxOutputTokens: 800,
+            maxOutputTokens,
           },
         }),
       }
@@ -74,7 +77,17 @@ Input Text to Rewrite:\n"${text}"`;
     }
 
     const data = await response.json();
-    const optimizedText = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || '';
+    const candidate = data.candidates?.[0];
+
+    // Detect truncated responses (finishReason MAX_TOKENS means output was cut off)
+    if (candidate?.finishReason === 'MAX_TOKENS') {
+      console.warn('Gemini response was truncated due to token limit.');
+      return NextResponse.json({
+        error: 'The AI response was too long and got cut off. Try optimizing a shorter section of text.'
+      }, { status: 422 });
+    }
+
+    const optimizedText = candidate?.content?.parts?.[0]?.text?.trim() || '';
 
     return NextResponse.json({ optimizedText });
   } catch (error) {
