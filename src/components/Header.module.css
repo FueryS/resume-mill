@@ -1,0 +1,253 @@
+/* src/components/Header.module.css */
+
+.siteHeader {
+  background-color: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border-color);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  height: 70px;
+  display: flex;
+  align-items: center;
+  transition: all var(--transition-normal);
+}
+
+.headerContainer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  font-weight: 800;
+  font-size: 20px;
+  color: var(--text-main);
+}
+
+.logoText span {
+  color: var(--accent);
+}
+
+.logoImg {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-sm);
+  box-shadow: 0 2px 8px rgba(79, 70, 229, 0.15);
+  object-fit: cover;
+}
+
+.navMenu {
+  display: flex;
+  gap: var(--space-6);
+  align-items: center;
+}
+
+.navLink {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-muted);
+  position: relative;
+  padding: var(--space-2) 0;
+  transition: color var(--transition-fast);
+}
+
+.navLink:hover {
+  color: var(--text-main);
+}
+
+.navLink.active {
+  color: var(--primary);
+}
+
+.navLink.active::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background-color: var(--primary);
+  border-radius: var(--radius-full);
+}
+
+.navDonateLink {
+  color: var(--accent);
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.navDonateLink:hover {
+  color: var(--accent-hover);
+}
+
+.headerActions {
+  display: flex;
+  align-items: center;
+}
+
+.btnLoginDisabled {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  background-color: #F3F4F6;
+  color: var(--text-muted);
+  border: 1px solid var(--border-color);
+  padding: 8px 16px;
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+  font-size: 14px;
+  transition: all var(--transition-fast);
+  opacity: 0.75;
+  cursor: pointer;
+}
+
+.btnLoginDisabled:hover {
+  opacity: 1;
+  background-color: #E5E7EB;
+  border-color: var(--border-hover);
+  color: var(--text-main);
+}
+
+/* Notice Modal overlay */
+.noticeOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(15, 23, 42, 0.4);
+  backdrop-filter: blur(4px);
+  z-index: 10002;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.noticeCard {
+  background-color: var(--bg-secondary);
+  border-radius: var(--radius-lg);
+  width: 90%;
+  max-width: 460px;
+  padding: var(--space-8);
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--border-color);
+}
+
+.noticeHeader {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+  text-align: center;
+}
+
+.noticeIcon {
+  color: var(--accent);
+}
+
+.noticeHeader h3 {
+  font-size: 22px;
+  color: var(--text-main);
+}
+
+.noticeBody {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  text-align: center;
+}
+
+.noticeBody p {
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--text-main);
+}
+
+.humorSub {
+  font-size: 13.5px !important;
+  color: var(--text-muted) !important;
+}
+
+.fundingBox {
+  background-color: var(--bg-tertiary);
+  border: 1px dashed var(--border-hover);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  margin-top: var(--space-2);
+}
+
+.fundingBox p {
+  font-size: 13px !important;
+  font-weight: 500;
+  color: var(--text-main);
+  line-height: 1.4;
+}
+
+.noticeFooter {
+  margin-top: var(--space-6);
+  display: flex;
+  gap: var(--space-3);
+}
+
+.btnNoticeCancel {
+  flex: 1;
+  background-color: transparent;
+  color: var(--text-muted);
+  border: 1px solid var(--border-color);
+  padding: 12px;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  font-size: 14.5px;
+  transition: all var(--transition-fast);
+  cursor: pointer;
+}
+
+.btnNoticeCancel:hover {
+  background-color: var(--bg-tertiary);
+  color: var(--text-main);
+}
+
+.btnNoticeDonate {
+  flex: 2;
+  background-color: var(--accent);
+  color: var(--text-inverse);
+  padding: 12px;
+  border: none;
+  border-radius: var(--radius-md);
+  font-weight: 700;
+  font-size: 14.5px;
+  box-shadow: var(--shadow-accent);
+  transition: all var(--transition-bounce);
+  cursor: pointer;
+}
+
+.btnNoticeDonate:hover {
+  background-color: var(--accent-hover);
+  transform: translateY(-1px);
+}
+
+@media (max-width: 640px) {
+  .navMenu {
+    gap: var(--space-4);
+  }
+
+  .navLink {
+    font-size: 14px;
+  }
+
+  .btnLoginDisabled span {
+    display: none;
+  }
+
+  .btnLoginDisabled {
+    padding: 8px;
+  }
+}

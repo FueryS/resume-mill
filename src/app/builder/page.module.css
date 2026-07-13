@@ -1,0 +1,561 @@
+/* src/app/builder/page.module.css */
+
+.builderPage {
+  padding: var(--space-8) 0;
+  font-family: var(--font-sans);
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.builderGrid {
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: var(--space-8);
+  align-items: start;
+  flex: 1;
+}
+
+/* Form panel styling */
+.formPanel {
+  background-color: var(--bg-secondary);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-md);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-height: 600px;
+}
+
+.formHeader {
+  border-bottom: 1px solid var(--border-color);
+  padding: var(--space-5) var(--space-6);
+  background-color: var(--bg-primary);
+}
+
+.formStepIndicators {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: var(--space-4);
+  position: relative;
+}
+
+.formStepIndicators::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 5%;
+  width: 90%;
+  height: 2px;
+  background-color: var(--border-color);
+  z-index: 1;
+  transform: translateY(-50%);
+}
+
+.stepIndicator {
+  width: 38px;
+  height: 38px;
+  border-radius: var(--radius-sm);
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  position: relative;
+  z-index: 2;
+  transition: all var(--transition-bounce);
+  cursor: pointer;
+}
+
+.stepIndicator.active {
+  background-color: var(--primary);
+  color: var(--text-inverse);
+  border-color: var(--primary);
+  box-shadow: 0 4px 10px rgba(79, 70, 229, 0.2);
+  transform: scale(1.1);
+}
+
+.stepLabel {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.stepLabel span {
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.formBody {
+  padding: var(--space-6);
+  flex: 1;
+}
+
+.formSection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.formRow {
+  display: flex;
+  gap: var(--space-4);
+}
+
+.formGroup {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.formGroup label {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.formGroup input,
+.formGroup textarea {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  font-family: inherit;
+  color: var(--text-main);
+  outline: none;
+  background-color: var(--bg-secondary);
+  transition: border-color var(--transition-fast);
+}
+
+.formGroup input:focus,
+.formGroup textarea:focus {
+  border-color: var(--primary);
+}
+
+/* AI optimization link in headers */
+.labelWithAi {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.btnAiOptimize {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background-color: var(--accent-light);
+  color: var(--accent);
+  border: 1px solid rgba(249, 115, 22, 0.15);
+  border-radius: var(--radius-sm);
+  padding: 4px 10px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.btnAiOptimize:hover:not(:disabled) {
+  background-color: var(--accent);
+  color: var(--text-inverse);
+}
+
+.btnAiOptimize:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.spinIcon {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Card listing items styling */
+.itemCard {
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: var(--space-4);
+  background-color: var(--bg-primary);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  position: relative;
+}
+
+.itemCardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px dashed var(--border-color);
+  padding-bottom: var(--space-2);
+}
+
+.itemCardHeader h5 {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.btnRemove {
+  color: var(--error);
+  opacity: 0.6;
+  transition: opacity var(--transition-fast);
+  padding: 2px;
+  border-radius: var(--radius-sm);
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.btnRemove:hover {
+  opacity: 1;
+  background-color: rgba(239, 68, 68, 0.05);
+}
+
+.btnAdd {
+  width: 100%;
+  justify-content: center;
+  padding: 12px;
+  border: 1px dashed var(--border-hover);
+}
+
+.formCheckbox {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.formCheckbox label {
+  font-size: 13.5px;
+  color: var(--text-main);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.subsectionTitle {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--text-main);
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: var(--space-2);
+}
+
+/* Final step templates & exports */
+.finalStepPanel {
+  gap: var(--space-6);
+}
+
+.templateSelectionBox h4,
+.exportsActionBox h4 {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-main);
+  margin-bottom: var(--space-3);
+}
+
+.templateSelectors {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-3);
+}
+
+.templateBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  border: 1px solid var(--border-color);
+  background-color: var(--bg-secondary);
+  padding: var(--space-4);
+  border-radius: var(--radius-md);
+  font-weight: 700;
+  font-size: 13.5px;
+  color: var(--text-muted);
+  transition: all var(--transition-fast);
+  cursor: pointer;
+}
+
+.templateBtn:hover {
+  border-color: var(--border-hover);
+  color: var(--text-main);
+  background-color: var(--bg-tertiary);
+}
+
+.templateBtn.active {
+  border-color: var(--primary);
+  color: var(--primary);
+  background-color: var(--primary-light);
+  box-shadow: var(--shadow-sm);
+}
+
+.exportsActionBox {
+  border-top: 1px solid var(--border-color);
+  padding-top: var(--space-5);
+}
+
+.exportsActionBox p {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-bottom: var(--space-4);
+}
+
+.actionsVertical {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.actionExportBtn {
+  width: 100%;
+  padding: 14px;
+  font-size: 15px;
+  justify-content: center;
+}
+
+.btnClearDraft {
+  margin-top: var(--space-2);
+  background: none;
+  border: none;
+  color: var(--error);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  opacity: 0.7;
+  transition: opacity var(--transition-fast);
+}
+
+.btnClearDraft:hover {
+  opacity: 1;
+  text-decoration: underline;
+}
+
+/* Form Footer navigation */
+.formFooter {
+  border-top: 1px solid var(--border-color);
+  padding: var(--space-4) var(--space-6);
+  background-color: var(--bg-primary);
+  display: flex;
+  justify-content: space-between;
+}
+
+/* Preview panel styling */
+.previewPanel {
+  position: sticky;
+  top: 90px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  height: calc(100vh - 120px);
+}
+
+.previewHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.liveBadge {
+  background-color: var(--success);
+  color: #FFFFFF;
+  font-weight: 700;
+  font-size: 11px;
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  text-transform: uppercase;
+}
+
+.previewHint {
+  font-size: 11.5px;
+  color: var(--text-muted);
+}
+
+/* The Live A4 Paper Box */
+.resumeA4Page {
+  flex: 1;
+  background-color: #FFFFFF;
+  border: 1px solid var(--border-color);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  border-radius: var(--radius-sm);
+  padding: 45px;
+  overflow-y: auto;
+  font-family: Arial, Helvetica, sans-serif;
+  color: #333333;
+  line-height: 1.4;
+  font-size: 13px;
+}
+
+/* Template Specific Styling */
+.templateModern .resumeName {
+  font-family: var(--font-sans);
+  font-weight: 800;
+  font-size: 26px;
+  color: #111827;
+  margin-bottom: 2px;
+  text-align: left;
+}
+
+.templateModern .resumeRoleSubtitle {
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 15px;
+  color: var(--primary);
+  margin-bottom: 12px;
+  text-align: left;
+}
+
+.templateModern .resumeSecTitle {
+  font-family: var(--font-sans);
+  font-weight: 700;
+  font-size: 14px;
+  text-transform: uppercase;
+  color: #111827;
+  margin-top: 15px;
+}
+
+.templateModern .resumeSecDivider {
+  width: 100%;
+  height: 1px;
+  background-color: #E5E7EB;
+  margin: 4px 0 8px 0;
+}
+
+/* Template Elegant Specifics */
+.templateElegant {
+  font-family: Georgia, serif;
+  font-size: 13.5px;
+}
+
+.templateElegant .resumeHeaderBlock {
+  text-align: center;
+  border-bottom: 2px solid #374151;
+  padding-bottom: 15px;
+  margin-bottom: 15px;
+}
+
+.templateElegant .resumeName {
+  font-family: Georgia, serif;
+  font-weight: 400;
+  font-size: 28px;
+  letter-spacing: 0.05em;
+  color: #111827;
+}
+
+.templateElegant .resumeRoleSubtitle {
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #6B7280;
+  margin-top: 4px;
+}
+
+.templateElegant .resumeContactBar {
+  justify-content: center;
+  font-size: 11.5px;
+}
+
+.templateElegant .resumeSecTitle {
+  font-family: Georgia, serif;
+  font-weight: 700;
+  font-size: 14px;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-top: 20px;
+}
+
+.templateElegant .resumeSecDivider {
+  width: 80px;
+  height: 1px;
+  background-color: #374151;
+  margin: 6px auto 12px auto;
+}
+
+/* Generic Inside Styles */
+.resumeContactBar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  font-size: 12px;
+  color: #6B7280;
+  margin-bottom: var(--space-4);
+}
+
+.resumeContactBar span {
+  display: flex;
+  align-items: center;
+}
+
+.resumeSectionBlock {
+  margin-bottom: 15px;
+}
+
+.resumeSummaryText {
+  font-size: 12.5px;
+  color: #4B5563;
+  text-align: justify;
+}
+
+.resumeItemBlock {
+  margin-bottom: 12px;
+}
+
+.resumeItemHeader {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  color: #111827;
+}
+
+.resumeItemDates {
+  font-size: 11.5px;
+  color: #6B7280;
+}
+
+.resumeItemLocation {
+  font-size: 11.5px;
+  color: #6B7280;
+  margin-bottom: 2px;
+}
+
+.resumeItemDesc {
+  font-size: 12px;
+  color: #4B5563;
+  margin-top: 2px;
+  white-space: pre-line;
+}
+
+.resumeItemTech {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #4B5563;
+}
+
+.resumeSkillsText {
+  font-size: 12.5px;
+  color: #374151;
+}
+
+/* Mobile responsive */
+@media (max-width: 968px) {
+  .builderGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .previewPanel {
+    position: relative;
+    top: 0;
+    height: auto;
+    margin-top: var(--space-6);
+  }
+
+  .resumeA4Page {
+    min-height: 500px;
+  }
+}
