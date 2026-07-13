@@ -23,14 +23,10 @@
 .logo {
   display: flex;
   align-items: center;
-  gap: var(--space-3);
-  font-weight: 800;
-  font-size: 20px;
-  color: var(--text-main);
-}
-
-.logoText span {
-  color: var(--accent);
+  position: relative;
+  overflow: hidden;
+  text-decoration: none;
+  height: 40px;
 }
 
 .logoImg {
@@ -39,12 +35,117 @@
   border-radius: var(--radius-sm);
   box-shadow: 0 2px 8px rgba(79, 70, 229, 0.15);
   object-fit: cover;
+  z-index: 1;
+  animation: slideLogoDesktop 1.2s cubic-bezier(0.25, 1, 0.5, 1) 0.5s both;
+}
+
+.logoText {
+  font-weight: 800;
+  font-size: 20px;
+  color: var(--text-main);
+  z-index: 2;
+  white-space: nowrap;
+  display: inline-block;
+  margin-left: 6px; /* Closer gap on desktop */
+}
+
+.logoText span {
+  color: var(--accent);
+}
+
+@keyframes slideLogoDesktop {
+  0% {
+    transform: translateX(90px);
+  }
+  100% {
+    transform: translateX(0);
+  }
 }
 
 .navMenu {
   display: flex;
   gap: var(--space-6);
   align-items: center;
+  position: relative;
+}
+
+.desktopOnlyLinks {
+  display: flex;
+  align-items: center;
+  gap: var(--space-6);
+}
+
+.mobileOnlyControls {
+  display: none;
+  position: relative;
+}
+
+.btnMoreMenu {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  color: var(--text-muted);
+  background-color: var(--bg-tertiary);
+  transition: all var(--transition-fast);
+  cursor: pointer;
+  border: 1px solid var(--border-color);
+}
+
+.btnMoreMenu:hover {
+  color: var(--text-main);
+  background-color: var(--border-hover);
+}
+
+.mobileDropdown {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 12px);
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  z-index: 1001;
+  min-width: 140px;
+  animation: popInDropdown 0.2s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+@keyframes popInDropdown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.dropdownItem {
+  display: flex;
+  align-items: center;
+  padding: 8px 12px;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--text-muted);
+  border-radius: var(--radius-sm);
+  transition: all var(--transition-fast);
+  width: 100%;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+}
+
+.dropdownItem:hover {
+  color: var(--text-main);
+  background-color: var(--bg-tertiary);
 }
 
 .navLink {
@@ -73,6 +174,55 @@
   height: 2px;
   background-color: var(--primary);
   border-radius: var(--radius-full);
+}
+
+.navGroup {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  transition: all var(--transition-slow);
+}
+
+.subLinksContainer {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  background-color: var(--bg-tertiary);
+  padding: 4px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-color);
+  animation: slideInX var(--transition-bounce) forwards;
+}
+
+@keyframes slideInX {
+  from {
+    opacity: 0;
+    transform: translateX(-8px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+
+.subLink {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-muted);
+  padding: 4px 10px;
+  border-radius: calc(var(--radius-sm) - 2px);
+  transition: all var(--transition-fast);
+}
+
+.subLink:hover {
+  color: var(--text-main);
+  background-color: rgba(0, 0, 0, 0.04);
+}
+
+.subLink.subActive {
+  color: var(--primary);
+  background-color: var(--bg-secondary);
+  box-shadow: var(--shadow-sm);
 }
 
 .navDonateLink {
@@ -242,20 +392,82 @@
   transform: translateY(-1px);
 }
 
-@media (max-width: 640px) {
-  .navMenu {
+@media (max-width: 768px) {
+  .headerContainer {
+    justify-content: flex-start;
     gap: var(--space-4);
+  }
+
+  .desktopOnlyLinks {
+    display: none;
+  }
+
+  .mobileOnlyControls {
+    display: block;
+  }
+
+  .headerActions {
+    display: none;
+  }
+
+  .headerActionsDesktop {
+    display: none;
+  }
+
+  .logoImg {
+    transform: translateX(95px); /* Start hidden behind text on smaller screen */
+    animation: slideLogoMobile 1.2s cubic-bezier(0.25, 1, 0.5, 1) 0.5s both;
+  }
+  
+  .logoText {
+    opacity: 1;
+    overflow: hidden;
+    max-width: 120px;
+    animation: collapseTextMobile 0.8s cubic-bezier(0.25, 1, 0.5, 1) 1.8s both;
+  }
+
+  .navMenu {
+    gap: var(--space-3);
+    transition: all var(--transition-slow);
   }
 
   .navLink {
     font-size: 14px;
   }
 
-  .btnLoginDisabled span {
-    display: none;
+  .navGroup {
+    gap: 6px;
   }
 
-  .btnLoginDisabled {
-    padding: 8px;
+  .subLinksContainer {
+    padding: 2px;
+    gap: 0;
+  }
+
+  .subLink {
+    font-size: 11px;
+    padding: 3px 6px;
+  }
+}
+
+@keyframes slideLogoMobile {
+  0% {
+    transform: translateX(95px);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
+
+@keyframes collapseTextMobile {
+  0% {
+    max-width: 120px;
+    opacity: 1;
+    margin-left: var(--space-2);
+  }
+  100% {
+    max-width: 0;
+    opacity: 0;
+    margin-left: 0;
   }
 }

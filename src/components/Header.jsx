@@ -1,19 +1,21 @@
 /**
- * Header.js
+ * Header.jsx
  *
  * Purpose:
  * Renders the global navigation header (nav bar) at the top of all pages.
  * Displays the custom app brand logo and links.
  * Handles the deactivated/grayed-out "Login" button logic: clicking opens a humorous dialog
  * explaining the lack of database funding, which directly prompts visitors to support the project.
+ * Implements mobile-responsive vertical dot squashing, dynamic link hiding on template routes,
+ * and handles collapsible brand slide load animations.
  */
 
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Landmark, Lock } from "lucide-react";
+import { Landmark, Lock, MoreVertical } from "lucide-react";
 import DonationModal from "./DonationModal";
 import styles from "./Header.module.css";
 
@@ -26,6 +28,14 @@ export default function Header() {
 
   // State to control display of the real UPI payment donation modal
   const [showDonation, setShowDonation] = useState(false);
+
+  // State to control mobile overflow dots menu popover
+  const [showMobileMenu, setShowMobileMenu] = useState(false);
+
+  // Close overflow menu when route changes
+  useEffect(() => {
+    setShowMobileMenu(false);
+  }, [pathname]);
 
   /**
    * handleLoginClick()
@@ -51,11 +61,15 @@ export default function Header() {
     setShowDonation(true); // Open payment scanner
   };
 
+  const isTemplateRoute = pathname.startsWith("/templates");
+
   return (
     <>
       <header className={styles.siteHeader}>
         <div className={`container ${styles.headerContainer}`}>
-          {/* BRAND LOGO: Styled next to name, links to landing page */}
+          
+          {/* BRAND LOGO: Styled next to name, links to landing page.
+              Logo is configured with custom slide-and-collapse keyframes. */}
           <Link href="/" className={styles.logo}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
@@ -70,42 +84,116 @@ export default function Header() {
 
           {/* NAVIGATION LINKS */}
           <nav className={styles.navMenu}>
-            {/* Home link: checks path to apply the .active class styling */}
-            <Link
-              href="/"
-              className={`${styles.navLink} ${pathname === "/" ? styles.active : ""}`}
-            >
-              Home
-            </Link>
+            {isTemplateRoute ? (
+              // TEMPLATE VISITED ACTIVE STATE: Hide all other links, show only Resume, Portfolio, and Donate
+              <>
+                <Link
+                  href="/templates/resume"
+                  className={`${styles.navLink} ${pathname === "/templates/resume" ? styles.active : ""}`}
+                >
+                  Resume
+                </Link>
+                <Link
+                  href="/templates/portfolio"
+                  className={`${styles.navLink} ${pathname === "/templates/portfolio" ? styles.active : ""}`}
+                >
+                  Portfolio
+                </Link>
+                <button
+                  onClick={() => setShowDonation(true)}
+                  className={`${styles.navLink} ${styles.navDonateLink}`}
+                >
+                  Donate <img src="/Coffee_image.webp" alt="Donation Icon" className={styles.coffeeIcon} />
+                </button>
+              </>
+            ) : (
+              // REGULAR PAGES STATE: Home, Templates, Builder inline, plus mobile overflow squashing
+              <>
+                {/* Visible inline on both Mobile and Desktop */}
+                <Link
+                  href="/"
+                  className={`${styles.navLink} ${pathname === "/" ? styles.active : ""}`}
+                >
+                  Home
+                </Link>
 
-            {/* Builder link: active when on the /builder page */}
-            <Link
-              href="/builder"
-              className={`${styles.navLink} ${pathname === "/builder" ? styles.active : ""}`}
-            >
-              Builder
-            </Link>
+                <Link
+                  href="/templates/resume"
+                  className={`${styles.navLink} ${pathname.startsWith("/templates") ? styles.active : ""}`}
+                >
+                  Templates
+                </Link>
 
-            {/* Donate link: direct trigger to open payment scanner modal */}
-            <button
-              onClick={() => setShowDonation(true)}
-              className={`${styles.navLink} ${styles.navDonateLink}`}
-            >
-              Donate <img src="/Coffee_image.webp" alt="Donation Icon" className={styles.coffeeIcon} />
-            </button>
+                <Link
+                  href="/builder"
+                  className={`${styles.navLink} ${pathname === "/builder" ? styles.active : ""}`}
+                >
+                  Builder
+                </Link>
+
+                {/* Desktop-only Links */}
+                <div className={styles.desktopOnlyLinks}>
+                  <button
+                    onClick={() => setShowDonation(true)}
+                    className={`${styles.navLink} ${styles.navDonateLink}`}
+                  >
+                    Donate <img src="/Coffee_image.webp" alt="Donation Icon" className={styles.coffeeIcon} />
+                  </button>
+                </div>
+
+                {/* Mobile-only Overflow Controls: squashed into MoreVertical three-dot menu */}
+                <div className={styles.mobileOnlyControls}>
+                  <button
+                    onClick={() => setShowMobileMenu(!showMobileMenu)}
+                    className={styles.btnMoreMenu}
+                    aria-expanded={showMobileMenu}
+                    aria-label="More navigation items"
+                  >
+                    <MoreVertical size={20} />
+                  </button>
+
+                  {showMobileMenu && (
+                    <div className={styles.mobileDropdown}>
+                      <button
+                        onClick={() => {
+                          setShowDonation(true);
+                          setShowMobileMenu(false);
+                        }}
+                        className={styles.dropdownItem}
+                      >
+                        Donate <img src="/Coffee_image.webp" alt="Donation Icon" className={styles.coffeeIcon} />
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          handleLoginClick(e);
+                          setShowMobileMenu(false);
+                        }}
+                        className={styles.dropdownItem}
+                      >
+                        <Lock size={13} style={{ marginRight: '6px' }} />
+                        <span>Login</span>
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </>
+            )}
           </nav>
 
-          {/* ACTIONS: Houses the grayed-out mockup Login button */}
-          <div className={styles.headerActions}>
-            <button
-              onClick={handleLoginClick}
-              className={styles.btnLoginDisabled}
-              title="Login is deactivated"
-            >
-              <Lock size={13} />
-              <span>Login</span>
-            </button>
-          </div>
+          {/* ACTIONS: Houses the grayed-out mockup Login button.
+              Hidden when visiting any templates route. */}
+          {!isTemplateRoute && (
+            <div className={styles.headerActionsDesktop}>
+              <button
+                onClick={handleLoginClick}
+                className={styles.btnLoginDisabled}
+                title="Login is deactivated"
+              >
+                <Lock size={13} />
+                <span>Login</span>
+              </button>
+            </div>
+          )}
         </div>
       </header>
 

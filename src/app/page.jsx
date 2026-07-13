@@ -84,11 +84,14 @@ export default function LandingPage() {
                 Optimize your professional experience with Gemini AI to bypass Applicant Tracking Systems. Export custom recruiter-approved PDF resumes and download a ready-to-deploy developer portfolio website as a ZIP.
               </p>
 
-              {/* Action buttons linking to builder or triggering donations */}
+              {/* Action buttons linking to builder, templates, or triggering donations */}
               <div className={styles.heroActions}>
-                <Link href="/builder" className="btn btn-accent ${styles.heroCtaBtn}">
+                <Link href="/builder" className={`btn btn-accent ${styles.heroCtaBtn}`}>
                   <span>Build Your Resume</span>
                   <ArrowRight size={18} />
+                </Link>
+                <Link href="/templates/resume" className={`btn btn-secondary ${styles.heroCtaBtn}`}>
+                  <span>Explore Templates</span>
                 </Link>
                 <button onClick={() => setShowDonation(true)} className={`btn btn-secondary ${styles.heroDonateBtn}`}>
                   <Heart size={16} className={styles.heartIcon} />

@@ -2,138 +2,187 @@
  * ResumePreview.jsx
  * 
  * Purpose:
- * Renders the live-updating printable A4 resume page preview.
- * Swaps CSS classes based on the selected layout theme ('modern' or 'elegant').
- * Displays formatted summaries, work experience logs, personal projects, education rows, and technical skills list.
+ * Renders the live-updating printable A4 resume page preview in the builder.
+ * Swaps template components based on the selected layout theme ('modern', 'elegant', or 'creative').
+ * Reuses the same templates folder structure to ensure modularity.
+ * Implements a custom viewport zoom bar to pinch/zoom the A4 document without resizing the web app.
  */
 
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import { ZoomIn, ZoomOut, Maximize2 } from 'lucide-react';
+import Modern_Page from '@/components/Templates/resume/Modern_Page';
+import Elegant_Page from '@/components/Templates/resume/Elegant_Page';
+import Creative_Page from '@/components/Templates/resume/Creative_Page';
 import styles from '@/app/builder/page.module.css';
 
 export default function ResumePreview({ formData, activeTemplate }) {
-  // Extract state properties for cleaner JSX rendering
-  const { personal, experience, projects, education, skills } = formData;
+  const [zoomPercent, setZoomPercent] = useState(85);
+  const containerRef = useRef(null);
+  const isFirstRender = useRef(true);
+
+  // Resize listener to calculate auto-fit scale
+  useEffect(() => {
+    const handleResize = () => {
+      if (containerRef.current) {
+        const width = containerRef.current.getBoundingClientRect().width;
+        // Keep 48px padding for neat layout borders
+        const fitScale = Math.round(Math.max(30, Math.min(100, ((width - 48) / 794) * 100)));
+        
+        // Auto-apply fit zoom factor on mount
+        if (isFirstRender.current) {
+          setZoomPercent(fitScale);
+          isFirstRender.current = false;
+        }
+      }
+    };
+    
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  const handleZoomOut = () => {
+    setZoomPercent(prev => Math.max(30, prev - 5));
+  };
+
+  const handleZoomIn = () => {
+    setZoomPercent(prev => Math.min(150, prev + 5));
+  };
+
+  const handleFitToScreen = () => {
+    if (containerRef.current) {
+      const width = containerRef.current.getBoundingClientRect().width;
+      const fitScale = Math.round(Math.max(30, Math.min(100, ((width - 48) / 794) * 100)));
+      setZoomPercent(fitScale);
+    }
+  };
 
   return (
-    <div className={styles.previewPanel}>
-      {/* Visual Live updates indicators */}
+    <div className={styles.previewPanel} style={{ position: 'relative' }}>
+      
+      {/* Live status banner */}
       <div className={styles.previewHeader}>
         <span className={styles.liveBadge}>Live A4 Print Preview</span>
-        <span className={styles.previewHint}>This matches exactly what saves as PDF (A4 size).</span>
+        <span className={styles.previewHint}>Matches exactly what saves as PDF (A4 size).</span>
       </div>
       
-      {/* Live rendered paper section */}
+      {/* Printable Area wrapper container */}
       <div 
+        ref={containerRef}
         id="resume-printable-area" 
-        className={`${styles.resumeA4Page} ${
-          activeTemplate === 'modern' ? styles.templateModern : styles.templateElegant
-        }`}
+        style={{
+          flex: 1,
+          overflow: 'auto',
+          backgroundColor: '#e2e8f0',
+          padding: '24px 20px 80px 20px', // Extra bottom padding to clear the floating controls
+          borderRadius: 'var(--radius-sm)',
+          border: '1px solid var(--border-color)',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'flex-start'
+        }}
       >
-        
-        {/* SECTION 1: Personal Branding Header (Name, Title, Links) */}
-        <div className={styles.resumeHeaderBlock}>
-          <h1 className={styles.resumeName}>{personal.fullName || 'YOUR NAME'}</h1>
-          <p className={styles.resumeRoleSubtitle}>{personal.role || 'TARGET ROLE / TITLE'}</p>
-          
-          <div className={styles.resumeContactBar}>
-            {personal.email && <span>{personal.email}</span>}
-            {personal.phone && <span>{personal.phone}</span>}
-            {personal.github && <span>GitHub</span>}
-            {personal.linkedin && <span>LinkedIn</span>}
-          </div>
+        {/* Scaling wrap container - reset in @media print styles inside global css */}
+        <div 
+          style={{ 
+            transform: `scale(${zoomPercent / 100})`, 
+            transformOrigin: 'top center',
+            width: '794px',
+            height: '1123px',
+            flexShrink: 0,
+            boxShadow: '0 10px 30px rgba(0,0,0,0.1)',
+            marginBottom: `${1123 * (zoomPercent / 100 - 1)}px` // Prevents scroll overflow empty space
+          }}
+        >
+          {activeTemplate === 'modern' && <Modern_Page data={formData} />}
+          {activeTemplate === 'elegant' && <Elegant_Page data={formData} />}
+          {activeTemplate === 'creative' && <Creative_Page data={formData} />}
         </div>
-
-        {/* SECTION 2: Professional Summary */}
-        {personal.summary && (
-          <div className={styles.resumeSectionBlock}>
-            <h3 className={styles.resumeSecTitle}>Professional Summary</h3>
-            <div className={styles.resumeSecDivider}></div>
-            <p className={styles.resumeSummaryText}>{personal.summary}</p>
-          </div>
-        )}
-
-        {/* SECTION 3: Professional Work History */}
-        {experience.some(e => e.company || e.role) && (
-          <div className={styles.resumeSectionBlock}>
-            <h3 className={styles.resumeSecTitle}>Work Experience</h3>
-            <div className={styles.resumeSecDivider}></div>
-            {experience.map((exp, idx) => (
-              (exp.company || exp.role) && (
-                <div key={idx} className={styles.resumeItemBlock}>
-                  <div className={styles.resumeItemHeader}>
-                    <div>
-                      <strong>{exp.role || 'Job Role'}</strong> | <span>{exp.company || 'Company'}</span>
-                    </div>
-                    <span className={styles.resumeItemDates}>
-                      {exp.startDate || 'Start'} - {exp.endDate || (exp.current ? 'Present' : 'End')}
-                    </span>
-                  </div>
-                  {exp.location && <div className={styles.resumeItemLocation}>{exp.location}</div>}
-                  {exp.description && <p className={styles.resumeItemDesc}>{exp.description}</p>}
-                </div>
-              )
-            ))}
-          </div>
-        )}
-
-        {/* SECTION 4: Personal/Open-Source Projects */}
-        {projects.some(p => p.name || p.description) && (
-          <div className={styles.resumeSectionBlock}>
-            <h3 className={styles.resumeSecTitle}>Key Projects</h3>
-            <div className={styles.resumeSecDivider}></div>
-            {projects.map((proj, idx) => (
-              (proj.name || proj.description) && (
-                <div key={idx} className={styles.resumeItemBlock}>
-                  <div className={styles.resumeItemHeader}>
-                    <strong>{proj.name || 'Project Name'}</strong>
-                    {proj.link && <span className={styles.resumeItemDates}>Demo Link</span>}
-                  </div>
-                  {proj.technologies && <div className={styles.resumeItemTech}>Technologies: {proj.technologies}</div>}
-                  {proj.description && <p className={styles.resumeItemDesc}>{proj.description}</p>}
-                </div>
-              )
-            ))}
-          </div>
-        )}
-
-        {/* SECTION 5: Academic History */}
-        {education.some(e => e.institution || e.degree) && (
-          <div className={styles.resumeSectionBlock}>
-            <h3 className={styles.resumeSecTitle}>Education</h3>
-            <div className={styles.resumeSecDivider}></div>
-            {education.map((edu, idx) => (
-              (edu.institution || edu.degree) && (
-                <div key={idx} className={styles.resumeItemBlock}>
-                  <div className={styles.resumeItemHeader}>
-                    <div>
-                      <strong>{edu.degree || 'Degree'}</strong>, <span>{edu.institution || 'Institution'}</span>
-                    </div>
-                    <span className={styles.resumeItemDates}>
-                      {edu.startDate || 'Start'} - {edu.endDate || 'End'}
-                    </span>
-                  </div>
-                  <div className={styles.resumeItemLocation}>
-                    {edu.location && <span>{edu.location}</span>}
-                    {edu.grade && <span> &bull; Grade: {edu.grade}</span>}
-                  </div>
-                </div>
-              )
-            ))}
-          </div>
-        )}
-
-        {/* SECTION 6: Key Skills list */}
-        {skills && (
-          <div className={styles.resumeSectionBlock}>
-            <h3 className={styles.resumeSecTitle}>Skills & Technologies</h3>
-            <div className={styles.resumeSecDivider}></div>
-            <p className={styles.resumeSkillsText}>{skills}</p>
-          </div>
-        )}
-
       </div>
+
+      {/* Floating Zoom Controls Bar */}
+      <div 
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '12px',
+          backgroundColor: 'rgba(30, 41, 59, 0.85)',
+          backdropFilter: 'blur(8px)',
+          padding: '8px 16px',
+          borderRadius: 'var(--radius-full)',
+          boxShadow: '0 8px 32px rgba(0,0,0,0.15)',
+          color: '#ffffff',
+          position: 'absolute',
+          bottom: '20px',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          zIndex: 100,
+          border: '1px solid rgba(255,255,255,0.1)'
+        }}
+      >
+        {/* Zoom Out Button */}
+        <button
+          onClick={handleZoomOut}
+          style={{ 
+            color: '#ffffff', 
+            opacity: zoomPercent <= 30 ? 0.5 : 1, 
+            display: 'flex', 
+            alignItems: 'center',
+            cursor: zoomPercent <= 30 ? 'not-allowed' : 'pointer'
+          }}
+          disabled={zoomPercent <= 30}
+          title="Zoom Out"
+        >
+          <ZoomOut size={16} />
+        </button>
+        
+        {/* Percentage Label */}
+        <span style={{ fontSize: '13px', fontWeight: '700', minWidth: '42px', textAlign: 'center' }}>
+          {zoomPercent}%
+        </span>
+        
+        {/* Zoom In Button */}
+        <button
+          onClick={handleZoomIn}
+          style={{ 
+            color: '#ffffff', 
+            opacity: zoomPercent >= 150 ? 0.5 : 1, 
+            display: 'flex', 
+            alignItems: 'center',
+            cursor: zoomPercent >= 150 ? 'not-allowed' : 'pointer'
+          }}
+          disabled={zoomPercent >= 150}
+          title="Zoom In"
+        >
+          <ZoomIn size={16} />
+        </button>
+
+        {/* Vertical Divider */}
+        <div style={{ width: '1px', height: '16px', backgroundColor: 'rgba(255,255,255,0.2)' }}></div>
+
+        {/* Fit to Screen Button */}
+        <button
+          onClick={handleFitToScreen}
+          style={{ 
+            color: '#ffffff', 
+            fontSize: '11px', 
+            fontWeight: '700', 
+            textTransform: 'uppercase', 
+            letterSpacing: '0.05em',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '4px',
+            cursor: 'pointer'
+          }}
+          title="Fit to Screen"
+        >
+          <Maximize2 size={12} />
+          <span>Fit</span>
+        </button>
+      </div>
+
     </div>
   );
 }

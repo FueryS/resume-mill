@@ -1,0 +1,286 @@
+/* src/components/Templates/resume/ResumeTemplates.module.css */
+
+/* Base A4 page representation */
+.resumePage {
+  width: 794px;
+  height: 1123px;
+  background-color: #ffffff;
+  padding: 50px;
+  box-sizing: border-box;
+  color: #1f2937;
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+  position: relative;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+}
+
+/* Contact bar utilities */
+.contactBar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  font-size: 11.5px;
+  color: #6b7280;
+  margin-top: 6px;
+  margin-bottom: 12px;
+}
+
+.contactItem {
+  display: flex;
+  align-items: center;
+}
+
+/* Section elements */
+.sectionBlock {
+  margin-top: 16px;
+  margin-bottom: 10px;
+  display: flex;
+  flex-direction: column;
+}
+
+.secTitle {
+  font-size: 13.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #111827;
+  margin-bottom: 4px;
+}
+
+.secDivider {
+  width: 100%;
+  height: 1px;
+  background-color: #e5e7eb;
+  margin-bottom: 8px;
+}
+
+.summaryText {
+  font-size: 12px;
+  line-height: 1.5;
+  color: #374151;
+}
+
+/* Item block (jobs/projects/education) */
+.itemBlock {
+  margin-bottom: 8px;
+}
+
+.itemHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-size: 12.5px;
+  color: #111827;
+}
+
+.itemRole {
+  font-weight: 700;
+}
+
+.itemCompany {
+  font-weight: 500;
+  color: #4b5563;
+}
+
+.itemDates {
+  font-size: 11px;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.itemSubHeader {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: #6b7280;
+  margin-top: 1px;
+  margin-bottom: 3px;
+}
+
+.itemDesc {
+  font-size: 11.5px;
+  line-height: 1.45;
+  color: #4b5563;
+  margin-top: 3px;
+  white-space: pre-line;
+}
+
+.skillsText {
+  font-size: 11.5px;
+  line-height: 1.5;
+  color: #374151;
+}
+
+/* --- MODERN TEMPLATE OVERRIDES --- */
+.modern {
+  font-family: var(--font-sans), Arial, sans-serif;
+}
+
+.modern .name {
+  font-size: 26px;
+  font-weight: 800;
+  color: #111827;
+  line-height: 1.1;
+}
+
+.modern .role {
+  font-size: 14.5px;
+  font-weight: 700;
+  color: var(--primary);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  margin-top: 2px;
+}
+
+.modern .secTitle {
+  color: #111827;
+}
+
+.modern .secDivider {
+  background-color: var(--primary);
+  height: 1.5px;
+}
+
+
+/* --- ELEGANT TEMPLATE OVERRIDES --- */
+.elegant {
+  font-family: Georgia, serif;
+  padding: 55px;
+}
+
+.elegant .headerBlock {
+  text-align: center;
+  border-bottom: 2px solid #1f2937;
+  padding-bottom: 12px;
+  margin-bottom: 16px;
+}
+
+.elegant .name {
+  font-size: 28px;
+  font-weight: 400;
+  color: #111827;
+  letter-spacing: 0.03em;
+}
+
+.elegant .role {
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #6b7280;
+  margin-top: 4px;
+}
+
+.elegant .contactBar {
+  justify-content: center;
+  font-size: 11px;
+}
+
+.elegant .secTitle {
+  text-align: center;
+  letter-spacing: 0.08em;
+  color: #1f2937;
+}
+
+.elegant .secDivider {
+  width: 70px;
+  height: 1.5px;
+  background-color: #1f2937;
+  margin: 4px auto 10px auto;
+}
+
+.elegant .summaryText {
+  text-align: justify;
+}
+
+
+/* --- CREATIVE TEMPLATE OVERRIDES (DUAL COLUMN) --- */
+.creative {
+  font-family: var(--font-sans), Arial, sans-serif;
+  display: flex;
+  flex-direction: row;
+  padding: 0; /* Left bar full-bleed */
+}
+
+.creativeLeftColumn {
+  width: 250px;
+  background-color: #1e293b; /* Dark Slate */
+  color: #f1f5f9;
+  padding: 40px 25px;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+
+.creativeRightColumn {
+  flex: 1;
+  background-color: #ffffff;
+  padding: 40px 30px;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.creative .name {
+  font-size: 24px;
+  font-weight: 800;
+  color: #ffffff;
+  line-height: 1.1;
+}
+
+.creative .role {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--accent);
+  text-transform: uppercase;
+  margin-top: 4px;
+  margin-bottom: 20px;
+}
+
+.creative .contactBar {
+  flex-direction: column;
+  gap: 8px;
+  color: #cbd5e1;
+}
+
+.creative .secTitle {
+  color: #ffffff;
+  font-size: 12.5px;
+  border-bottom: 1px solid #475569;
+  padding-bottom: 4px;
+  margin-bottom: 8px;
+}
+
+.creative .secDivider {
+  display: none; /* Handled by title border */
+}
+
+.creativeRightColumn .secTitle {
+  color: #1e293b;
+  border-bottom: 1.5px solid var(--accent);
+  padding-bottom: 4px;
+  margin-bottom: 8px;
+}
+
+.creative .summaryText {
+  color: #e2e8f0;
+  font-size: 11.5px;
+}
+
+.creative .skillsText {
+  color: #cbd5e1;
+  font-size: 11px;
+}
+
+.creativeRightColumn .itemRole {
+  color: #0f172a;
+}
+
+.creativeRightColumn .itemCompany {
+  color: var(--primary);
+}
+
+.creativeRightColumn .itemDesc {
+  color: #334155;
+}

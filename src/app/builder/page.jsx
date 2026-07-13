@@ -87,7 +87,7 @@ export default function BuilderPage() {
     { name: 'Preview & Export', icon: <Download size={18} /> }
   ];
 
-  // 1. DRAFT RESTORATION: Load drafts from browser local storage on mount
+  // Hook to fetch the real-time resume draft and active template choice on mount
   useEffect(() => {
     const savedDraft = localStorage.getItem('resume-mill-draft');
     if (savedDraft) {
@@ -97,15 +97,26 @@ export default function BuilderPage() {
         console.error('Failed to parse saved draft', e);
       }
     }
+    const savedTemplate = localStorage.getItem('resume-mill-active-template');
+    if (savedTemplate) {
+      setActiveTemplate(savedTemplate);
+    }
     setIsLoaded(true);
   }, []);
 
-  // 2. DRAFT PERSISTENCE: Auto-save form data to local storage on keystrokes
+  // Hook to automatically persist draft on form data updates
   useEffect(() => {
     if (isLoaded) {
       localStorage.setItem('resume-mill-draft', JSON.stringify(formData));
     }
   }, [formData, isLoaded]);
+
+  // Hook to automatically persist active template choice updates
+  useEffect(() => {
+    if (isLoaded) {
+      localStorage.setItem('resume-mill-active-template', activeTemplate);
+    }
+  }, [activeTemplate, isLoaded]);
 
   // Handler for simple top-level personal details changes
   const handlePersonalChange = (e) => {

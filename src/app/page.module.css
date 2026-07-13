@@ -362,3 +362,12 @@
     display: none;
   }
 }
+
+@media (max-width: 640px) {
+  .heroActions {
+    flex-direction: column;
+    width: 100%;
+    gap: var(--space-3);
+  }
+}
+
