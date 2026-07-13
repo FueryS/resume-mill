@@ -353,6 +353,9 @@
   flex-direction: column;
   gap: var(--space-3);
   height: calc(100vh - 120px);
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
 }
 
 .previewHeader {
@@ -553,6 +556,9 @@
     top: 0;
     height: auto;
     margin-top: var(--space-6);
+    min-width: 0;
+    max-width: 100%;
+    overflow: hidden;
   }
 
   .previewHeader {

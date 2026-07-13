@@ -163,9 +163,10 @@ export default function ResumePreview({ formData, activeTemplate }) {
           borderRadius: 'var(--radius-sm)',
           border: '1px solid var(--border-color)',
           display: 'flex',
-          justifyContent: 'flex-start', // Use flex-start to prevent left scrollbar clipping
+          justifyContent: 'flex-start',
           alignItems: 'flex-start',
-          touchAction: 'none' // Block default browser viewport pinch-zoom to allow custom gestures
+          touchAction: 'pan-x pan-y',
+          maxWidth: '100%'
         }}
       >
         {/* Outer responsive layout wrapper: behaves as a width-first container.
