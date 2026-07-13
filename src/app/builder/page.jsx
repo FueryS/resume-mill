@@ -235,7 +235,7 @@ export default function BuilderPage() {
     }
   };
 
-  // Exports the live preview panel as a PDF document using window.print()
+  // Exports the live preview as a pixel-perfect PDF using html2canvas + jsPDF
   const handleDownloadPDF = async () => {
     fetch('/api/stats', { method: 'POST' }).catch(() => {});
     if (window.gtag) {
@@ -244,10 +244,66 @@ export default function BuilderPage() {
         event_label: activeTemplate
       });
     }
-    window.print();
-    setTimeout(() => {
-      setShowDonation(true);
-    }, 1500);
+
+    // Target the inner A4 sheet element
+    const sheet = document.querySelector('.printable-sheet');
+    if (!sheet) {
+      alert('Could not find resume preview. Please try again.');
+      return;
+    }
+
+    // --- Temporarily strip the CSS zoom transform so html2canvas captures
+    //     the element at its true 794×1123px dimensions, not scaled-down ---
+    const savedTransform = sheet.style.transform;
+    const savedPosition = sheet.style.position;
+    const savedTop = sheet.style.top;
+    const savedLeft = sheet.style.left;
+    sheet.style.transform = 'none';
+    sheet.style.position = 'absolute';
+    sheet.style.top = '0';
+    sheet.style.left = '0';
+
+    try {
+      const { default: html2canvas } = await import('html2canvas');
+      const { default: jsPDF } = await import('jspdf');
+
+      // scale: 3 → captures at 2382×3369px for crisp, high-DPI text
+      const canvas = await html2canvas(sheet, {
+        scale: 3,
+        useCORS: true,
+        allowTaint: true,
+        backgroundColor: '#ffffff',
+        width: 794,
+        height: 1123,
+        scrollX: 0,
+        scrollY: -window.scrollY,
+        logging: false,
+      });
+
+      // Restore transform immediately after capture
+      sheet.style.transform = savedTransform;
+      sheet.style.position = savedPosition;
+      sheet.style.top = savedTop;
+      sheet.style.left = savedLeft;
+
+      // Pack into A4 PDF (210×297mm) using lossless PNG for sharp text
+      const pdf = new jsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait' });
+      const imgData = canvas.toDataURL('image/png');
+      pdf.addImage(imgData, 'PNG', 0, 0, 210, 297);
+
+      const fileName = `${(formData.personal.fullName || 'Resume').replace(/\s+/g, '_')}_Resume.pdf`;
+      pdf.save(fileName);
+
+      setTimeout(() => setShowDonation(true), 800);
+    } catch (err) {
+      // Always restore transform even on error
+      sheet.style.transform = savedTransform;
+      sheet.style.position = savedPosition;
+      sheet.style.top = savedTop;
+      sheet.style.left = savedLeft;
+      console.error('PDF generation failed:', err);
+      alert('Failed to generate PDF. Please try again.');
+    }
   };
 
   // Compiles and bundles user data into a ZIP portfolio website
