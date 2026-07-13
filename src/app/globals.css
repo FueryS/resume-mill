@@ -175,11 +175,21 @@ p {
     overflow: visible !important;
   }
 
-  /* Remove any browser scale/transformations inside printable area */
-  #resume-printable-area > div {
+  /* Reset outer layout wrapper in print */
+  #resume-printable-area .printable-layout-wrapper {
+    width: 794px !important;
+    height: 1123px !important;
     transform: none !important;
-    margin: 0 !important;
     box-shadow: none !important;
-    border: none !important;
+    overflow: visible !important;
+  }
+
+  /* Reset inner sheet translation/scaling in print */
+  #resume-printable-area .printable-sheet {
+    transform: none !important;
+    position: static !important;
+    width: 794px !important;
+    height: 1123px !important;
+    box-shadow: none !important;
   }
 }

@@ -55,10 +55,10 @@
 
 @keyframes slideLogoDesktop {
   0% {
-    transform: translateX(90px);
+    transform: translateX(90px) translateY(-3%);
   }
   100% {
-    transform: translateX(0);
+    transform: translateX(0) translateY(-3%);
   }
 }
 
@@ -166,7 +166,7 @@
 }
 
 .navLink.active::after {
-  content: '';
+  content: "";
   position: absolute;
   bottom: -4px;
   left: 0;
@@ -254,7 +254,7 @@
   display: flex;
   align-items: center;
   gap: var(--space-2);
-  background-color: #F3F4F6;
+  background-color: #f3f4f6;
   color: var(--text-muted);
   border: 1px solid var(--border-color);
   padding: 8px 16px;
@@ -268,7 +268,7 @@
 
 .btnLoginDisabled:hover {
   opacity: 1;
-  background-color: #E5E7EB;
+  background-color: #e5e7eb;
   border-color: var(--border-hover);
   color: var(--text-main);
 }
@@ -398,6 +398,10 @@
     gap: var(--space-4);
   }
 
+  .logo {
+    flex-shrink: 0;
+  }
+
   .desktopOnlyLinks {
     display: none;
   }
@@ -418,11 +422,12 @@
     transform: translateX(95px); /* Start hidden behind text on smaller screen */
     animation: slideLogoMobile 1.2s cubic-bezier(0.25, 1, 0.5, 1) 0.5s both;
   }
-  
+
   .logoText {
     opacity: 1;
     overflow: hidden;
     max-width: 120px;
+    flex-shrink: 0; /* Prevent flex-squeezing during load animation */
     animation: collapseTextMobile 0.8s cubic-bezier(0.25, 1, 0.5, 1) 1.8s both;
   }
 

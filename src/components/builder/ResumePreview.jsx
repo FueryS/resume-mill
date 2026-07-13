@@ -5,6 +5,7 @@
  * Renders the live-updating printable A4 resume page preview in the builder.
  * Swaps template components based on the selected layout theme ('modern', 'elegant', or 'creative').
  * Reuses the same templates folder structure to ensure modularity.
+ * Implements a width-first responsive layout container for perfect mobile support.
  * Implements a custom viewport zoom bar to pinch/zoom the A4 document without resizing the web app.
  */
 
@@ -84,21 +85,36 @@ export default function ResumePreview({ formData, activeTemplate }) {
           alignItems: 'flex-start'
         }}
       >
-        {/* Scaling wrap container - reset in @media print styles inside global css */}
+        {/* Outer responsive layout wrapper: behaves as a width-first container.
+            In media print, this outer container resets to 100% width/height. */}
         <div 
-          style={{ 
-            transform: `scale(${zoomPercent / 100})`, 
-            transformOrigin: 'top center',
-            width: '794px',
-            height: '1123px',
+          className="printable-layout-wrapper"
+          style={{
+            width: `${794 * (zoomPercent / 100)}px`,
+            height: `${1123 * (zoomPercent / 100)}px`,
+            position: 'relative',
             flexShrink: 0,
             boxShadow: '0 10px 30px rgba(0,0,0,0.1)',
-            marginBottom: `${1123 * (zoomPercent / 100 - 1)}px` // Prevents scroll overflow empty space
+            overflow: 'hidden'
           }}
         >
-          {activeTemplate === 'modern' && <Modern_Page data={formData} />}
-          {activeTemplate === 'elegant' && <Elegant_Page data={formData} />}
-          {activeTemplate === 'creative' && <Creative_Page data={formData} />}
+          {/* Inner A4 Page: Scaled via transform-origin: top left */}
+          <div 
+            className="printable-sheet"
+            style={{ 
+              transform: `scale(${zoomPercent / 100})`, 
+              transformOrigin: 'top left',
+              width: '794px',
+              height: '1123px',
+              position: 'absolute',
+              top: 0,
+              left: 0
+            }}
+          >
+            {activeTemplate === 'modern' && <Modern_Page data={formData} />}
+            {activeTemplate === 'elegant' && <Elegant_Page data={formData} />}
+            {activeTemplate === 'creative' && <Creative_Page data={formData} />}
+          </div>
         </div>
       </div>
 
