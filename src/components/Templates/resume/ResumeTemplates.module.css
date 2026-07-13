@@ -284,3 +284,78 @@
 .creativeRightColumn .itemDesc {
   color: #334155;
 }
+
+/* --- PROFILE PICTURE STYLES --- */
+
+/* Modern Template Header layout with PFP */
+.modernHeaderFlex {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16px;
+  width: 100%;
+}
+
+.modernHeaderInfo {
+  flex: 1;
+}
+
+.modernPfpWrapper {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 2px solid var(--primary);
+  margin-left: 20px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modernPfpImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Elegant Template centered PFP */
+.elegantPfpWrapper {
+  width: 75px;
+  height: 75px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 1px solid #1f2937;
+  margin: 0 auto 12px auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.elegantPfpImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Creative Template sidebar PFP */
+.creativePfpWrapper {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 3px solid #475569;
+  margin-bottom: 20px;
+  align-self: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.creativePfpImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+

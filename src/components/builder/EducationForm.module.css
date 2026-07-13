@@ -1,0 +1,109 @@
+/* EducationForm.module.css
+ *
+ * Styles scoped to the grade-type selector section inside EducationForm.
+ * All other form primitives (formGroup, formRow, itemCard, etc.) come from
+ * the parent page.module.css.
+ */
+
+/* ── Wrapper ─────────────────────────────────────────────────────────────── */
+
+.gradeTypeSection {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.gradeTypeSectionLabel {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+/* ── Segmented Control ───────────────────────────────────────────────────── */
+
+.segmentedControl {
+  display: inline-flex;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  width: fit-content;
+  background-color: var(--bg-secondary);
+}
+
+.segmentBtn {
+  flex: 1;
+  padding: 7px 18px;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: inherit;
+  color: var(--text-muted);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: background-color var(--transition-fast), color var(--transition-fast);
+  white-space: nowrap;
+  /* Separate each segment with a subtle divider */
+  border-right: 1px solid var(--border-color);
+}
+
+.segmentBtn:last-child {
+  border-right: none;
+}
+
+.segmentBtn:hover:not(.segmentBtnActive) {
+  background-color: var(--bg-tertiary);
+  color: var(--text-main);
+}
+
+.segmentBtnActive {
+  background-color: var(--primary);
+  color: var(--text-inverse);
+  font-weight: 700;
+}
+
+/* ── Board sub-choice ────────────────────────────────────────────────────── */
+
+.boardFormatRow {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  padding: 6px 0;
+  animation: fadeSlideIn 0.18s ease;
+}
+
+.radioLabel {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-main);
+  cursor: pointer;
+  user-select: none;
+}
+
+.radioLabel input[type='radio'] {
+  accent-color: var(--primary);
+  width: 15px;
+  height: 15px;
+  cursor: pointer;
+}
+
+/* ── Custom label row ────────────────────────────────────────────────────── */
+
+.customLabelRow {
+  animation: fadeSlideIn 0.18s ease;
+}
+
+/* ── Shared animations ───────────────────────────────────────────────────── */
+
+@keyframes fadeSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

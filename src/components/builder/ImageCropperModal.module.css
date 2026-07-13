@@ -1,0 +1,202 @@
+/* ImageCropperModal.module.css */
+
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(15, 23, 42, 0.7);
+  backdrop-filter: blur(8px);
+  z-index: 9999;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.modalContent {
+  background-color: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-xl);
+  width: 90%;
+  max-width: 440px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: scaleUp 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-4) var(--space-5);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.modalHeader h4 {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-main);
+  margin: 0;
+}
+
+.closeBtn {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: var(--radius-sm);
+  transition: all var(--transition-fast);
+}
+
+.closeBtn:hover {
+  background-color: var(--bg-secondary);
+  color: var(--text-main);
+}
+
+.modalBody {
+  padding: var(--space-6) var(--space-5);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-5);
+}
+
+/* Crop workspace box */
+.cropContainer {
+  width: 280px;
+  height: 280px;
+  border-radius: var(--radius-md);
+  border: 2px dashed var(--border-hover);
+  position: relative;
+  overflow: hidden;
+  cursor: grab;
+  background-color: #0f172a; /* dark backdrop for contrast */
+  user-select: none;
+}
+
+.cropContainer:active {
+  cursor: grabbing;
+}
+
+/* Base image */
+.cropImage {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  max-height: 100%;
+  max-width: 100%;
+  object-fit: cover;
+  pointer-events: none;
+  transition: transform 0.05s ease-out; /* smooth slight dragging response */
+}
+
+/* Masks the outside of the circular crop box */
+.cropOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  background: radial-gradient(circle, transparent 118px, rgba(15, 23, 42, 0.75) 119px);
+  z-index: 2;
+}
+
+/* Circle outline */
+.cropBox {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 240px;
+  height: 240px;
+  transform: translate(-50%, -50%);
+  border: 2px solid #ffffff;
+  border-radius: 50%;
+  box-shadow: 0 0 0 9999px rgba(15, 23, 42, 0.35); /* fallback translucent masking */
+  pointer-events: none;
+  z-index: 3;
+}
+
+/* Slider Controls */
+.controlRow {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.sliderGroup {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+}
+
+.icon {
+  color: var(--text-muted);
+}
+
+.slider {
+  flex: 1;
+  height: 6px;
+  border-radius: var(--radius-full);
+  background: var(--border-color);
+  outline: none;
+  cursor: pointer;
+  accent-color: var(--primary);
+  -webkit-appearance: none;
+}
+
+.slider::-webkit-slider-runnable-track {
+  height: 6px;
+}
+
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--primary);
+  border: 2px solid #ffffff;
+  box-shadow: var(--shadow-sm);
+  margin-top: -5px;
+}
+
+.tip {
+  font-size: 12px;
+  color: var(--text-muted);
+  text-align: center;
+  margin: 0;
+}
+
+/* Footer buttons */
+.modalFooter {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-5);
+  border-top: 1px solid var(--border-color);
+  background-color: var(--bg-secondary);
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scaleUp {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}

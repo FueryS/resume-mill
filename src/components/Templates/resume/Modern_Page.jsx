@@ -10,6 +10,8 @@
 import React from 'react';
 import styles from './ResumeTemplates.module.css';
 
+const PLACEHOLDER_PFP = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIiBmaWxsPSIjZTJlOGYwIj48Y2lyY2xlIGN4PSI1MCIgY3k9IjUwIiByPSI1MCIgZmlsbD0iI2NiZDVlMSIvPjxjaXJjbGUgY3g9IjUwIiBjeT0iNDAiIHI9IjE4IiBmaWxsPSIjOTRhM2I4Ii8+PHBhdGggZD0iTTUwIDYyYy0yMCAwLTMyIDEwLTMyIDIwdjZoNjR2LTZjMC0xMC0xMi0yMC0zMi0yMHoiIGZpbGw9IiM5NGEzYjgiLz48L3N2Zz4=';
+
 export default function Modern_Page({ data, showWatermark = true }) {
   const { personal, experience, projects, education, skills } = data;
 
@@ -18,29 +20,69 @@ export default function Modern_Page({ data, showWatermark = true }) {
   const hasProjects = projects && projects.some(p => p.name || p.description);
   const hasEducation = education && education.some(edu => edu.institution || edu.degree);
 
+  /**
+   * Derives the display label for an education entry's grade field
+   * based on the credential type selected in the form.
+   */
+  const resolveGradeLabel = (edu) => {
+    const type   = edu.gradeType        || 'degree';
+    const format = edu.boardGradeFormat || 'percentage';
+    const custom = (edu.customGradeLabel || '').trim();
+    if (type === 'board')  return format === 'marks' ? 'Marks' : 'Percentage';
+    if (type === 'custom') return custom || 'Grade';
+    return 'CGPA'; // default: 'degree'
+  };
+
   return (
     <div className={`${styles.resumePage} ${styles.modern}`}>
       
       {/* BRANDING HEADER */}
-      <div className={styles.headerBlock}>
-        <h1 className={styles.name}>{personal.fullName || 'YOUR NAME'}</h1>
-        <p className={styles.role}>{personal.role || 'TARGET ROLE'}</p>
-        
-        <div className={styles.contactBar}>
-          {personal.email && (
-            <span className={styles.contactItem}>{personal.email}</span>
-          )}
-          {personal.phone && (
-            <span className={styles.contactItem}>{personal.phone}</span>
-          )}
-          {personal.github && (
-            <span className={styles.contactItem}>{personal.github}</span>
-          )}
-          {personal.linkedin && (
-            <span className={styles.contactItem}>{personal.linkedin}</span>
-          )}
+      {personal.pfp ? (
+        <div className={styles.modernHeaderFlex}>
+          <div className={styles.modernHeaderInfo}>
+            <h1 className={styles.name}>{personal.fullName || 'YOUR NAME'}</h1>
+            <p className={styles.role}>{personal.role || 'TARGET ROLE'}</p>
+            
+            <div className={styles.contactBar}>
+              {personal.email && (
+                <span className={styles.contactItem}>{personal.email}</span>
+              )}
+              {personal.phone && (
+                <span className={styles.contactItem}>{personal.phone}</span>
+              )}
+              {personal.github && (
+                <span className={styles.contactItem}>{personal.github}</span>
+              )}
+              {personal.linkedin && (
+                <span className={styles.contactItem}>{personal.linkedin}</span>
+              )}
+            </div>
+          </div>
+          <div className={styles.modernPfpWrapper}>
+            <img src={personal.pfp} alt="Profile" className={styles.modernPfpImage} />
+          </div>
         </div>
-      </div>
+      ) : (
+        <div className={styles.headerBlock}>
+          <h1 className={styles.name}>{personal.fullName || 'YOUR NAME'}</h1>
+          <p className={styles.role}>{personal.role || 'TARGET ROLE'}</p>
+          
+          <div className={styles.contactBar}>
+            {personal.email && (
+              <span className={styles.contactItem}>{personal.email}</span>
+            )}
+            {personal.phone && (
+              <span className={styles.contactItem}>{personal.phone}</span>
+            )}
+            {personal.github && (
+              <span className={styles.contactItem}>{personal.github}</span>
+            )}
+            {personal.linkedin && (
+              <span className={styles.contactItem}>{personal.linkedin}</span>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* PROFESSIONAL SUMMARY */}
       {personal.summary && (
@@ -132,7 +174,7 @@ export default function Modern_Page({ data, showWatermark = true }) {
                 {(edu.location || edu.grade) && (
                   <div className={styles.itemSubHeader}>
                     <span>{edu.location || ''}</span>
-                    {edu.grade && <span>Grade: {edu.grade}</span>}
+                    {edu.grade && <span>{resolveGradeLabel(edu)}: {edu.grade}</span>}
                   </div>
                 )}
               </div>

@@ -46,6 +46,7 @@ const initialFormState = {
     github: '',
     linkedin: '',
     summary: '',
+    pfp: '',
   },
   experience: [
     { id: '1', company: '', role: '', location: '', startDate: '', endDate: '', current: false, description: '' }
@@ -54,7 +55,22 @@ const initialFormState = {
     { id: '1', name: '', description: '', technologies: '', link: '' }
   ],
   education: [
-    { id: '1', institution: '', degree: '', location: '', startDate: '', endDate: '', grade: '' }
+    {
+      id: '1',
+      institution: '',
+      degree: '',
+      location: '',
+      startDate: '',
+      endDate: '',
+      /** 'degree' | 'board' | 'custom' */
+      gradeType: 'degree',
+      /** grade value (CGPA, percentage, marks, or custom value) */
+      grade: '',
+      /** only used when gradeType === 'board': 'percentage' | 'marks' */
+      boardGradeFormat: 'percentage',
+      /** only used when gradeType === 'custom': user-defined label */
+      customGradeLabel: '',
+    }
   ],
   skills: '',
 };
@@ -151,7 +167,18 @@ export default function BuilderPage() {
     } else if (section === 'projects') {
       newItem = { id: Date.now().toString(), name: '', description: '', technologies: '', link: '' };
     } else if (section === 'education') {
-      newItem = { id: Date.now().toString(), institution: '', degree: '', location: '', startDate: '', endDate: '', grade: '' };
+      newItem = {
+        id: Date.now().toString(),
+        institution: '',
+        degree: '',
+        location: '',
+        startDate: '',
+        endDate: '',
+        gradeType: 'degree',
+        grade: '',
+        boardGradeFormat: 'percentage',
+        customGradeLabel: '',
+      };
     }
     setFormData((prev) => ({
       ...prev,

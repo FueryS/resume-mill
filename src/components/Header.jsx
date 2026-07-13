@@ -128,8 +128,14 @@ export default function Header() {
           {/* NAVIGATION LINKS */}
           <nav className={styles.navMenu}>
             {isTemplateRoute ? (
-              // TEMPLATE VISITED ACTIVE STATE: Hide all other links, show only Resume, Portfolio, and Donate
+              // TEMPLATE VISITED ACTIVE STATE:
               <>
+                <Link
+                  href="/"
+                  className={`${styles.navLink} ${styles.desktopOnlyNavLink} ${pathname === "/" ? styles.active : ""}`}
+                >
+                  Home
+                </Link>
                 <Link
                   href="/templates/resume"
                   className={`${styles.navLink} ${pathname === "/templates/resume" ? styles.active : ""}`}
@@ -142,12 +148,78 @@ export default function Header() {
                 >
                   Portfolio
                 </Link>
-                <button
-                  onClick={() => setShowDonation(true)}
-                  className={`${styles.navLink} ${styles.navDonateLink}`}
+                <Link
+                  href="/builder"
+                  className={`${styles.navLink} ${pathname === "/builder" ? styles.active : ""}`}
                 >
-                  Donate <img src="/Coffee_image.webp" alt="Donation Icon" className={styles.coffeeIcon} />
-                </button>
+                  Builder
+                </Link>
+
+                {/* Desktop-only Links */}
+                <div className={styles.desktopOnlyLinks}>
+                  <button
+                    onClick={() => setShowDonation(true)}
+                    className={`${styles.navLink} ${styles.navDonateLink}`}
+                  >
+                    Donate <img src="/Coffee_image.webp" alt="Donation Icon" className={styles.coffeeIcon} />
+                  </button>
+                </div>
+
+                {/* Mobile-only Overflow Controls: squashed into MoreVertical three-dot menu */}
+                <div className={styles.mobileOnlyControls}>
+                  <button 
+                    onClick={toggleFullscreen} 
+                    className={styles.btnFullscreenMobile} 
+                    title="Toggle Fullscreen"
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      width: '36px',
+                      height: '36px',
+                      borderRadius: '50%',
+                      color: 'var(--text-muted)',
+                      border: '1px solid var(--border-color)',
+                      backgroundColor: 'var(--bg-secondary)',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    {isFullscreen ? <Minimize size={16} /> : <Maximize size={16} />}
+                  </button>
+
+                  <button
+                    onClick={() => setShowMobileMenu(!showMobileMenu)}
+                    className={styles.btnMoreMenu}
+                    aria-expanded={showMobileMenu}
+                    aria-label="More navigation items"
+                  >
+                    <MoreVertical size={20} />
+                  </button>
+
+                  {showMobileMenu && (
+                    <div className={styles.mobileDropdown}>
+                      <button
+                        onClick={() => {
+                          setShowDonation(true);
+                          setShowMobileMenu(false);
+                        }}
+                        className={styles.dropdownItem}
+                      >
+                        Donate <img src="/Coffee_image.webp" alt="Donation Icon" className={styles.coffeeIcon} />
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          handleLoginClick(e);
+                          setShowMobileMenu(false);
+                        }}
+                        className={styles.dropdownItem}
+                      >
+                        <Lock size={13} style={{ marginRight: '6px' }} />
+                        <span>Login</span>
+                      </button>
+                    </div>
+                  )}
+                </div>
               </>
             ) : (
               // REGULAR PAGES STATE: Home, Templates, Builder inline, plus mobile overflow squashing

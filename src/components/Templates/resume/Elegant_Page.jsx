@@ -10,6 +10,8 @@
 import React from 'react';
 import styles from './ResumeTemplates.module.css';
 
+const PLACEHOLDER_PFP = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIiBmaWxsPSIjZTJlOGYwIj48Y2lyY2xlIGN4PSI1MCIgY3k9IjUwIiByPSI1MCIgZmlsbD0iI2NiZDVlMSIvPjxjaXJjbGUgY3g9IjUwIiBjeT0iNDAiIHI9IjE4IiBmaWxsPSIjOTRhM2I4Ii8+PHBhdGggZD0iTTUwIDYyYy0yMCAwLTMyIDEwLTMyIDIwdjZoNjR2LTZjMC0xMC0xMi0yMC0zMi0yMHoiIGZpbGw9IiM5NGEzYjgiLz48L3N2Zz4=';
+
 export default function Elegant_Page({ data, showWatermark = true }) {
   const { personal, experience, projects, education, skills } = data;
 
@@ -18,11 +20,29 @@ export default function Elegant_Page({ data, showWatermark = true }) {
   const hasProjects = projects && projects.some(p => p.name || p.description);
   const hasEducation = education && education.some(edu => edu.institution || edu.degree);
 
+  /**
+   * Derives the display label for an education entry's grade field
+   * based on the credential type selected in the form.
+   */
+  const resolveGradeLabel = (edu) => {
+    const type   = edu.gradeType        || 'degree';
+    const format = edu.boardGradeFormat || 'percentage';
+    const custom = (edu.customGradeLabel || '').trim();
+    if (type === 'board')  return format === 'marks' ? 'Marks' : 'Percentage';
+    if (type === 'custom') return custom || 'Grade';
+    return 'CGPA'; // default: 'degree'
+  };
+
   return (
     <div className={`${styles.resumePage} ${styles.elegant}`}>
       
       {/* BRANDING HEADER */}
       <div className={styles.headerBlock}>
+        {personal.pfp && (
+          <div className={styles.elegantPfpWrapper}>
+            <img src={personal.pfp} alt="Profile" className={styles.elegantPfpImage} />
+          </div>
+        )}
         <h1 className={styles.name}>{personal.fullName || 'YOUR NAME'}</h1>
         <p className={styles.role}>{personal.role || 'TARGET ROLE'}</p>
         
@@ -132,7 +152,7 @@ export default function Elegant_Page({ data, showWatermark = true }) {
                 {(edu.location || edu.grade) && (
                   <div className={styles.itemSubHeader}>
                     <span>{edu.location || ''}</span>
-                    {edu.grade && <span>Grade: {edu.grade}</span>}
+                    {edu.grade && <span>{resolveGradeLabel(edu)}: {edu.grade}</span>}
                   </div>
                 )}
               </div>

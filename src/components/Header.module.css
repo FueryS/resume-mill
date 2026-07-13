@@ -406,6 +406,10 @@
     display: none;
   }
 
+  .desktopOnlyNavLink {
+    display: none !important;
+  }
+
   .mobileOnlyControls {
     display: flex;
     align-items: center;

@@ -1,10 +1,14 @@
 /**
  * EducationForm.jsx
- * 
+ *
  * Purpose:
  * Renders the form inputs for Step 4 of the resume builder:
- * Multiple academic qualification entries (Degree, Institution, Dates, GPA).
- * Also renders a simple comma-separated textarea to capture technical skills.
+ * Multiple academic qualification entries (Degree, Institution, Dates, Grade).
+ * Each entry has a grade-type selector:
+ *   - 'degree'  → CGPA field
+ *   - 'board'   → Percentage or Marks (user chooses via radio)
+ *   - 'custom'  → User-defined label + value
+ * Also renders a comma-separated textarea to capture technical skills.
  */
 
 'use client';
@@ -12,6 +16,58 @@
 import React from 'react';
 import { Plus, Trash2 } from 'lucide-react';
 import styles from '@/app/builder/page.module.css';
+import eduStyles from './EducationForm.module.css';
+
+// ─── Constants ───────────────────────────────────────────────────────────────
+
+/** The three education credential types the user can select */
+const GRADE_TYPES = [
+  { value: 'degree', label: 'Degree' },
+  { value: 'board',  label: 'Board'  },
+  { value: 'custom', label: 'Custom' },
+];
+
+/** Board sub-formats */
+const BOARD_FORMATS = [
+  { value: 'percentage', label: 'Percentage' },
+  { value: 'marks',      label: 'Marks'      },
+];
+
+// ─── Helpers ─────────────────────────────────────────────────────────────────
+
+/**
+ * Returns the appropriate label for the grade input field
+ * based on the selected grade type and board sub-format.
+ *
+ * @param {'degree'|'board'|'custom'} gradeType
+ * @param {'percentage'|'marks'} boardGradeFormat
+ * @param {string} customGradeLabel
+ * @returns {string}
+ */
+function resolveGradeLabel(gradeType, boardGradeFormat, customGradeLabel) {
+  if (gradeType === 'degree') return 'CGPA';
+  if (gradeType === 'board') {
+    return boardGradeFormat === 'marks' ? 'Marks Obtained' : 'Percentage';
+  }
+  return customGradeLabel.trim() || 'Grade';
+}
+
+/**
+ * Returns the placeholder text for the grade input field.
+ *
+ * @param {'degree'|'board'|'custom'} gradeType
+ * @param {'percentage'|'marks'} boardGradeFormat
+ * @returns {string}
+ */
+function resolveGradePlaceholder(gradeType, boardGradeFormat) {
+  if (gradeType === 'degree') return 'e.g. 9.2';
+  if (gradeType === 'board') {
+    return boardGradeFormat === 'marks' ? 'e.g. 456 / 500' : 'e.g. 88.4%';
+  }
+  return 'Enter value';
+}
+
+// ─── Component ───────────────────────────────────────────────────────────────
 
 export default function EducationForm({
   education,
@@ -19,115 +75,196 @@ export default function EducationForm({
   handleArrayChange,
   addArrayItem,
   removeArrayItem,
-  onSkillsChange
+  onSkillsChange,
 }) {
   return (
     <div className={`${styles.formSection} animate-scale-in`}>
-      
-      {/* SECTION A: Academic Qualifications */}
+
+      {/* ── SECTION A: Academic Qualifications ───────────────────────────── */}
       <h4 className={styles.subsectionTitle}>Education History</h4>
-      
-      {education.map((edu, idx) => (
-        <div key={edu.id} className={styles.itemCard}>
-          
-          {/* Card header with index and remove button */}
-          <div className={styles.itemCardHeader}>
-            <h5>Institution #{idx + 1}</h5>
-            <button 
-              type="button"
-              className={styles.btnRemove} 
-              onClick={() => removeArrayItem('education', edu.id)}
-              title="Remove Education"
-            >
-              <Trash2 size={14} />
-            </button>
-          </div>
 
-          {/* Institution and Degree title */}
-          <div className={styles.formRow}>
-            <div className={styles.formGroup}>
-              <label>Institution Name</label>
-              <input 
-                type="text"
-                value={edu.institution || ''}
-                onChange={(e) => handleArrayChange('education', edu.id, 'institution', e.target.value)}
-                placeholder="Indian Institute of Technology"
-              />
-            </div>
-            <div className={styles.formGroup}>
-              <label>Degree / Qualification</label>
-              <input 
-                type="text"
-                value={edu.degree || ''}
-                onChange={(e) => handleArrayChange('education', edu.id, 'degree', e.target.value)}
-                placeholder="Bachelor of Technology in Computer Science"
-              />
-            </div>
-          </div>
+      {education.map((edu, idx) => {
+        const gradeType       = edu.gradeType       || 'degree';
+        const boardGradeFormat = edu.boardGradeFormat || 'percentage';
+        const customGradeLabel = edu.customGradeLabel || '';
 
-          {/* Location and Dates */}
-          <div className={styles.formRow}>
-            <div className={styles.formGroup}>
-              <label>Location</label>
-              <input 
-                type="text"
-                value={edu.location || ''}
-                onChange={(e) => handleArrayChange('education', edu.id, 'location', e.target.value)}
-                placeholder="Mumbai, India"
-              />
+        const gradeLabel       = resolveGradeLabel(gradeType, boardGradeFormat, customGradeLabel);
+        const gradePlaceholder = resolveGradePlaceholder(gradeType, boardGradeFormat);
+
+        return (
+          <div key={edu.id} className={styles.itemCard}>
+
+            {/* Card header: index + remove */}
+            <div className={styles.itemCardHeader}>
+              <h5>Institution #{idx + 1}</h5>
+              <button
+                type="button"
+                className={styles.btnRemove}
+                onClick={() => removeArrayItem('education', edu.id)}
+                title="Remove Education"
+              >
+                <Trash2 size={14} />
+              </button>
             </div>
-            
-            <div className={styles.formRow} style={{ flex: 1, gap: '10px' }}>
+
+            {/* Institution and Degree title */}
+            <div className={styles.formRow}>
               <div className={styles.formGroup}>
-                <label>Start Date</label>
-                <input 
+                <label>Institution Name</label>
+                <input
                   type="text"
-                  value={edu.startDate || ''}
-                  onChange={(e) => handleArrayChange('education', edu.id, 'startDate', e.target.value)}
-                  placeholder="2021"
+                  value={edu.institution || ''}
+                  onChange={(e) =>
+                    handleArrayChange('education', edu.id, 'institution', e.target.value)
+                  }
+                  placeholder="Indian Institute of Technology"
                 />
               </div>
               <div className={styles.formGroup}>
-                <label>End Date (or Expected)</label>
-                <input 
+                <label>Degree / Qualification</label>
+                <input
                   type="text"
-                  value={edu.endDate || ''}
-                  onChange={(e) => handleArrayChange('education', edu.id, 'endDate', e.target.value)}
-                  placeholder="2025"
+                  value={edu.degree || ''}
+                  onChange={(e) =>
+                    handleArrayChange('education', edu.id, 'degree', e.target.value)
+                  }
+                  placeholder="Bachelor of Technology in Computer Science"
                 />
               </div>
             </div>
-          </div>
 
-          {/* Academic Grade */}
-          <div className={styles.formGroup}>
-            <label>Grade / CGPA / Percentage</label>
-            <input 
-              type="text"
-              value={edu.grade || ''}
-              onChange={(e) => handleArrayChange('education', edu.id, 'grade', e.target.value)}
-              placeholder="9.2 CGPA / 88%"
-            />
+            {/* Location and Dates */}
+            <div className={styles.formRow}>
+              <div className={styles.formGroup}>
+                <label>Location</label>
+                <input
+                  type="text"
+                  value={edu.location || ''}
+                  onChange={(e) =>
+                    handleArrayChange('education', edu.id, 'location', e.target.value)
+                  }
+                  placeholder="Mumbai, India"
+                />
+              </div>
+              <div className={styles.formRow} style={{ flex: 1, gap: '10px' }}>
+                <div className={styles.formGroup}>
+                  <label>Start Date</label>
+                  <input
+                    type="text"
+                    value={edu.startDate || ''}
+                    onChange={(e) =>
+                      handleArrayChange('education', edu.id, 'startDate', e.target.value)
+                    }
+                    placeholder="2021"
+                  />
+                </div>
+                <div className={styles.formGroup}>
+                  <label>End Date (or Expected)</label>
+                  <input
+                    type="text"
+                    value={edu.endDate || ''}
+                    onChange={(e) =>
+                      handleArrayChange('education', edu.id, 'endDate', e.target.value)
+                    }
+                    placeholder="2025"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* ── Grade Type Selector ──────────────────────────────────────── */}
+            <div className={eduStyles.gradeTypeSection}>
+              <label className={eduStyles.gradeTypeSectionLabel}>Credential Type</label>
+
+              {/* Segmented control */}
+              <div className={eduStyles.segmentedControl} role="group" aria-label="Credential type">
+                {GRADE_TYPES.map((type) => (
+                  <button
+                    key={type.value}
+                    type="button"
+                    role="radio"
+                    aria-checked={gradeType === type.value}
+                    className={`${eduStyles.segmentBtn} ${gradeType === type.value ? eduStyles.segmentBtnActive : ''}`}
+                    onClick={() =>
+                      handleArrayChange('education', edu.id, 'gradeType', type.value)
+                    }
+                  >
+                    {type.label}
+                  </button>
+                ))}
+              </div>
+
+              {/* Board sub-choice: Percentage vs Marks */}
+              {gradeType === 'board' && (
+                <div className={eduStyles.boardFormatRow}>
+                  {BOARD_FORMATS.map((fmt) => (
+                    <label key={fmt.value} className={eduStyles.radioLabel}>
+                      <input
+                        type="radio"
+                        name={`boardGradeFormat-${edu.id}`}
+                        value={fmt.value}
+                        checked={boardGradeFormat === fmt.value}
+                        onChange={() =>
+                          handleArrayChange('education', edu.id, 'boardGradeFormat', fmt.value)
+                        }
+                      />
+                      <span>{fmt.label}</span>
+                    </label>
+                  ))}
+                </div>
+              )}
+
+              {/* Custom: user-defined label row */}
+              {gradeType === 'custom' && (
+                <div className={eduStyles.customLabelRow}>
+                  <div className={styles.formGroup}>
+                    <label>Field Label</label>
+                    <input
+                      type="text"
+                      value={customGradeLabel}
+                      onChange={(e) =>
+                        handleArrayChange('education', edu.id, 'customGradeLabel', e.target.value)
+                      }
+                      placeholder='e.g. "Score", "GPA", "Honours"'
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Grade value input — label and placeholder change based on type */}
+            <div className={styles.formGroup}>
+              <label>{gradeLabel}</label>
+              <input
+                type="text"
+                value={edu.grade || ''}
+                onChange={(e) =>
+                  handleArrayChange('education', edu.id, 'grade', e.target.value)
+                }
+                placeholder={gradePlaceholder}
+              />
+            </div>
+
           </div>
-        </div>
-      ))}
+        );
+      })}
 
       {/* Button to add an additional education card */}
-      <button 
+      <button
         type="button"
-        className={`btn btn-secondary ${styles.btnAdd}`} 
+        className={`btn btn-secondary ${styles.btnAdd}`}
         onClick={() => addArrayItem('education')}
       >
         <Plus size={16} />
         <span>Add Education</span>
       </button>
 
-      {/* SECTION B: Skills list input */}
-      <h4 className={styles.subsectionTitle} style={{ marginTop: '30px' }}>Skills & Frameworks</h4>
-      
+      {/* ── SECTION B: Skills list input ─────────────────────────────────── */}
+      <h4 className={styles.subsectionTitle} style={{ marginTop: '30px' }}>Skills &amp; Frameworks</h4>
+
       <div className={styles.formGroup}>
         <label htmlFor="skills">Skills (comma separated)</label>
-        <textarea 
+        <textarea
           id="skills"
           rows="4"
           value={skills || ''}
