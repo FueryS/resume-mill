@@ -34,8 +34,8 @@
 }
 
 .logoImg {
-  width: 32px;
-  height: 32px;
+  width: 38px;
+  height: 38px;
   border-radius: var(--radius-sm);
   box-shadow: 0 2px 8px rgba(79, 70, 229, 0.15);
   object-fit: cover;
