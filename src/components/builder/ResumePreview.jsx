@@ -6,13 +6,14 @@
  * Swaps template components based on the selected layout theme ('modern', 'elegant', or 'creative').
  * Reuses the same templates folder structure to ensure modularity.
  * Implements a width-first responsive layout container for perfect mobile support.
- * Implements a custom viewport zoom bar to pinch/zoom the A4 document without resizing the web app.
+ * Implements two-finger touch navigation panning on mobile.
+ * Features a fullscreen preview modal with device-fit scaling and history back button interceptor.
  */
 
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import { ZoomIn, ZoomOut, Maximize2 } from 'lucide-react';
+import { Maximize2, Eye, X } from 'lucide-react';
 import Modern_Page from '@/components/Templates/resume/Modern_Page';
 import Elegant_Page from '@/components/Templates/resume/Elegant_Page';
 import Creative_Page from '@/components/Templates/resume/Creative_Page';
@@ -20,12 +21,18 @@ import styles from '@/app/builder/page.module.css';
 
 export default function ResumePreview({ formData, activeTemplate }) {
   const [zoomPercent, setZoomPercent] = useState(85);
+  const [showFullscreen, setShowFullscreen] = useState(false);
+  const [viewportWidth, setViewportWidth] = useState(1200);
+  
   const containerRef = useRef(null);
   const isFirstRender = useRef(true);
+  const touchStartRef = useRef({ x1: 0, y1: 0, x2: 0, y2: 0, scrollTop: 0, scrollLeft: 0 });
 
-  // Resize listener to calculate auto-fit scale
+  // Monitor resize to auto-fit A4 preview scale and track viewport width for fullscreen scale
   useEffect(() => {
     const handleResize = () => {
+      setViewportWidth(window.innerWidth);
+      
       if (containerRef.current) {
         const width = containerRef.current.getBoundingClientRect().width;
         // Keep 48px padding for neat layout borders
@@ -44,13 +51,24 @@ export default function ResumePreview({ formData, activeTemplate }) {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  const handleZoomOut = () => {
-    setZoomPercent(prev => Math.max(30, prev - 5));
-  };
+  // Intercept device back button to close the fullscreen preview (App-like UX)
+  useEffect(() => {
+    if (!showFullscreen) return;
 
-  const handleZoomIn = () => {
-    setZoomPercent(prev => Math.min(150, prev + 5));
-  };
+    window.history.pushState({ previewFullscreen: true }, '');
+
+    const handlePopState = () => {
+      setShowFullscreen(false);
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+      if (window.history.state?.previewFullscreen) {
+        window.history.back();
+      }
+    };
+  }, [showFullscreen]);
 
   const handleFitToScreen = () => {
     if (containerRef.current) {
@@ -59,6 +77,48 @@ export default function ResumePreview({ formData, activeTemplate }) {
       setZoomPercent(fitScale);
     }
   };
+
+  // Two-finger touch navigation panning on mobile
+  const handleTouchStart = (e) => {
+    if (e.touches.length === 2) {
+      const t1 = e.touches[0];
+      const t2 = e.touches[1];
+      if (containerRef.current) {
+        touchStartRef.current = {
+          x1: t1.clientX,
+          y1: t1.clientY,
+          x2: t2.clientX,
+          y2: t2.clientY,
+          scrollTop: containerRef.current.scrollTop,
+          scrollLeft: containerRef.current.scrollLeft
+        };
+      }
+    }
+  };
+
+  const handleTouchMove = (e) => {
+    if (e.touches.length === 2 && containerRef.current) {
+      // Prevent browser default panning/scrolling
+      e.preventDefault();
+      
+      const t1 = e.touches[0];
+      const t2 = e.touches[1];
+      
+      const initialMidX = (touchStartRef.current.x1 + touchStartRef.current.x2) / 2;
+      const initialMidY = (touchStartRef.current.y1 + touchStartRef.current.y2) / 2;
+      const currentMidX = (t1.clientX + t2.clientX) / 2;
+      const currentMidY = (t1.clientY + t2.clientY) / 2;
+      
+      const deltaX = currentMidX - initialMidX;
+      const deltaY = currentMidY - initialMidY;
+      
+      containerRef.current.scrollLeft = touchStartRef.current.scrollLeft - deltaX;
+      containerRef.current.scrollTop = touchStartRef.current.scrollTop - deltaY;
+    }
+  };
+
+  // Calculate scaling factor for fullscreen modal to fit any mobile device screen
+  const modalScale = Math.min(1, Math.max(0.3, (viewportWidth - 32) / 794));
 
   return (
     <div className={styles.previewPanel} style={{ position: 'relative' }}>
@@ -73,20 +133,22 @@ export default function ResumePreview({ formData, activeTemplate }) {
       <div 
         ref={containerRef}
         id="resume-printable-area" 
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
         style={{
           flex: 1,
           overflow: 'auto',
           backgroundColor: '#e2e8f0',
-          padding: '24px 20px 80px 20px', // Extra bottom padding to clear the floating controls
+          padding: '24px 20px 80px 20px', 
           borderRadius: 'var(--radius-sm)',
           border: '1px solid var(--border-color)',
           display: 'flex',
           justifyContent: 'center',
-          alignItems: 'flex-start'
+          alignItems: 'flex-start',
+          touchAction: 'pan-x pan-y' // Allow default browser swipe-scrolling unless two fingers are used
         }}
       >
-        {/* Outer responsive layout wrapper: behaves as a width-first container.
-            In media print, this outer container resets to 100% width/height. */}
+        {/* Outer responsive layout wrapper: behaves as a width-first container. */}
         <div 
           className="printable-layout-wrapper"
           style={{
@@ -118,7 +180,7 @@ export default function ResumePreview({ formData, activeTemplate }) {
         </div>
       </div>
 
-      {/* Floating Zoom Controls Bar */}
+      {/* Floating Controls Bar (Fit to Screen & Full Screen) */}
       <div 
         style={{
           display: 'flex',
@@ -138,66 +200,137 @@ export default function ResumePreview({ formData, activeTemplate }) {
           border: '1px solid rgba(255,255,255,0.1)'
         }}
       >
-        {/* Zoom Out Button */}
-        <button
-          onClick={handleZoomOut}
-          style={{ 
-            color: '#ffffff', 
-            opacity: zoomPercent <= 30 ? 0.5 : 1, 
-            display: 'flex', 
-            alignItems: 'center',
-            cursor: zoomPercent <= 30 ? 'not-allowed' : 'pointer'
-          }}
-          disabled={zoomPercent <= 30}
-          title="Zoom Out"
-        >
-          <ZoomOut size={16} />
-        </button>
-        
-        {/* Percentage Label */}
-        <span style={{ fontSize: '13px', fontWeight: '700', minWidth: '42px', textAlign: 'center' }}>
-          {zoomPercent}%
-        </span>
-        
-        {/* Zoom In Button */}
-        <button
-          onClick={handleZoomIn}
-          style={{ 
-            color: '#ffffff', 
-            opacity: zoomPercent >= 150 ? 0.5 : 1, 
-            display: 'flex', 
-            alignItems: 'center',
-            cursor: zoomPercent >= 150 ? 'not-allowed' : 'pointer'
-          }}
-          disabled={zoomPercent >= 150}
-          title="Zoom In"
-        >
-          <ZoomIn size={16} />
-        </button>
-
-        {/* Vertical Divider */}
-        <div style={{ width: '1px', height: '16px', backgroundColor: 'rgba(255,255,255,0.2)' }}></div>
-
         {/* Fit to Screen Button */}
         <button
           onClick={handleFitToScreen}
           style={{ 
             color: '#ffffff', 
-            fontSize: '11px', 
+            fontSize: '12px', 
             fontWeight: '700', 
             textTransform: 'uppercase', 
             letterSpacing: '0.05em',
             display: 'flex',
             alignItems: 'center',
-            gap: '4px',
-            cursor: 'pointer'
+            gap: '6px',
+            cursor: 'pointer',
+            backgroundColor: 'transparent',
+            border: 'none',
+            outline: 'none',
+            padding: '4px 8px'
           }}
           title="Fit to Screen"
         >
-          <Maximize2 size={12} />
-          <span>Fit</span>
+          <Maximize2 size={14} />
+          <span>Fit Screen</span>
+        </button>
+
+        {/* Vertical Divider */}
+        <div style={{ width: '1px', height: '16px', backgroundColor: 'rgba(255,255,255,0.2)' }}></div>
+
+        {/* Full Screen Preview Button */}
+        <button
+          onClick={() => setShowFullscreen(true)}
+          style={{ 
+            color: '#ffffff', 
+            fontSize: '12px', 
+            fontWeight: '700', 
+            textTransform: 'uppercase', 
+            letterSpacing: '0.05em',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px',
+            cursor: 'pointer',
+            backgroundColor: 'transparent',
+            border: 'none',
+            outline: 'none',
+            padding: '4px 8px'
+          }}
+          title="Full Screen Preview"
+        >
+          <Eye size={14} />
+          <span>Full Preview</span>
         </button>
       </div>
+
+      {/* Fullscreen Overlay Modal (Responsive Scaling) */}
+      {showFullscreen && (
+        <div 
+          className="fullscreen-modal-overlay" 
+          onClick={() => setShowFullscreen(false)}
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            width: '100vw',
+            height: '100vh',
+            backgroundColor: 'rgba(15, 23, 42, 0.9)',
+            backdropFilter: 'blur(8px)',
+            zIndex: 10002,
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'flex-start',
+            overflowY: 'auto',
+            padding: '60px 16px 40px 16px'
+          }}
+        >
+          {/* Floating Close Button */}
+          <button 
+            onClick={() => setShowFullscreen(false)} 
+            style={{
+              position: 'fixed',
+              top: '20px',
+              right: '20px',
+              backgroundColor: 'rgba(255, 255, 255, 0.15)',
+              border: '1px solid rgba(255, 255, 255, 0.25)',
+              borderRadius: '50%',
+              width: '40px',
+              height: '40px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: '#ffffff',
+              cursor: 'pointer',
+              zIndex: 10003,
+              transition: 'all 0.2s'
+            }}
+            title="Close Preview"
+          >
+            <X size={20} />
+          </button>
+
+          {/* Width-first Responsive Scaling Wrapper for Fullscreen Sheet */}
+          <div 
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              width: `${794 * modalScale}px`,
+              height: `${1123 * modalScale}px`,
+              position: 'relative',
+              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
+              overflow: 'hidden',
+              margin: 'auto 0',
+              borderRadius: 'var(--radius-sm)'
+            }}
+          >
+            <div 
+              style={{ 
+                transform: `scale(${modalScale})`, 
+                transformOrigin: 'top left',
+                width: '794px',
+                height: '1123px',
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                backgroundColor: '#ffffff'
+              }}
+            >
+              {activeTemplate === 'modern' && <Modern_Page data={formData} />}
+              {activeTemplate === 'elegant' && <Elegant_Page data={formData} />}
+              {activeTemplate === 'creative' && <Creative_Page data={formData} />}
+            </div>
+          </div>
+        </div>
+      )}
 
     </div>
   );

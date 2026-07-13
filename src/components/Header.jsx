@@ -61,6 +61,25 @@ export default function Header() {
     }
   };
 
+  // Intercept back button for Login mock notice popup (App-like UX)
+  useEffect(() => {
+    if (!showNotice) return;
+
+    window.history.pushState({ loginNotice: true }, '');
+
+    const handlePopState = () => {
+      setShowNotice(false);
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+      if (window.history.state?.loginNotice) {
+        window.history.back();
+      }
+    };
+  }, [showNotice]);
+
   /**
    * handleLoginClick()
    *
