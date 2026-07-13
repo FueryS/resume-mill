@@ -24,6 +24,7 @@ import {
 } from 'lucide-react';
 import { generatePortfolioZip } from '@/utils/zipGenerator';
 import DonationModal from '@/components/DonationModal';
+import AiApprovalModal from '@/components/builder/AiApprovalModal';
 
 // Sub-components import for cleaner architecture
 import ResumeBuildProgressNav from '@/components/builder/ResumeBuildProgressNav';
@@ -84,6 +85,9 @@ export default function BuilderPage() {
   
   // State tracking if local storage has successfully mounted
   const [isLoaded, setIsLoaded] = useState(false);
+
+  // State to hold data for the AI review/approval modal
+  const [aiReviewData, setAiReviewData] = useState(null);
   
   // State tracking which field is calling the Gemini API to display loading indicators
   const [optimizingField, setOptimizingField] = useState(null); // format: `${section}-${id}-${field}`
@@ -235,14 +239,13 @@ export default function BuilderPage() {
           });
         }
 
-        if (section === 'personal') {
-          setFormData((prev) => ({
-            ...prev,
-            personal: { ...prev.personal, [field]: result.optimizedText }
-          }));
-        } else {
-          handleArrayChange(section, id, field, result.optimizedText);
-        }
+        setAiReviewData({
+          section,
+          id,
+          field,
+          originalText,
+          optimizedText: result.optimizedText
+        });
       } else {
         alert(result.error || 'Failed to optimize. Please check your network connection.');
       }
@@ -483,6 +486,27 @@ export default function BuilderPage() {
 
       {/* Donation Scanner popup */}
       <DonationModal isOpen={showDonation} onClose={() => setShowDonation(false)} />
+
+      {/* AI Approval review modal */}
+      <AiApprovalModal
+        isOpen={aiReviewData !== null}
+        onClose={() => setAiReviewData(null)}
+        originalText={aiReviewData?.originalText || ''}
+        optimizedText={aiReviewData?.optimizedText || ''}
+        onApprove={() => {
+          if (!aiReviewData) return;
+          const { section, id, field, optimizedText } = aiReviewData;
+          if (section === 'personal') {
+            setFormData((prev) => ({
+              ...prev,
+              personal: { ...prev.personal, [field]: optimizedText }
+            }));
+          } else {
+            handleArrayChange(section, id, field, optimizedText);
+          }
+          setAiReviewData(null);
+        }}
+      />
     </>
   );
 }
