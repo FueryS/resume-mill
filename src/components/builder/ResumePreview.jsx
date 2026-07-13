@@ -146,7 +146,7 @@ export default function ResumePreview({
   const modalScale = Math.min(1, Math.max(0.3, (viewportWidth - 32) / 794));
 
   return (
-    <div className={styles.previewPanel} style={{ position: 'relative' }}>
+    <div className={styles.previewPanel}>
       
       {/* Live status banner */}
       <div className={styles.previewHeader}>
@@ -164,7 +164,7 @@ export default function ResumePreview({
           flex: 1,
           overflow: 'auto',
           backgroundColor: '#e2e8f0',
-          padding: '24px 20px 80px 20px', 
+          padding: '24px 20px 24px 20px',
           borderRadius: 'var(--radius-sm)',
           border: '1px solid var(--border-color)',
           display: 'flex',
@@ -209,12 +209,13 @@ export default function ResumePreview({
         </div>
       </div>
 
-      {/* Floating Controls Bar (Fit to Screen & Full Screen) */}
+      {/* Controls Bar (Fit to Screen & Full Screen) — in-flow so it never overlaps footer */}
       <div 
         className="no-print"
         style={{
           display: 'flex',
           alignItems: 'center',
+          justifyContent: 'center',
           gap: '12px',
           backgroundColor: 'rgba(30, 41, 59, 0.85)',
           backdropFilter: 'blur(8px)',
@@ -222,12 +223,11 @@ export default function ResumePreview({
           borderRadius: 'var(--radius-full)',
           boxShadow: '0 8px 32px rgba(0,0,0,0.15)',
           color: '#ffffff',
-          position: 'absolute',
-          bottom: '20px',
-          left: '50%',
-          transform: 'translateX(-50%)',
-          zIndex: 100,
-          border: '1px solid rgba(255,255,255,0.1)'
+          border: '1px solid rgba(255,255,255,0.1)',
+          alignSelf: 'center',
+          flexShrink: 0,
+          marginTop: '8px',
+          zIndex: 10
         }}
       >
         {/* Fit to Screen Button */}
