@@ -6,23 +6,26 @@
   left: 0;
   width: 100vw;
   height: 100vh;
-  background-color: rgba(15, 23, 42, 0.5);
+  background-color: rgba(15, 23, 42, 0.75);
   backdrop-filter: blur(6px);
   z-index: 10001;
   display: flex;
-  align-items: center;
+  align-items: flex-start; /* Start from top to allow scrolling */
   justify-content: center;
+  overflow-y: auto; /* Enable scroll if card is taller than screen */
+  padding: 40px 16px; /* Top/bottom page boundary padding */
 }
 
 .donationCard {
   background-color: var(--bg-secondary);
   border-radius: var(--radius-lg);
-  width: 90%;
+  width: 100%;
   max-width: 680px;
   padding: var(--space-8);
   box-shadow: var(--shadow-lg);
   border: 1px solid var(--border-color);
   position: relative;
+  margin: auto 0; /* Auto vertical centering when space permits, shifts to top when scrolling */
 }
 
 .donationClose {
@@ -36,6 +39,10 @@
   background: none;
   border: none;
   cursor: pointer;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .donationClose:hover {
@@ -248,27 +255,30 @@
   color: var(--text-muted);
 }
 
-/* Responsive */
+/* Responsive Overrides */
 @media (max-width: 640px) {
+  .donationOverlay {
+    padding: 24px 12px;
+  }
+
+  .donationCard {
+    padding: var(--space-6) var(--space-4) var(--space-4) var(--space-4);
+  }
+
+  .donationClose {
+    top: var(--space-3);
+    right: var(--space-3);
+  }
+
+  .qrSection,
+  .donationDivider {
+    display: none; /* Hide QR code on mobile devices to save space */
+  }
+
   .donationContent {
     flex-direction: column;
-    gap: var(--space-6);
+    gap: 0;
   }
-
-  .donationDivider {
-    height: 20px;
-    width: 100%;
-    margin: 0;
-  }
-
-  .donationDivider::before,
-  .donationDivider::after {
-    width: 40%;
-    height: 1px;
-  }
-
-  .donationDivider::before { left: 0; top: 50%; }
-  .donationDivider::after { right: 0; top: 50%; }
 
   .paySection {
     align-items: center;

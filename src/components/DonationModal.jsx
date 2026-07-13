@@ -2,60 +2,87 @@
  * DonationModal.js
  * 
  * Purpose:
- * Renders an interactive donation popup widget for UPI transfers (popular in India).
- * Displays a dynamically generated UPI QR code that desktop users can scan with their phone.
- * Displays direct clickable intent links for mobile users to launch local payment apps (GPay, Paytm, etc.).
- * Includes a quick one-click clipboard copying mechanism for the developer's UPI ID.
+ * Renders an interactive donation popup widget for UPI transfers.
+ * Displays a dynamically generated UPI QR code that desktop users can scan.
+ * Hides the QR code on mobile screens to save space and avoid scanning the same screen.
+ * Implements hardware back-button interception (via history popstate), Escape key listeners, and body scroll lock.
  */
 
 'use client';
 
-import { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, Copy, Check, Smartphone, QrCode } from 'lucide-react';
 import styles from './DonationModal.module.css';
 
 export default function DonationModal({ isOpen, onClose }) {
-  // State to track if the UPI ID was recently copied to clipboard (shows checkmark feedback)
   const [copied, setCopied] = useState(false);
 
   // Retrieve localized payment credentials from environment variables
   const upiId = process.env.NEXT_PUBLIC_UPI_ID || 'example@upi';
   const upiName = process.env.NEXT_PUBLIC_UPI_NAME || 'Zeeshan';
 
-  // 1. Format the standard UPI deep link (Intent URL)
-  // Clicking this URL on a smartphone automatically opens any installed UPI-compliant app.
+  // Format the standard UPI deep link (Intent URL)
   const upiUrl = `upi://pay?pa=${upiId}&pn=${encodeURIComponent(upiName)}&cu=INR`;
   
-  // 2. Generate the QR code image URL
-  // Uses a free, public QR Code API to encode the UPI deep link so desktop users can scan it.
+  // Generate QR code URL
   const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(upiUrl)}`;
 
-  /**
-   * handleCopy()
-   * 
-   * Purpose:
-   * Copies the developer's UPI ID to the user's system clipboard.
-   * Updates state temporarily to show a green checkmark icon for 2 seconds.
-   */
+  // Copy handler
   const handleCopy = () => {
-    // Copy the raw text to clipboard
     navigator.clipboard.writeText(upiId);
-    
-    // Toggle the copied success state
     setCopied(true);
-    
-    // Reset back to copy icon after 2 seconds
     setTimeout(() => setCopied(false), 2000);
   };
 
-  // If the parent component specifies that this modal is closed, render nothing
+  // Keyboard Escape listener & Body Scroll lock
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        onClose();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    document.body.style.overflow = 'hidden';
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      document.body.style.overflow = '';
+    };
+  }, [isOpen, onClose]);
+
+  // Hardware Back Button Interception (App-like UX)
+  useEffect(() => {
+    if (!isOpen) return;
+
+    // Push a temporary history state so back gesture triggers popstate instead of exiting
+    window.history.pushState({ modalOpen: true }, '');
+
+    const handlePopState = () => {
+      onClose();
+    };
+
+    window.addEventListener('popstate', handlePopState);
+
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+      // Clean up the back state if closed programmatically
+      if (window.history.state?.modalOpen) {
+        window.history.back();
+      }
+    };
+  }, [isOpen, onClose]);
+
   if (!isOpen) return null;
 
   return (
     <div className={styles.donationOverlay} onClick={onClose}>
       <div className={styles.donationCard} onClick={(e) => e.stopPropagation()}>
+        
         {/* Close Button at top right */}
-        <button className={styles.donationClose} onClick={onClose}>
+        <button className={styles.donationClose} onClick={onClose} aria-label="Close modal">
           <X size={20} />
         </button>
 
@@ -69,7 +96,7 @@ export default function DonationModal({ isOpen, onClose }) {
         {/* Content body split into QR Code (left) and UPI App Details (right) */}
         <div className={styles.donationContent}>
           
-          {/* LEFT COLUMN: Desktop QR Code scan block */}
+          {/* LEFT COLUMN: Desktop QR Code scan block (Hidden on mobile) */}
           <div className={`${styles.donationSection} ${styles.qrSection}`}>
             <div className={styles.sectionTitle}>
               <QrCode size={18} />
@@ -88,7 +115,7 @@ export default function DonationModal({ isOpen, onClose }) {
             <p className={styles.qrDesc}>Scan using Google Pay, PhonePe, Paytm, or BHIM</p>
           </div>
 
-          {/* Central OR divider */}
+          {/* Central OR divider (Hidden on mobile) */}
           <div className={styles.donationDivider}>
             <span>OR</span>
           </div>
