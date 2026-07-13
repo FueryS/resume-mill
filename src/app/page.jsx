@@ -13,7 +13,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { FileText, Download, Sparkles, Heart, Star, ArrowRight } from 'lucide-react';
+import { FileText, Download, Sparkles, Heart, Star, ArrowRight, ArrowUp } from 'lucide-react';
 import DonationModal from '@/components/DonationModal';
 import styles from './page.module.css';
 
@@ -23,6 +23,26 @@ export default function LandingPage() {
   
   // State to control display of the main UPI QR Code donation modal
   const [showDonation, setShowDonation] = useState(false);
+
+  // State to control visibility of the "Back to Top" floating button
+  const [showBackToTop, setShowBackToTop] = useState(false);
+
+  // Monitor scroll height to show back-to-top button after passing hero section (500px)
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 500) {
+        setShowBackToTop(true);
+      } else {
+        setShowBackToTop(false);
+      }
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   // Hook to fetch the real-time resume export stats on mount and run a count-up animation
   useEffect(() => {
@@ -232,6 +252,15 @@ export default function LandingPage() {
 
       {/* Donation Modal scanner widget */}
       <DonationModal isOpen={showDonation} onClose={() => setShowDonation(false)} />
+
+      {/* Back to Top Floating Button */}
+      <button 
+        onClick={scrollToTop}
+        className={`${styles.backToTop} ${showBackToTop ? styles.backToTopVisible : ''}`}
+        aria-label="Back to top"
+      >
+        <ArrowUp size={20} />
+      </button>
     </>
   );
 }
