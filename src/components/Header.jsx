@@ -15,7 +15,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Landmark, Lock, MoreVertical } from "lucide-react";
+import { Landmark, Lock, MoreVertical, Maximize, Minimize } from "lucide-react";
 import DonationModal from "./DonationModal";
 import styles from "./Header.module.css";
 
@@ -32,10 +32,34 @@ export default function Header() {
   // State to control mobile overflow dots menu popover
   const [showMobileMenu, setShowMobileMenu] = useState(false);
 
+  // State to control fullscreen mode
+  const [isFullscreen, setIsFullscreen] = useState(false);
+
   // Close overflow menu when route changes
   useEffect(() => {
     setShowMobileMenu(false);
   }, [pathname]);
+
+  // Sync fullscreen state with document state
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+    document.addEventListener("fullscreenchange", handleFullscreenChange);
+    return () => {
+      document.removeEventListener("fullscreenchange", handleFullscreenChange);
+    };
+  }, []);
+
+  const toggleFullscreen = () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch((err) => {
+        console.error(`Error attempting to enable fullscreen: ${err.message}`);
+      });
+    } else {
+      document.exitFullscreen();
+    }
+  };
 
   /**
    * handleLoginClick()
@@ -142,7 +166,27 @@ export default function Header() {
                 </div>
 
                 {/* Mobile-only Overflow Controls: squashed into MoreVertical three-dot menu */}
-                <div className={styles.mobileOnlyControls}>
+                <div className={styles.mobileOnlyControls} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <button 
+                    onClick={toggleFullscreen} 
+                    className={styles.btnFullscreenMobile} 
+                    title="Toggle Fullscreen"
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      width: '36px',
+                      height: '36px',
+                      borderRadius: '50%',
+                      color: 'var(--text-muted)',
+                      border: '1px solid var(--border-color)',
+                      backgroundColor: 'var(--bg-secondary)',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    {isFullscreen ? <Minimize size={16} /> : <Maximize size={16} />}
+                  </button>
+
                   <button
                     onClick={() => setShowMobileMenu(!showMobileMenu)}
                     className={styles.btnMoreMenu}
@@ -183,7 +227,29 @@ export default function Header() {
           {/* ACTIONS: Houses the grayed-out mockup Login button.
               Hidden when visiting any templates route. */}
           {!isTemplateRoute && (
-            <div className={styles.headerActionsDesktop}>
+            <div className={styles.headerActionsDesktop} style={{ display: 'flex', alignItems: 'center' }}>
+              <button 
+                onClick={toggleFullscreen} 
+                className={styles.btnFullscreen} 
+                title="Toggle Fullscreen"
+                style={{
+                  marginRight: '12px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  width: '36px',
+                  height: '36px',
+                  borderRadius: '50%',
+                  color: 'var(--text-muted)',
+                  border: '1px solid var(--border-color)',
+                  backgroundColor: 'var(--bg-secondary)',
+                  cursor: 'pointer',
+                  transition: 'all var(--transition-fast)'
+                }}
+              >
+                {isFullscreen ? <Minimize size={16} /> : <Maximize size={16} />}
+              </button>
+
               <button
                 onClick={handleLoginClick}
                 className={styles.btnLoginDisabled}
