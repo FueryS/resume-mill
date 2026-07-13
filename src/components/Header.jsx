@@ -166,7 +166,7 @@ export default function Header() {
                 </div>
 
                 {/* Mobile-only Overflow Controls: squashed into MoreVertical three-dot menu */}
-                <div className={styles.mobileOnlyControls} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <div className={styles.mobileOnlyControls}>
                   <button 
                     onClick={toggleFullscreen} 
                     className={styles.btnFullscreenMobile} 
