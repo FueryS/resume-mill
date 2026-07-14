@@ -29,6 +29,7 @@ export default function ResumePreview({
   showFullscreen,
   setShowFullscreen,
   supportWithWatermark = true,
+  showFullUrls = false,
 }) {
   const [zoomPercent, setZoomPercent] = useState(85);
   const [viewportWidth, setViewportWidth] = useState(1200);
@@ -257,6 +258,7 @@ export default function ResumePreview({
                 data={formData}
                 pageData={pages[currentPage - 1]}
                 showWatermark={supportWithWatermark}
+                showFullUrls={showFullUrls}
               />
             )}
             {activeTemplate === "elegant" && (
@@ -264,6 +266,7 @@ export default function ResumePreview({
                 data={formData}
                 pageData={pages[currentPage - 1]}
                 showWatermark={supportWithWatermark}
+                showFullUrls={showFullUrls}
               />
             )}
             {activeTemplate === "creative" && (
@@ -271,6 +274,7 @@ export default function ResumePreview({
                 data={formData}
                 pageData={pages[currentPage - 1]}
                 showWatermark={supportWithWatermark}
+                showFullUrls={showFullUrls}
               />
             )}
             {activeTemplate === "timeline" && (
@@ -278,6 +282,7 @@ export default function ResumePreview({
                 data={formData}
                 pageData={pages[currentPage - 1]}
                 showWatermark={supportWithWatermark}
+                showFullUrls={showFullUrls}
               />
             )}
           </div>
@@ -513,6 +518,7 @@ export default function ResumePreview({
                         data={formData}
                         pageData={page}
                         showWatermark={supportWithWatermark}
+                        showFullUrls={showFullUrls}
                       />
                     )}
                     {activeTemplate === "elegant" && (
@@ -520,6 +526,7 @@ export default function ResumePreview({
                         data={formData}
                         pageData={page}
                         showWatermark={supportWithWatermark}
+                        showFullUrls={showFullUrls}
                       />
                     )}
                     {activeTemplate === "creative" && (
@@ -527,6 +534,7 @@ export default function ResumePreview({
                         data={formData}
                         pageData={page}
                         showWatermark={supportWithWatermark}
+                        showFullUrls={showFullUrls}
                       />
                     )}
                     {activeTemplate === "timeline" && (
@@ -534,6 +542,7 @@ export default function ResumePreview({
                         data={formData}
                         pageData={page}
                         showWatermark={supportWithWatermark}
+                        showFullUrls={showFullUrls}
                       />
                     )}
                   </div>
@@ -571,6 +580,7 @@ export default function ResumePreview({
                 data={formData}
                 pageData={page}
                 showWatermark={supportWithWatermark}
+                showFullUrls={showFullUrls}
               />
             )}
             {activeTemplate === "elegant" && (
@@ -578,6 +588,7 @@ export default function ResumePreview({
                 data={formData}
                 pageData={page}
                 showWatermark={supportWithWatermark}
+                showFullUrls={showFullUrls}
               />
             )}
             {activeTemplate === "creative" && (
@@ -585,6 +596,7 @@ export default function ResumePreview({
                 data={formData}
                 pageData={page}
                 showWatermark={supportWithWatermark}
+                showFullUrls={showFullUrls}
               />
             )}
             {activeTemplate === "timeline" && (
@@ -592,6 +604,7 @@ export default function ResumePreview({
                 data={formData}
                 pageData={page}
                 showWatermark={supportWithWatermark}
+                showFullUrls={showFullUrls}
               />
             )}
           </div>

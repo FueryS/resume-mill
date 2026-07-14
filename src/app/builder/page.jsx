@@ -109,6 +109,9 @@ export default function BuilderPage() {
   // State representing whether to support us with a watermark in A4 outputs
   const [supportWithWatermark, setSupportWithWatermark] = useState(true);
 
+  // State representing whether to show full URL strings in template rendering
+  const [showFullUrls, setShowFullUrls] = useState(false);
+
   // Step names and icons list
   const steps = [
     { name: 'Profile & Summary', icon: <User size={18} /> },
@@ -126,6 +129,7 @@ export default function BuilderPage() {
       try {
         const parsed = JSON.parse(savedDraft);
         // Defensively merge default schemas to handle schema extensions on older drafts
+        const generateUniqueId = () => Date.now().toString() + Math.random().toString(36).substr(2, 9);
         const merged = {
           ...initialFormState,
           ...parsed,
@@ -133,14 +137,27 @@ export default function BuilderPage() {
             ...initialFormState.personal,
             ...(parsed.personal || {})
           },
-          experience: parsed.experience || initialFormState.experience,
+          experience: (parsed.experience || initialFormState.experience).map(e => ({
+            id: e.id || generateUniqueId(),
+            ...e
+          })),
           projects: (parsed.projects || []).map(p => ({
             ...initialFormState.projects[0],
+            id: p.id || generateUniqueId(),
             ...p
           })),
-          education: parsed.education || initialFormState.education,
-          languages: parsed.languages || [],
-          certifications: parsed.certifications || [],
+          education: (parsed.education || initialFormState.education).map(edu => ({
+            id: edu.id || generateUniqueId(),
+            ...edu
+          })),
+          languages: (parsed.languages || []).map(l => ({
+            id: l.id || generateUniqueId(),
+            ...l
+          })),
+          certifications: (parsed.certifications || []).map(c => ({
+            id: c.id || generateUniqueId(),
+            ...c
+          })),
         };
         setFormData(merged);
       } catch (e) {
@@ -150,6 +167,10 @@ export default function BuilderPage() {
     const savedTemplate = localStorage.getItem('resume-mill-active-template');
     if (savedTemplate) {
       setActiveTemplate(savedTemplate);
+    }
+    const savedShowFullUrls = localStorage.getItem('resume-mill-show-full-urls');
+    if (savedShowFullUrls !== null) {
+      setShowFullUrls(savedShowFullUrls === 'true');
     }
     setIsLoaded(true);
   }, []);
@@ -167,6 +188,13 @@ export default function BuilderPage() {
       localStorage.setItem('resume-mill-active-template', activeTemplate);
     }
   }, [activeTemplate, isLoaded]);
+
+  // Hook to automatically persist showFullUrls choice updates
+  useEffect(() => {
+    if (isLoaded) {
+      localStorage.setItem('resume-mill-show-full-urls', showFullUrls);
+    }
+  }, [showFullUrls, isLoaded]);
 
   // Handler for simple top-level personal details changes
   const handlePersonalChange = (e) => {
@@ -388,6 +416,38 @@ export default function BuilderPage() {
         pageNum++;
       }
 
+      // Add interactive links to the PDF pages
+      const pageElements = sheet.children;
+      for (let p = 0; p < pageElements.length; p++) {
+        const pageEl = pageElements[p];
+        const pageRect = pageEl.getBoundingClientRect();
+        const links = pageEl.querySelectorAll('a');
+        
+        pdf.setPage(p + 1);
+        
+        links.forEach((link) => {
+          const href = link.getAttribute('href');
+          if (href && (href.startsWith('http://') || href.startsWith('https://') || href.startsWith('mailto:'))) {
+            const linkRect = link.getBoundingClientRect();
+            const leftPx = linkRect.left - pageRect.left;
+            const topPx = linkRect.top - pageRect.top;
+            const widthPx = linkRect.width;
+            const heightPx = linkRect.height;
+            
+            const scaleX = 210 / 794;
+            const scaleY = 297 / 1123;
+            
+            pdf.link(
+              leftPx * scaleX,
+              topPx * scaleY,
+              widthPx * scaleX,
+              heightPx * scaleY,
+              { url: href }
+            );
+          }
+        });
+      }
+
       const fileName = `${(formData.personal.fullName || 'Resume').replace(/\s+/g, '_')}_Resume.pdf`;
       pdf.save(fileName);
 
@@ -514,6 +574,8 @@ export default function BuilderPage() {
                   onShowPreview={() => setShowFullscreenPreview(true)}
                   supportWithWatermark={supportWithWatermark}
                   setSupportWithWatermark={setSupportWithWatermark}
+                  showFullUrls={showFullUrls}
+                  setShowFullUrls={setShowFullUrls}
                 />
               )}
             </div>
@@ -559,6 +621,7 @@ export default function BuilderPage() {
             showFullscreen={showFullscreenPreview}
             setShowFullscreen={setShowFullscreenPreview}
             supportWithWatermark={supportWithWatermark}
+            showFullUrls={showFullUrls}
           />
 
         </div>

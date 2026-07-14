@@ -8,10 +8,19 @@
  * Implements strict modular section checks: empty sections are hidden.
  */
 
+'use client';
+
 import React from 'react';
 import styles from './ResumeTemplates.module.css';
 
-export default function Creative_Page({ data, pageData, showWatermark = true }) {
+const formatDisplayUrl = (url) => {
+  if (!url) return '';
+  return url
+    .replace(/^(https?:\/\/)?(www\.)?/, '')
+    .replace(/\/$/, '');
+};
+
+export default function Creative_Page({ data, pageData, showWatermark = true, showFullUrls = false }) {
   // Use pageData if partitioned, otherwise fallback to entire data
   const personal = data?.personal || {};
   const activePageData = pageData || {
@@ -89,38 +98,46 @@ export default function Creative_Page({ data, pageData, showWatermark = true }) 
               )}
               {personal.github && (
                 <span className={styles.contactItem}>
-                  <a href={personal.github} target="_blank" rel="noopener noreferrer" style={{ color: '#94a3b8' }}>GitHub</a>
+                  <a href={personal.github} target="_blank" rel="noopener noreferrer" style={{ color: '#94a3b8' }}>
+                    {showFullUrls ? formatDisplayUrl(personal.github) : 'GitHub'}
+                  </a>
                 </span>
               )}
               {personal.linkedin && (
                 <span className={styles.contactItem}>
-                  <a href={personal.linkedin} target="_blank" rel="noopener noreferrer" style={{ color: '#94a3b8' }}>LinkedIn</a>
+                  <a href={personal.linkedin} target="_blank" rel="noopener noreferrer" style={{ color: '#94a3b8' }}>
+                    {showFullUrls ? formatDisplayUrl(personal.linkedin) : 'LinkedIn'}
+                  </a>
                 </span>
               )}
               {personal.portfolio && (
                 <span className={styles.contactItem}>
-                  <a href={personal.portfolio} target="_blank" rel="noopener noreferrer" style={{ color: '#94a3b8' }}>Portfolio</a>
+                  <a href={personal.portfolio} target="_blank" rel="noopener noreferrer" style={{ color: '#94a3b8' }}>
+                    {showFullUrls ? formatDisplayUrl(personal.portfolio) : 'Portfolio'}
+                  </a>
                 </span>
               )}
             </div>
           </div>
         )}
 
-        {/* SUMMARY */}
+        {/* PROFILE SUMMARY */}
         {showHeader && personal.summary && (
           <div className={styles.sectionBlock}>
-            <h3 className={styles.secTitle}>Profile</h3>
-            <p className={styles.summaryText}>{personal.summary}</p>
+            <h3 className={styles.secTitle}>About Me</h3>
+            <p className={styles.summaryText} style={{ color: '#cbd5e1', fontSize: '11.5px', lineHeight: '1.6' }}>
+              {personal.summary}
+            </p>
           </div>
         )}
 
-        {/* SKILLS (Rendered as side bar pills) */}
+        {/* SKILLS */}
         {skills && (
           <div className={styles.sectionBlock}>
             <h3 className={styles.secTitle}>Skills</h3>
-            <div className={styles.creativeSkillsContainer}>
+            <div className={styles.creativeSkillsList}>
               {skills.split(',').map((s) => s.trim()).filter(Boolean).map((skill, idx) => (
-                <span key={idx} className={styles.creativeSkillPill}>{skill}</span>
+                <span key={idx} className={styles.creativeSkillItem}>{skill}</span>
               ))}
             </div>
           </div>
@@ -188,17 +205,17 @@ export default function Creative_Page({ data, pageData, showWatermark = true }) 
                     <div className={styles.projectLinks}>
                       {proj.liveUrl && (
                         <a href={proj.liveUrl} target="_blank" rel="noopener noreferrer" className={styles.projectLink}>
-                          Live Demo
+                          {showFullUrls ? `Live: ${formatDisplayUrl(proj.liveUrl)}` : 'Live Demo'}
                         </a>
                       )}
                       {proj.githubFront && (
                         <a href={proj.githubFront} target="_blank" rel="noopener noreferrer" className={styles.projectLink}>
-                          Front Repo
+                          {showFullUrls ? `Front: ${formatDisplayUrl(proj.githubFront)}` : 'Front Repo'}
                         </a>
                       )}
                       {proj.githubBack && (
                         <a href={proj.githubBack} target="_blank" rel="noopener noreferrer" className={styles.projectLink}>
-                          Back Repo
+                          {showFullUrls ? `Back: ${formatDisplayUrl(proj.githubBack)}` : 'Back Repo'}
                         </a>
                       )}
                     </div>
@@ -265,7 +282,7 @@ export default function Creative_Page({ data, pageData, showWatermark = true }) 
                   {cert.url && (
                     <div className={styles.itemSubHeader}>
                       <a href={cert.url} target="_blank" rel="noopener noreferrer" className={styles.certLink}>
-                        View Credential
+                        {showFullUrls ? formatDisplayUrl(cert.url) : 'View Credential'}
                       </a>
                     </div>
                   )}

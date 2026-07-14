@@ -10,6 +10,8 @@
  * Follows semantic HTML layout guidelines to facilitate future SEO audits.
  */
 
+'use client';
+
 import React from 'react';
 import styles from './ResumeTemplates.module.css';
 import {
@@ -27,7 +29,14 @@ import {
   SkillsIcon
 } from './icons';
 
-export default function Timeline_Page({ data, pageData, showWatermark = true }) {
+const formatDisplayUrl = (url) => {
+  if (!url) return '';
+  return url
+    .replace(/^(https?:\/\/)?(www\.)?/, '')
+    .replace(/\/$/, '');
+};
+
+export default function Timeline_Page({ data, pageData, showWatermark = true, showFullUrls = false }) {
   // Fallback to data if pageData is undefined
   const personal = data?.personal || {};
   const activePageData = pageData || {
@@ -100,7 +109,7 @@ export default function Timeline_Page({ data, pageData, showWatermark = true }) 
                 <span className={styles.timelineContactItem}>
                   <GithubIcon size={12} className={styles.timelineContactIcon} />
                   <a href={personal.github} target="_blank" rel="noopener noreferrer">
-                    GitHub
+                    {showFullUrls ? formatDisplayUrl(personal.github) : 'GitHub'}
                   </a>
                 </span>
               )}
@@ -108,7 +117,7 @@ export default function Timeline_Page({ data, pageData, showWatermark = true }) 
                 <span className={styles.timelineContactItem}>
                   <LinkedinIcon size={12} className={styles.timelineContactIcon} />
                   <a href={personal.linkedin} target="_blank" rel="noopener noreferrer">
-                    LinkedIn
+                    {showFullUrls ? formatDisplayUrl(personal.linkedin) : 'LinkedIn'}
                   </a>
                 </span>
               )}
@@ -116,7 +125,7 @@ export default function Timeline_Page({ data, pageData, showWatermark = true }) 
                 <span className={styles.timelineContactItem}>
                   <PortfolioIcon size={12} className={styles.timelineContactIcon} />
                   <a href={personal.portfolio} target="_blank" rel="noopener noreferrer">
-                    Portfolio
+                    {showFullUrls ? formatDisplayUrl(personal.portfolio) : 'Portfolio'}
                   </a>
                 </span>
               )}
@@ -191,17 +200,17 @@ export default function Timeline_Page({ data, pageData, showWatermark = true }) 
                     <div className={styles.timelineProjectLinks}>
                       {proj.liveUrl && (
                         <a href={proj.liveUrl} target="_blank" rel="noopener noreferrer" className={styles.timelineProjectLink}>
-                          Live Demo
+                          {showFullUrls ? `Live: ${formatDisplayUrl(proj.liveUrl)}` : 'Live Demo'}
                         </a>
                       )}
                       {proj.githubFront && (
                         <a href={proj.githubFront} target="_blank" rel="noopener noreferrer" className={styles.timelineProjectLink}>
-                          Front Repo
+                          {showFullUrls ? `Front: ${formatDisplayUrl(proj.githubFront)}` : 'Front Repo'}
                         </a>
                       )}
                       {proj.githubBack && (
                         <a href={proj.githubBack} target="_blank" rel="noopener noreferrer" className={styles.timelineProjectLink}>
-                          Back Repo
+                          {showFullUrls ? `Back: ${formatDisplayUrl(proj.githubBack)}` : 'Back Repo'}
                         </a>
                       )}
                     </div>
@@ -322,7 +331,7 @@ export default function Timeline_Page({ data, pageData, showWatermark = true }) 
                   {cert.url && (
                     <div className={styles.timelineItemSubHeader}>
                       <a href={cert.url} target="_blank" rel="noopener noreferrer" className={styles.timelineCertLink}>
-                        View Credential
+                        {showFullUrls ? formatDisplayUrl(cert.url) : 'View Credential'}
                       </a>
                     </div>
                   )}

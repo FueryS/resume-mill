@@ -7,10 +7,19 @@
  * Implements strict modular section checks: empty sections are hidden.
  */
 
+'use client';
+
 import React from 'react';
 import styles from './ResumeTemplates.module.css';
 
-export default function Elegant_Page({ data, pageData, showWatermark = true }) {
+const formatDisplayUrl = (url) => {
+  if (!url) return '';
+  return url
+    .replace(/^(https?:\/\/)?(www\.)?/, '')
+    .replace(/\/$/, '');
+};
+
+export default function Elegant_Page({ data, pageData, showWatermark = true, showFullUrls = false }) {
   // Use pageData if partitioned, otherwise fallback to entire data
   const personal = data?.personal || {};
   const activePageData = pageData || {
@@ -80,17 +89,23 @@ export default function Elegant_Page({ data, pageData, showWatermark = true }) {
             )}
             {personal.github && (
               <span className={styles.contactItem}>
-                <a href={personal.github} target="_blank" rel="noopener noreferrer">GitHub</a>
+                <a href={personal.github} target="_blank" rel="noopener noreferrer">
+                  {showFullUrls ? formatDisplayUrl(personal.github) : 'GitHub'}
+                </a>
               </span>
             )}
             {personal.linkedin && (
               <span className={styles.contactItem}>
-                <a href={personal.linkedin} target="_blank" rel="noopener noreferrer">LinkedIn</a>
+                <a href={personal.linkedin} target="_blank" rel="noopener noreferrer">
+                  {showFullUrls ? formatDisplayUrl(personal.linkedin) : 'LinkedIn'}
+                </a>
               </span>
             )}
             {personal.portfolio && (
               <span className={styles.contactItem}>
-                <a href={personal.portfolio} target="_blank" rel="noopener noreferrer">Portfolio</a>
+                <a href={personal.portfolio} target="_blank" rel="noopener noreferrer">
+                  {showFullUrls ? formatDisplayUrl(personal.portfolio) : 'Portfolio'}
+                </a>
               </span>
             )}
           </div>
@@ -106,10 +121,10 @@ export default function Elegant_Page({ data, pageData, showWatermark = true }) {
         </div>
       )}
 
-      {/* EXPERIENCE SECTION */}
+      {/* WORK EXPERIENCE SECTION */}
       {hasExperience && (
         <div className={styles.sectionBlock}>
-          <h3 className={styles.secTitle}>Work Experience</h3>
+          <h3 className={styles.secTitle}>Experience</h3>
           <div className={styles.secDivider}></div>
           {experience.map((exp, idx) => (
             (exp.company || exp.role) && (
@@ -117,14 +132,14 @@ export default function Elegant_Page({ data, pageData, showWatermark = true }) {
                 <div className={styles.itemHeader}>
                   <div>
                     {exp.role && <span className={styles.itemRole}>{exp.role}</span>}
-                    {exp.role && exp.company && <span> | </span>}
+                    {exp.role && exp.company && <span>, </span>}
                     {exp.company && <span className={styles.itemCompany}>{exp.company}</span>}
                   </div>
                   <span className={styles.itemDates}>
-                    {exp.startDate || 'Start'} – {exp.endDate || (exp.current ? 'Present' : 'End')}
+                    {exp.startDate || 'Start'} – {exp.current ? 'Present' : exp.endDate || 'End'}
                   </span>
                 </div>
-                {exp.location && (
+                {(exp.location || exp.current !== undefined) && (
                   <div className={styles.itemSubHeader}>
                     <span>{exp.location}</span>
                   </div>
@@ -151,17 +166,17 @@ export default function Elegant_Page({ data, pageData, showWatermark = true }) {
                   <div className={styles.projectLinks}>
                     {proj.liveUrl && (
                       <a href={proj.liveUrl} target="_blank" rel="noopener noreferrer" className={styles.projectLink}>
-                        Live Demo
+                        {showFullUrls ? `Live: ${formatDisplayUrl(proj.liveUrl)}` : 'Live Demo'}
                       </a>
                     )}
                     {proj.githubFront && (
                       <a href={proj.githubFront} target="_blank" rel="noopener noreferrer" className={styles.projectLink}>
-                        Frontend Repo
+                        {showFullUrls ? `Frontend: ${formatDisplayUrl(proj.githubFront)}` : 'Frontend Repo'}
                       </a>
                     )}
                     {proj.githubBack && (
                       <a href={proj.githubBack} target="_blank" rel="noopener noreferrer" className={styles.projectLink}>
-                        Backend Repo
+                        {showFullUrls ? `Backend: ${formatDisplayUrl(proj.githubBack)}` : 'Backend Repo'}
                       </a>
                     )}
                   </div>
@@ -211,7 +226,7 @@ export default function Elegant_Page({ data, pageData, showWatermark = true }) {
         </div>
       )}
 
-      {/* SKILLS SECTION (Styled as pills with classic elegant coloring) */}
+      {/* SKILLS SECTION */}
       {skills && (
         <div className={styles.sectionBlock}>
           <h3 className={styles.secTitle}>Skills &amp; Technologies</h3>
@@ -259,7 +274,7 @@ export default function Elegant_Page({ data, pageData, showWatermark = true }) {
                 {cert.url && (
                   <div className={styles.itemSubHeader}>
                     <a href={cert.url} target="_blank" rel="noopener noreferrer" className={styles.certLink}>
-                      View Credential
+                      {showFullUrls ? formatDisplayUrl(cert.url) : 'View Credential'}
                     </a>
                   </div>
                 )}

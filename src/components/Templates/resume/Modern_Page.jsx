@@ -10,7 +10,14 @@
 import React from 'react';
 import styles from './ResumeTemplates.module.css';
 
-export default function Modern_Page({ data, pageData, showWatermark = true }) {
+const formatDisplayUrl = (url) => {
+  if (!url) return '';
+  return url
+    .replace(/^(https?:\/\/)?(www\.)?/, '')
+    .replace(/\/$/, '');
+};
+
+export default function Modern_Page({ data, pageData, showWatermark = true, showFullUrls = false }) {
   // Use pageData if partitioned, otherwise fallback to entire data
   const personal = data?.personal || {};
   const activePageData = pageData || {
@@ -67,17 +74,23 @@ export default function Modern_Page({ data, pageData, showWatermark = true }) {
                 )}
                 {personal.github && (
                   <span className={styles.contactItem}>
-                    <a href={personal.github} target="_blank" rel="noopener noreferrer">GitHub</a>
+                    <a href={personal.github} target="_blank" rel="noopener noreferrer">
+                      {showFullUrls ? formatDisplayUrl(personal.github) : 'GitHub'}
+                    </a>
                   </span>
                 )}
                 {personal.linkedin && (
                   <span className={styles.contactItem}>
-                    <a href={personal.linkedin} target="_blank" rel="noopener noreferrer">LinkedIn</a>
+                    <a href={personal.linkedin} target="_blank" rel="noopener noreferrer">
+                      {showFullUrls ? formatDisplayUrl(personal.linkedin) : 'LinkedIn'}
+                    </a>
                   </span>
                 )}
                 {personal.portfolio && (
                   <span className={styles.contactItem}>
-                    <a href={personal.portfolio} target="_blank" rel="noopener noreferrer">Portfolio</a>
+                    <a href={personal.portfolio} target="_blank" rel="noopener noreferrer">
+                      {showFullUrls ? formatDisplayUrl(personal.portfolio) : 'Portfolio'}
+                    </a>
                   </span>
                 )}
               </div>
@@ -103,17 +116,23 @@ export default function Modern_Page({ data, pageData, showWatermark = true }) {
               )}
               {personal.github && (
                 <span className={styles.contactItem}>
-                  <a href={personal.github} target="_blank" rel="noopener noreferrer">GitHub</a>
+                  <a href={personal.github} target="_blank" rel="noopener noreferrer">
+                    {showFullUrls ? formatDisplayUrl(personal.github) : 'GitHub'}
+                  </a>
                 </span>
               )}
               {personal.linkedin && (
                 <span className={styles.contactItem}>
-                  <a href={personal.linkedin} target="_blank" rel="noopener noreferrer">LinkedIn</a>
+                  <a href={personal.linkedin} target="_blank" rel="noopener noreferrer">
+                    {showFullUrls ? formatDisplayUrl(personal.linkedin) : 'LinkedIn'}
+                  </a>
                 </span>
               )}
               {personal.portfolio && (
                 <span className={styles.contactItem}>
-                  <a href={personal.portfolio} target="_blank" rel="noopener noreferrer">Portfolio</a>
+                  <a href={personal.portfolio} target="_blank" rel="noopener noreferrer">
+                    {showFullUrls ? formatDisplayUrl(personal.portfolio) : 'Portfolio'}
+                  </a>
                 </span>
               )}
             </div>
@@ -175,17 +194,17 @@ export default function Modern_Page({ data, pageData, showWatermark = true }) {
                   <div className={styles.projectLinks}>
                     {proj.liveUrl && (
                       <a href={proj.liveUrl} target="_blank" rel="noopener noreferrer" className={styles.projectLink}>
-                        Live Demo
+                        {showFullUrls ? `Live: ${formatDisplayUrl(proj.liveUrl)}` : 'Live Demo'}
                       </a>
                     )}
                     {proj.githubFront && (
                       <a href={proj.githubFront} target="_blank" rel="noopener noreferrer" className={styles.projectLink}>
-                        Front Repo
+                        {showFullUrls ? `Front: ${formatDisplayUrl(proj.githubFront)}` : 'Front Repo'}
                       </a>
                     )}
                     {proj.githubBack && (
                       <a href={proj.githubBack} target="_blank" rel="noopener noreferrer" className={styles.projectLink}>
-                        Back Repo
+                        {showFullUrls ? `Back: ${formatDisplayUrl(proj.githubBack)}` : 'Back Repo'}
                       </a>
                     )}
                   </div>

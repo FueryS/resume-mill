@@ -24,7 +24,9 @@ export default function ExportPanel({
   handleClearDraft,
   onShowPreview,
   supportWithWatermark,
-  setSupportWithWatermark
+  setSupportWithWatermark,
+  showFullUrls,
+  setShowFullUrls
 }) {
   const router = useRouter();
 
@@ -113,7 +115,7 @@ export default function ExportPanel({
             display: 'flex',
             alignItems: 'center',
             gap: '10px',
-            margin: '16px 0',
+            margin: '16px 0 10px 0',
             padding: '10px 14px',
             backgroundColor: 'var(--bg-tertiary)',
             borderRadius: 'var(--radius-md)',
@@ -138,6 +140,40 @@ export default function ExportPanel({
           />
           <span style={{ fontSize: '13px', fontWeight: '600', color: 'var(--text-main)' }}>
             Support us with a tiny watermark (Bottom Right)
+          </span>
+        </div>
+
+        {/* Display Full URLs Checkbox */}
+        <div 
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '10px',
+            margin: '10px 0 16px 0',
+            padding: '10px 14px',
+            backgroundColor: 'var(--bg-tertiary)',
+            borderRadius: 'var(--radius-md)',
+            border: '1px solid var(--border-color)',
+            cursor: 'pointer',
+            width: '100%',
+            userSelect: 'none'
+          }} 
+          onClick={() => setShowFullUrls(!showFullUrls)}
+        >
+          <input 
+            type="checkbox" 
+            checked={showFullUrls} 
+            onChange={(e) => setShowFullUrls(e.target.checked)}
+            onClick={(e) => e.stopPropagation()} 
+            style={{ 
+              cursor: 'pointer',
+              width: '16px',
+              height: '16px',
+              accentColor: 'var(--primary)'
+            }}
+          />
+          <span style={{ fontSize: '13px', fontWeight: '600', color: 'var(--text-main)' }}>
+            Display full URL texts (recommended for print)
           </span>
         </div>
 

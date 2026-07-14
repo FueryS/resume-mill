@@ -55,7 +55,7 @@ const SelectedCheckIcon = () => (
  * ThumbnailPreview Component
  * Performs the actual live scaled A4 drawing inside the thumbnail.
  */
-function ThumbnailPreview({ template, data, onClick, isSelected }) {
+function ThumbnailPreview({ template, data, onClick, isSelected, showFullUrls = false }) {
   const [scale, setScale] = useState(0.3);
   const containerRef = useRef(null);
 
@@ -84,7 +84,7 @@ function ThumbnailPreview({ template, data, onClick, isSelected }) {
         className={styles.previewScaleWrapper}
         style={{ transform: `scale(${scale})` }}
       >
-        <TemplateComponent data={data} />
+        <TemplateComponent data={data} showFullUrls={showFullUrls} />
       </div>
     </div>
   );
@@ -94,7 +94,7 @@ function ThumbnailPreview({ template, data, onClick, isSelected }) {
  * ModalPreview Component
  * Scales A4 template inside the full-screen modal viewport.
  */
-function ModalPreview({ template, data }) {
+function ModalPreview({ template, data, showFullUrls = false }) {
   const [scale, setScale] = useState(0.7);
   const containerRef = useRef(null);
 
@@ -125,7 +125,7 @@ function ModalPreview({ template, data }) {
           marginBottom: `${1123 * (scale - 1)}px` // Prevents scroll overflow caused by scaled space
         }}
       >
-        <TemplateComponent data={data} />
+        <TemplateComponent data={data} showFullUrls={showFullUrls} />
       </div>
     </div>
   );
@@ -138,6 +138,7 @@ export default function ResumeTemplatesExplorationPage() {
   const [selectedTemplate, setSelectedTemplate] = useState('modern');
   const [useMyInfo, setUseMyInfo] = useState(false);
   const [usePlaceholders, setUsePlaceholders] = useState(true);
+  const [showFullUrls, setShowFullUrls] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
   
   // Stored user draft information
@@ -170,6 +171,11 @@ export default function ResumeTemplatesExplorationPage() {
       setUsePlaceholders(savedUsePlaceholders === 'true');
     }
 
+    const savedShowFullUrls = localStorage.getItem('resume-mill-show-full-urls');
+    if (savedShowFullUrls !== null) {
+      setShowFullUrls(savedShowFullUrls === 'true');
+    }
+
     setIsLoaded(true);
   }, []);
 
@@ -189,6 +195,12 @@ export default function ResumeTemplatesExplorationPage() {
   const handleToggleUsePlaceholders = (val) => {
     setUsePlaceholders(val);
     localStorage.setItem('resume-mill-templates-use-placeholders', val ? 'true' : 'false');
+  };
+
+  // Save "Show Full URLs" toggle
+  const handleToggleShowFullUrls = (val) => {
+    setShowFullUrls(val);
+    localStorage.setItem('resume-mill-show-full-urls', val ? 'true' : 'false');
   };
 
   // Taps "Use this" inside the fullscreen modal -> redirects to builder
@@ -337,6 +349,7 @@ export default function ResumeTemplatesExplorationPage() {
                   template={template} 
                   data={currentPreviewData}
                   isSelected={isSelected}
+                  showFullUrls={showFullUrls}
                   onClick={() => setActiveModalTemplate(template)}
                 />
 
@@ -369,6 +382,7 @@ export default function ResumeTemplatesExplorationPage() {
               <ModalPreview 
                 template={activeModalTemplate} 
                 data={currentPreviewData} 
+                showFullUrls={showFullUrls}
               />
             </div>
 
@@ -421,6 +435,22 @@ export default function ResumeTemplatesExplorationPage() {
                         type="checkbox" 
                         checked={usePlaceholders}
                         onChange={(e) => handleToggleUsePlaceholders(e.target.checked)}
+                      />
+                      <span className={styles.slider}></span>
+                    </label>
+                  </div>
+
+                  {/* Toggle 3: Show Full URLs */}
+                  <div className={styles.toggleRow} onClick={() => handleToggleShowFullUrls(!showFullUrls)}>
+                    <div className={styles.toggleLabel}>
+                      <span className={styles.toggleLabelTitle}>Show Full URLs</span>
+                      <span className={styles.toggleLabelDesc}>Display complete URLs on page</span>
+                    </div>
+                    <label className={styles.switch} onClick={(e) => e.stopPropagation()}>
+                      <input 
+                        type="checkbox" 
+                        checked={showFullUrls}
+                        onChange={(e) => handleToggleShowFullUrls(e.target.checked)}
                       />
                       <span className={styles.slider}></span>
                     </label>

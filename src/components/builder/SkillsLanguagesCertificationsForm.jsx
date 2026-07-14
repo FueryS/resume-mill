@@ -121,7 +121,7 @@ export default function SkillsLanguagesCertificationsForm({
 
       {langList.map((lang, idx) => (
         <div 
-          key={lang.id} 
+          key={lang.id || idx} 
           className={`${styles.itemCard} ${draggedLangIndex === idx ? styles.itemCardDragging : ''}`}
           draggable={true}
           onDragStart={(e) => handleLangDragStart(e, idx)}
@@ -229,7 +229,7 @@ export default function SkillsLanguagesCertificationsForm({
 
       {certList.map((cert, idx) => (
         <div 
-          key={cert.id} 
+          key={cert.id || idx} 
           className={`${styles.itemCard} ${draggedCertIndex === idx ? styles.itemCardDragging : ''}`}
           draggable={true}
           onDragStart={(e) => handleCertDragStart(e, idx)}
