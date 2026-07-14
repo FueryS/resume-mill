@@ -13,7 +13,7 @@
 'use client';
 
 import React, { useState, useRef } from 'react';
-import { Plus, Trash2, Globe, Award, Sparkles, ChevronUp, ChevronDown, GripVertical } from 'lucide-react';
+import { Plus, Trash2, Globe, Award, Sparkles, ChevronDown, GripVertical } from 'lucide-react';
 import styles from '@/app/builder/page.module.css';
 
 export default function SkillsLanguagesCertificationsForm({
@@ -158,24 +158,6 @@ export default function SkillsLanguagesCertificationsForm({
               </div>
               <button
                 type="button"
-                className={styles.btnMove}
-                onClick={() => moveArrayItem('languages', lang.id, 'up')}
-                disabled={idx === 0}
-                title="Move Up"
-              >
-                <ChevronUp size={16} />
-              </button>
-              <button
-                type="button"
-                className={styles.btnMove}
-                onClick={() => moveArrayItem('languages', lang.id, 'down')}
-                disabled={idx === langList.length - 1}
-                title="Move Down"
-              >
-                <ChevronDown size={16} />
-              </button>
-              <button
-                type="button"
                 className={styles.btnRemove}
                 onClick={() => removeArrayItem('languages', lang.id)}
                 title="Remove Language"
@@ -282,24 +264,6 @@ export default function SkillsLanguagesCertificationsForm({
               >
                 <GripVertical size={16} />
               </div>
-              <button
-                type="button"
-                className={styles.btnMove}
-                onClick={() => moveArrayItem('certifications', cert.id, 'up')}
-                disabled={idx === 0}
-                title="Move Up"
-              >
-                <ChevronUp size={16} />
-              </button>
-              <button
-                type="button"
-                className={styles.btnMove}
-                onClick={() => moveArrayItem('certifications', cert.id, 'down')}
-                disabled={idx === certList.length - 1}
-                title="Move Down"
-              >
-                <ChevronDown size={16} />
-              </button>
               <button
                 type="button"
                 className={styles.btnRemove}
