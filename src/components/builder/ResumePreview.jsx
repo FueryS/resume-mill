@@ -301,7 +301,7 @@ export default function ResumePreview({
         {totalPages > 1 && (
           <>
             <button
-              onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+              onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
               disabled={currentPage === 1}
               style={{
                 color: currentPage === 1 ? "rgba(255,255,255,0.4)" : "#ffffff",
@@ -319,14 +319,24 @@ export default function ResumePreview({
             >
               <ChevronLeft size={16} />
             </button>
-            <span style={{ fontSize: "12px", fontWeight: "600", minWidth: "60px", textAlign: "center" }}>
+            <span
+              style={{
+                fontSize: "12px",
+                fontWeight: "600",
+                minWidth: "60px",
+                textAlign: "center",
+              }}
+            >
               Page {currentPage} of {totalPages}
             </span>
             <button
-              onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+              onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
               disabled={currentPage === totalPages}
               style={{
-                color: currentPage === totalPages ? "rgba(255,255,255,0.4)" : "#ffffff",
+                color:
+                  currentPage === totalPages
+                    ? "rgba(255,255,255,0.4)"
+                    : "#ffffff",
                 fontSize: "12px",
                 fontWeight: "700",
                 cursor: currentPage === totalPages ? "not-allowed" : "pointer",
@@ -411,111 +421,113 @@ export default function ResumePreview({
       </div>
 
       {/* Fullscreen Overlay Modal (Responsive Scaling) */}
-      {showFullscreen && mounted && createPortal(
-        <div
-          className="no-print fullscreen-modal-overlay"
-          onClick={() => setShowFullscreen(false)}
-          style={{
-            position: "fixed",
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: "rgba(15, 23, 42, 0.9)",
-            backdropFilter: "blur(8px)",
-            zIndex: 10010,
-            overflowY: "auto",
-            padding: "60px 16px 40px 16px",
-          }}
-        >
-          {/* Floating Close Button */}
-          <button
+      {showFullscreen &&
+        mounted &&
+        createPortal(
+          <div
+            className="no-print fullscreen-modal-overlay"
             onClick={() => setShowFullscreen(false)}
             style={{
               position: "fixed",
-              top: "20px",
-              right: "20px",
-              backgroundColor: "rgba(255, 255, 255, 0.15)",
-              border: "1px solid rgba(255, 255, 255, 0.25)",
-              borderRadius: "50%",
-              width: "40px",
-              height: "40px",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              color: "#ffffff",
-              cursor: "pointer",
-              zIndex: 10003,
-              transition: "all 0.2s",
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              backgroundColor: "rgba(15, 23, 42, 0.9)",
+              backdropFilter: "blur(8px)",
+              zIndex: 10010,
+              overflowY: "auto",
+              padding: "60px 16px 40px 16px",
             }}
-            title="Close Preview"
           >
-            <X size={20} />
-          </button>
+            {/* Floating Close Button */}
+            <button
+              onClick={() => setShowFullscreen(false)}
+              style={{
+                position: "fixed",
+                top: "20px",
+                right: "20px",
+                backgroundColor: "rgba(255, 255, 255, 0.15)",
+                border: "1px solid rgba(255, 255, 255, 0.25)",
+                borderRadius: "50%",
+                width: "40px",
+                height: "40px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                color: "#ffffff",
+                cursor: "pointer",
+                zIndex: 10003,
+                transition: "all 0.2s",
+              }}
+              title="Close Preview"
+            >
+              <X size={20} />
+            </button>
 
-          {/* Scrollable vertical pages stack */}
-          <div
-            onClick={(e) => e.stopPropagation()}
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              gap: "24px",
-              width: `${794 * modalScale}px`,
-              margin: "20px auto 40px auto",
-            }}
-          >
-            {pages.map((page, index) => (
-              <div
-                key={index}
-                style={{
-                  width: `${794 * modalScale}px`,
-                  height: `${1123 * modalScale}px`,
-                  position: "relative",
-                  boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.5)",
-                  overflow: "hidden",
-                  borderRadius: "var(--radius-sm)",
-                  backgroundColor: "#ffffff",
-                }}
-              >
+            {/* Scrollable vertical pages stack */}
+            <div
+              onClick={(e) => e.stopPropagation()}
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: "24px",
+                width: `${794 * modalScale}px`,
+                margin: "20px auto 40px auto",
+              }}
+            >
+              {pages.map((page, index) => (
                 <div
+                  key={index}
                   style={{
-                    transform: `scale(${modalScale})`,
-                    transformOrigin: "top left",
-                    width: "794px",
-                    height: "1123px",
-                    position: "absolute",
-                    top: 0,
-                    left: 0,
+                    width: `${794 * modalScale}px`,
+                    height: `${1123 * modalScale}px`,
+                    position: "relative",
+                    boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.5)",
+                    overflow: "hidden",
+                    borderRadius: "var(--radius-sm)",
+                    backgroundColor: "#ffffff",
                   }}
                 >
-                  {activeTemplate === "modern" && (
-                    <Modern_Page
-                      data={formData}
-                      pageData={page}
-                      showWatermark={supportWithWatermark}
-                    />
-                  )}
-                  {activeTemplate === "elegant" && (
-                    <Elegant_Page
-                      data={formData}
-                      pageData={page}
-                      showWatermark={supportWithWatermark}
-                    />
-                  )}
-                  {activeTemplate === "creative" && (
-                    <Creative_Page
-                      data={formData}
-                      pageData={page}
-                      showWatermark={supportWithWatermark}
-                    />
-                  )}
+                  <div
+                    style={{
+                      transform: `scale(${modalScale})`,
+                      transformOrigin: "top left",
+                      width: "794px",
+                      height: "1123px",
+                      position: "absolute",
+                      top: 0,
+                      left: 0,
+                    }}
+                  >
+                    {activeTemplate === "modern" && (
+                      <Modern_Page
+                        data={formData}
+                        pageData={page}
+                        showWatermark={supportWithWatermark}
+                      />
+                    )}
+                    {activeTemplate === "elegant" && (
+                      <Elegant_Page
+                        data={formData}
+                        pageData={page}
+                        showWatermark={supportWithWatermark}
+                      />
+                    )}
+                    {activeTemplate === "creative" && (
+                      <Creative_Page
+                        data={formData}
+                        pageData={page}
+                        showWatermark={supportWithWatermark}
+                      />
+                    )}
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
-        </div>,
-        document.body
-      )}
+              ))}
+            </div>
+          </div>,
+          document.body,
+        )}
 
       {/* Hidden PDF capture container (full dimensions, no scaling) */}
       <div
