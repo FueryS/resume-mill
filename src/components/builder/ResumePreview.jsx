@@ -19,6 +19,7 @@ import { Maximize2, Eye, X, ChevronLeft, ChevronRight } from "lucide-react";
 import Modern_Page from "@/components/Templates/resume/Modern_Page";
 import Elegant_Page from "@/components/Templates/resume/Elegant_Page";
 import Creative_Page from "@/components/Templates/resume/Creative_Page";
+import Timeline_Page from "@/components/Templates/resume/Timeline_Page";
 import { partitionResumeData } from "@/utils/pagePartitioner";
 import styles from "@/app/builder/page.module.css";
 
@@ -267,6 +268,13 @@ export default function ResumePreview({
             )}
             {activeTemplate === "creative" && (
               <Creative_Page
+                data={formData}
+                pageData={pages[currentPage - 1]}
+                showWatermark={supportWithWatermark}
+              />
+            )}
+            {activeTemplate === "timeline" && (
+              <Timeline_Page
                 data={formData}
                 pageData={pages[currentPage - 1]}
                 showWatermark={supportWithWatermark}
@@ -521,6 +529,13 @@ export default function ResumePreview({
                         showWatermark={supportWithWatermark}
                       />
                     )}
+                    {activeTemplate === "timeline" && (
+                      <Timeline_Page
+                        data={formData}
+                        pageData={page}
+                        showWatermark={supportWithWatermark}
+                      />
+                    )}
                   </div>
                 </div>
               ))}
@@ -567,6 +582,13 @@ export default function ResumePreview({
             )}
             {activeTemplate === "creative" && (
               <Creative_Page
+                data={formData}
+                pageData={page}
+                showWatermark={supportWithWatermark}
+              />
+            )}
+            {activeTemplate === "timeline" && (
+              <Timeline_Page
                 data={formData}
                 pageData={page}
                 showWatermark={supportWithWatermark}

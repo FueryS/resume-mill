@@ -14,7 +14,7 @@
 'use client';
 
 import React from 'react';
-import { Plus, Trash2 } from 'lucide-react';
+import { Plus, Trash2, ChevronUp, ChevronDown } from 'lucide-react';
 import styles from '@/app/builder/page.module.css';
 import eduStyles from './EducationForm.module.css';
 
@@ -74,6 +74,7 @@ export default function EducationForm({
   handleArrayChange,
   addArrayItem,
   removeArrayItem,
+  moveArrayItem,
 }) {
   return (
     <div className={`${styles.formSection} animate-scale-in`}>
@@ -95,14 +96,34 @@ export default function EducationForm({
             {/* Card header: index + remove */}
             <div className={styles.itemCardHeader}>
               <h5>Institution #{idx + 1}</h5>
-              <button
-                type="button"
-                className={styles.btnRemove}
-                onClick={() => removeArrayItem('education', edu.id)}
-                title="Remove Education"
-              >
-                <Trash2 size={14} />
-              </button>
+              <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                <button
+                  type="button"
+                  className={styles.btnMove}
+                  onClick={() => moveArrayItem('education', edu.id, 'up')}
+                  disabled={idx === 0}
+                  title="Move Up"
+                >
+                  <ChevronUp size={16} />
+                </button>
+                <button
+                  type="button"
+                  className={styles.btnMove}
+                  onClick={() => moveArrayItem('education', edu.id, 'down')}
+                  disabled={idx === education.length - 1}
+                  title="Move Down"
+                >
+                  <ChevronDown size={16} />
+                </button>
+                <button
+                  type="button"
+                  className={styles.btnRemove}
+                  onClick={() => removeArrayItem('education', edu.id)}
+                  title="Remove Education"
+                >
+                  <Trash2 size={14} />
+                </button>
+              </div>
             </div>
 
             {/* Institution and Degree title */}

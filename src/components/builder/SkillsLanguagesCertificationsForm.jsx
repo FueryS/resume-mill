@@ -11,7 +11,7 @@
 'use client';
 
 import React from 'react';
-import { Plus, Trash2, Globe, Award, Sparkles } from 'lucide-react';
+import { Plus, Trash2, Globe, Award, Sparkles, ChevronUp, ChevronDown } from 'lucide-react';
 import styles from '@/app/builder/page.module.css';
 
 export default function SkillsLanguagesCertificationsForm({
@@ -21,6 +21,7 @@ export default function SkillsLanguagesCertificationsForm({
   handleArrayChange,
   addArrayItem,
   removeArrayItem,
+  moveArrayItem,
   onSkillsChange,
 }) {
   const langList = languages || [];
@@ -55,14 +56,34 @@ export default function SkillsLanguagesCertificationsForm({
         <div key={lang.id} className={styles.itemCard}>
           <div className={styles.itemCardHeader}>
             <h5>Language #{idx + 1}</h5>
-            <button
-              type="button"
-              className={styles.btnRemove}
-              onClick={() => removeArrayItem('languages', lang.id)}
-              title="Remove Language"
-            >
-              <Trash2 size={14} />
-            </button>
+            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+              <button
+                type="button"
+                className={styles.btnMove}
+                onClick={() => moveArrayItem('languages', lang.id, 'up')}
+                disabled={idx === 0}
+                title="Move Up"
+              >
+                <ChevronUp size={16} />
+              </button>
+              <button
+                type="button"
+                className={styles.btnMove}
+                onClick={() => moveArrayItem('languages', lang.id, 'down')}
+                disabled={idx === langList.length - 1}
+                title="Move Down"
+              >
+                <ChevronDown size={16} />
+              </button>
+              <button
+                type="button"
+                className={styles.btnRemove}
+                onClick={() => removeArrayItem('languages', lang.id)}
+                title="Remove Language"
+              >
+                <Trash2 size={14} />
+              </button>
+            </div>
           </div>
 
           <div className={styles.formRow}>
@@ -126,14 +147,34 @@ export default function SkillsLanguagesCertificationsForm({
         <div key={cert.id} className={styles.itemCard}>
           <div className={styles.itemCardHeader}>
             <h5>Certification #{idx + 1}</h5>
-            <button
-              type="button"
-              className={styles.btnRemove}
-              onClick={() => removeArrayItem('certifications', cert.id)}
-              title="Remove Certification"
-            >
-              <Trash2 size={14} />
-            </button>
+            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+              <button
+                type="button"
+                className={styles.btnMove}
+                onClick={() => moveArrayItem('certifications', cert.id, 'up')}
+                disabled={idx === 0}
+                title="Move Up"
+              >
+                <ChevronUp size={16} />
+              </button>
+              <button
+                type="button"
+                className={styles.btnMove}
+                onClick={() => moveArrayItem('certifications', cert.id, 'down')}
+                disabled={idx === certList.length - 1}
+                title="Move Down"
+              >
+                <ChevronDown size={16} />
+              </button>
+              <button
+                type="button"
+                className={styles.btnRemove}
+                onClick={() => removeArrayItem('certifications', cert.id)}
+                title="Remove Certification"
+              >
+                <Trash2 size={14} />
+              </button>
+            </div>
           </div>
 
           <div className={styles.formRow}>

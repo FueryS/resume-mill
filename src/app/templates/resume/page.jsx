@@ -20,6 +20,7 @@ import { Sparkles, Info, X } from 'lucide-react';
 import Modern_Page from '@/components/Templates/resume/Modern_Page';
 import Elegant_Page from '@/components/Templates/resume/Elegant_Page';
 import Creative_Page from '@/components/Templates/resume/Creative_Page';
+import Timeline_Page from '@/components/Templates/resume/Timeline_Page';
 import { mockResumeData } from '@/components/Templates/mockData';
 import styles from './exploration.module.css';
 
@@ -27,7 +28,8 @@ import styles from './exploration.module.css';
 const TEMPLATE_GALLERY = [
   { id: 'modern', name: 'Minimalist Modern', component: Modern_Page, desc: 'Clean, professional sans-serif layout.' },
   { id: 'elegant', name: 'Executive Elegant', component: Elegant_Page, desc: 'Classic centered serif styling.' },
-  { id: 'creative', name: 'Sidebar Creative', component: Creative_Page, desc: 'Dual-column layout with dark sidebar.' }
+  { id: 'creative', name: 'Sidebar Creative', component: Creative_Page, desc: 'Dual-column layout with dark sidebar.' },
+  { id: 'timeline', name: 'Bold Timeline', component: Timeline_Page, desc: 'High-contrast bright red & off-white layout with structural timelines.' }
 ];
 
 // SVG checkmark badge representing template selection

@@ -116,9 +116,9 @@ export default function Elegant_Page({ data, pageData, showWatermark = true }) {
               <div key={exp.id || idx} className={styles.itemBlock}>
                 <div className={styles.itemHeader}>
                   <div>
-                    <span className={styles.itemRole}>{exp.role || 'Role'}</span>
-                    <span> | </span>
-                    <span className={styles.itemCompany}>{exp.company || 'Company'}</span>
+                    {exp.role && <span className={styles.itemRole}>{exp.role}</span>}
+                    {exp.role && exp.company && <span> | </span>}
+                    {exp.company && <span className={styles.itemCompany}>{exp.company}</span>}
                   </div>
                   <span className={styles.itemDates}>
                     {exp.startDate || 'Start'} – {exp.endDate || (exp.current ? 'Present' : 'End')}
@@ -190,9 +190,9 @@ export default function Elegant_Page({ data, pageData, showWatermark = true }) {
               <div key={edu.id || idx} className={styles.itemBlock}>
                 <div className={styles.itemHeader}>
                   <div>
-                    <span className={styles.itemRole}>{edu.degree || 'Degree'}</span>
-                    <span>, </span>
-                    <span className={styles.itemCompany}>{edu.institution || 'Institution'}</span>
+                    {edu.degree && <span className={styles.itemRole}>{edu.degree}</span>}
+                    {edu.degree && edu.institution && <span>, </span>}
+                    {edu.institution && <span className={styles.itemCompany}>{edu.institution}</span>}
                   </div>
                   <span className={styles.itemDates}>
                     {edu.startDate || 'Start'} – {edu.endDate || 'End'}
@@ -250,9 +250,9 @@ export default function Elegant_Page({ data, pageData, showWatermark = true }) {
               <div key={cert.id || idx} className={styles.certBlock}>
                 <div className={styles.itemHeader}>
                   <div>
-                    <span className={styles.certName}>{cert.name || 'Certification'}</span>
-                    <span> | </span>
-                    <span className={styles.certOrg}>{cert.organization || 'Organization'}</span>
+                    {cert.name && <span className={styles.certName}>{cert.name}</span>}
+                    {cert.name && cert.organization && <span> | </span>}
+                    {cert.organization && <span className={styles.certOrg}>{cert.organization}</span>}
                   </div>
                   {cert.date && <span className={styles.itemDates}>{cert.date}</span>}
                 </div>

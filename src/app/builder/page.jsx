@@ -228,6 +228,27 @@ export default function BuilderPage() {
     }));
   };
 
+  // Handler to change the order of items inside listing sections
+  const moveArrayItem = (section, id, direction) => {
+    setFormData((prev) => {
+      const items = [...(prev[section] || [])];
+      const index = items.findIndex((item) => item.id === id);
+      if (index === -1) return prev;
+
+      const targetIndex = direction === 'up' ? index - 1 : index + 1;
+      if (targetIndex < 0 || targetIndex >= items.length) return prev;
+
+      const temp = items[index];
+      items[index] = items[targetIndex];
+      items[targetIndex] = temp;
+
+      return {
+        ...prev,
+        [section]: items
+      };
+    });
+  };
+
   // Handler to modify skills summary text block
   const handleSkillsChange = (value) => {
     setFormData((prev) => ({
@@ -424,6 +445,7 @@ export default function BuilderPage() {
                   handleArrayChange={handleArrayChange}
                   addArrayItem={addArrayItem}
                   removeArrayItem={removeArrayItem}
+                  moveArrayItem={moveArrayItem}
                   handleAIQuery={handleAIQuery}
                   optimizingField={optimizingField}
                 />
@@ -435,6 +457,7 @@ export default function BuilderPage() {
                   handleArrayChange={handleArrayChange}
                   addArrayItem={addArrayItem}
                   removeArrayItem={removeArrayItem}
+                  moveArrayItem={moveArrayItem}
                   handleAIQuery={handleAIQuery}
                   optimizingField={optimizingField}
                 />
@@ -446,6 +469,7 @@ export default function BuilderPage() {
                   handleArrayChange={handleArrayChange}
                   addArrayItem={addArrayItem}
                   removeArrayItem={removeArrayItem}
+                  moveArrayItem={moveArrayItem}
                 />
               )}
 
@@ -457,6 +481,7 @@ export default function BuilderPage() {
                   handleArrayChange={handleArrayChange}
                   addArrayItem={addArrayItem}
                   removeArrayItem={removeArrayItem}
+                  moveArrayItem={moveArrayItem}
                   onSkillsChange={handleSkillsChange}
                 />
               )}

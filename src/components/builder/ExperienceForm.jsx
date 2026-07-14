@@ -10,7 +10,7 @@
 'use client';
 
 import React from 'react';
-import { Plus, Trash2, Sparkles, RefreshCw } from 'lucide-react';
+import { Plus, Trash2, Sparkles, RefreshCw, ChevronUp, ChevronDown } from 'lucide-react';
 import styles from '@/app/builder/page.module.css';
 
 export default function ExperienceForm({
@@ -18,6 +18,7 @@ export default function ExperienceForm({
   handleArrayChange,
   addArrayItem,
   removeArrayItem,
+  moveArrayItem,
   handleAIQuery,
   optimizingField
 }) {
@@ -31,14 +32,34 @@ export default function ExperienceForm({
           {/* Card Header showing company index and remove trigger */}
           <div className={styles.itemCardHeader}>
             <h5>Position #{idx + 1}</h5>
-            <button 
-              type="button"
-              className={styles.btnRemove} 
-              onClick={() => removeArrayItem('experience', exp.id)}
-              title="Remove Position"
-            >
-              <Trash2 size={14} />
-            </button>
+            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+              <button
+                type="button"
+                className={styles.btnMove}
+                onClick={() => moveArrayItem('experience', exp.id, 'up')}
+                disabled={idx === 0}
+                title="Move Up"
+              >
+                <ChevronUp size={16} />
+              </button>
+              <button
+                type="button"
+                className={styles.btnMove}
+                onClick={() => moveArrayItem('experience', exp.id, 'down')}
+                disabled={idx === experience.length - 1}
+                title="Move Down"
+              >
+                <ChevronDown size={16} />
+              </button>
+              <button 
+                type="button"
+                className={styles.btnRemove} 
+                onClick={() => removeArrayItem('experience', exp.id)}
+                title="Remove Position"
+              >
+                <Trash2 size={14} />
+              </button>
+            </div>
           </div>
           
           {/* Company and Role Input */}
