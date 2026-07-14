@@ -41,7 +41,7 @@ export default function ProjectsForm({
             </button>
           </div>
 
-          {/* Project title and link */}
+          {/* Project Name & Live Link */}
           <div className={styles.formRow}>
             <div className={styles.formGroup}>
               <label>Project Name</label>
@@ -53,12 +53,34 @@ export default function ProjectsForm({
               />
             </div>
             <div className={styles.formGroup}>
-              <label>Project Link / Repository</label>
+              <label>Live Demo URL</label>
               <input 
                 type="url"
-                value={proj.link || ''}
-                onChange={(e) => handleArrayChange('projects', proj.id, 'link', e.target.value)}
-                placeholder="https://github.com/my-project"
+                value={proj.liveUrl || ''}
+                onChange={(e) => handleArrayChange('projects', proj.id, 'liveUrl', e.target.value)}
+                placeholder="https://my-app.vercel.app"
+              />
+            </div>
+          </div>
+
+          {/* GitHub links */}
+          <div className={styles.formRow}>
+            <div className={styles.formGroup}>
+              <label>Front-end Code Repository</label>
+              <input 
+                type="url"
+                value={proj.githubFront || ''}
+                onChange={(e) => handleArrayChange('projects', proj.id, 'githubFront', e.target.value)}
+                placeholder="https://github.com/username/repo-frontend"
+              />
+            </div>
+            <div className={styles.formGroup}>
+              <label>Back-end Code Repository</label>
+              <input 
+                type="url"
+                value={proj.githubBack || ''}
+                onChange={(e) => handleArrayChange('projects', proj.id, 'githubBack', e.target.value)}
+                placeholder="https://github.com/username/repo-backend"
               />
             </div>
           </div>

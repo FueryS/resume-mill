@@ -203,6 +203,32 @@ export default function PersonalInfoForm({
         </div>
       </div>
 
+      {/* Location and Portfolio links */}
+      <div className={styles.formRow}>
+        <div className={styles.formGroup}>
+          <label htmlFor="location">Location (City, State/Country)</label>
+          <input 
+            type="text" 
+            id="location"
+            name="location" 
+            value={personal.location || ''}
+            onChange={handlePersonalChange}
+            placeholder="San Francisco, CA"
+          />
+        </div>
+        <div className={styles.formGroup}>
+          <label htmlFor="portfolio">Portfolio / Personal Website</label>
+          <input 
+            type="url" 
+            id="portfolio"
+            name="portfolio" 
+            value={personal.portfolio || ''}
+            onChange={handlePersonalChange}
+            placeholder="https://myportfolio.com"
+          />
+        </div>
+      </div>
+
       {/* Professional Summary and AI Optimisation Trigger */}
       <div className={styles.formGroup}>
         <div className={styles.labelWithAi}>

@@ -20,7 +20,7 @@
 import { useState, useEffect } from 'react';
 import { 
   User, Briefcase, GraduationCap, FolderGit2, 
-  Download, Heart, ChevronLeft, ChevronRight 
+  Download, Heart, ChevronLeft, ChevronRight, Sparkles 
 } from 'lucide-react';
 import { generatePortfolioZip } from '@/utils/zipGenerator';
 import DonationModal from '@/components/DonationModal';
@@ -32,6 +32,7 @@ import PersonalInfoForm from '@/components/builder/PersonalInfoForm';
 import ExperienceForm from '@/components/builder/ExperienceForm';
 import ProjectsForm from '@/components/builder/ProjectsForm';
 import EducationForm from '@/components/builder/EducationForm';
+import SkillsLanguagesCertificationsForm from '@/components/builder/SkillsLanguagesCertificationsForm';
 import ExportPanel from '@/components/builder/ExportPanel';
 import ResumePreview from '@/components/builder/ResumePreview';
 
@@ -46,6 +47,8 @@ const initialFormState = {
     phone: '',
     github: '',
     linkedin: '',
+    portfolio: '',
+    location: '',
     summary: '',
     pfp: '',
   },
@@ -53,7 +56,7 @@ const initialFormState = {
     { id: '1', company: '', role: '', location: '', startDate: '', endDate: '', current: false, description: '' }
   ],
   projects: [
-    { id: '1', name: '', description: '', technologies: '', link: '' }
+    { id: '1', name: '', description: '', technologies: '', githubFront: '', githubBack: '', liveUrl: '' }
   ],
   education: [
     {
@@ -73,6 +76,8 @@ const initialFormState = {
       customGradeLabel: '',
     }
   ],
+  certifications: [],
+  languages: [],
   skills: '',
 };
 
@@ -109,7 +114,8 @@ export default function BuilderPage() {
     { name: 'Profile & Summary', icon: <User size={18} /> },
     { name: 'Experience', icon: <Briefcase size={18} /> },
     { name: 'Projects', icon: <FolderGit2 size={18} /> },
-    { name: 'Education & Skills', icon: <GraduationCap size={18} /> },
+    { name: 'Education', icon: <GraduationCap size={18} /> },
+    { name: 'Skills & Extras', icon: <Sparkles size={18} /> },
     { name: 'Preview & Export', icon: <Download size={18} /> }
   ];
 
@@ -118,7 +124,25 @@ export default function BuilderPage() {
     const savedDraft = localStorage.getItem('resume-mill-draft');
     if (savedDraft) {
       try {
-        setFormData(JSON.parse(savedDraft));
+        const parsed = JSON.parse(savedDraft);
+        // Defensively merge default schemas to handle schema extensions on older drafts
+        const merged = {
+          ...initialFormState,
+          ...parsed,
+          personal: {
+            ...initialFormState.personal,
+            ...(parsed.personal || {})
+          },
+          experience: parsed.experience || initialFormState.experience,
+          projects: (parsed.projects || []).map(p => ({
+            ...initialFormState.projects[0],
+            ...p
+          })),
+          education: parsed.education || initialFormState.education,
+          languages: parsed.languages || [],
+          certifications: parsed.certifications || [],
+        };
+        setFormData(merged);
       } catch (e) {
         console.error('Failed to parse saved draft', e);
       }
@@ -166,13 +190,15 @@ export default function BuilderPage() {
   // Handler to add a new card item inside listing sections
   const addArrayItem = (section) => {
     let newItem = {};
+    const uniqueId = Date.now().toString() + Math.random().toString(36).substr(2, 9);
+    
     if (section === 'experience') {
-      newItem = { id: Date.now().toString(), company: '', role: '', location: '', startDate: '', endDate: '', current: false, description: '' };
+      newItem = { id: uniqueId, company: '', role: '', location: '', startDate: '', endDate: '', current: false, description: '' };
     } else if (section === 'projects') {
-      newItem = { id: Date.now().toString(), name: '', description: '', technologies: '', link: '' };
+      newItem = { id: uniqueId, name: '', description: '', technologies: '', githubFront: '', githubBack: '', liveUrl: '' };
     } else if (section === 'education') {
       newItem = {
-        id: Date.now().toString(),
+        id: uniqueId,
         institution: '',
         degree: '',
         location: '',
@@ -183,10 +209,14 @@ export default function BuilderPage() {
         boardGradeFormat: 'percentage',
         customGradeLabel: '',
       };
+    } else if (section === 'languages') {
+      newItem = { id: uniqueId, name: '', level: 5 };
+    } else if (section === 'certifications') {
+      newItem = { id: uniqueId, name: '', organization: '', date: '', url: '' };
     }
     setFormData((prev) => ({
       ...prev,
-      [section]: [...prev[section], newItem]
+      [section]: [...(prev[section] || []), newItem]
     }));
   };
 
@@ -275,62 +305,59 @@ export default function BuilderPage() {
       });
     }
 
-    // Target the inner A4 sheet element
-    const sheet = document.querySelector('.printable-sheet');
+    // Target the hidden full-dimensions capturing container
+    const sheet = document.getElementById('resume-pdf-capture-container');
     if (!sheet) {
-      alert('Could not find resume preview. Please try again.');
+      alert('Could not find resume capture container. Please try again.');
       return;
     }
 
-    // --- Temporarily strip the CSS zoom transform so html2canvas captures
-    //     the element at its true 794×1123px dimensions, not scaled-down ---
-    const savedTransform = sheet.style.transform;
-    const savedPosition = sheet.style.position;
-    const savedTop = sheet.style.top;
-    const savedLeft = sheet.style.left;
-    sheet.style.transform = 'none';
-    sheet.style.position = 'absolute';
-    sheet.style.top = '0';
-    sheet.style.left = '0';
+    const unscaledHeight = sheet.scrollHeight || 1123;
 
     try {
       const { default: html2canvas } = await import('html2canvas');
       const { default: jsPDF } = await import('jspdf');
 
-      // scale: 3 → captures at 2382×3369px for crisp, high-DPI text
+      // scale: 3 → captures at high-DPI for crisp text
       const canvas = await html2canvas(sheet, {
         scale: 3,
         useCORS: true,
         allowTaint: true,
         backgroundColor: '#ffffff',
         width: 794,
-        height: 1123,
+        height: unscaledHeight,
         scrollX: 0,
-        scrollY: -window.scrollY,
+        scrollY: 0,
         logging: false,
       });
 
-      // Restore transform immediately after capture
-      sheet.style.transform = savedTransform;
-      sheet.style.position = savedPosition;
-      sheet.style.top = savedTop;
-      sheet.style.left = savedLeft;
-
-      // Pack into A4 PDF (210×297mm) using lossless PNG for sharp text
+      // Pack into A4 PDF pages (210×297mm)
       const pdf = new jsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait' });
       const imgData = canvas.toDataURL('image/png');
-      pdf.addImage(imgData, 'PNG', 0, 0, 210, 297);
+
+      const imgWidth = 210;
+      const imgHeight = (canvas.height * imgWidth) / canvas.width; // relative height in mm
+      const pageHeightMm = 297;
+      let heightLeft = imgHeight;
+      let position = 0;
+      let pageNum = 1;
+
+      pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+      heightLeft -= pageHeightMm;
+
+      while (heightLeft > 0.5) { // offset offset threshold
+        position = -pageNum * pageHeightMm;
+        pdf.addPage();
+        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+        heightLeft -= pageHeightMm;
+        pageNum++;
+      }
 
       const fileName = `${(formData.personal.fullName || 'Resume').replace(/\s+/g, '_')}_Resume.pdf`;
       pdf.save(fileName);
 
       setTimeout(() => setShowDonation(true), 800);
     } catch (err) {
-      // Always restore transform even on error
-      sheet.style.transform = savedTransform;
-      sheet.style.position = savedPosition;
-      sheet.style.top = savedTop;
-      sheet.style.left = savedLeft;
       console.error('PDF generation failed:', err);
       alert('Failed to generate PDF. Please try again.');
     }
@@ -416,7 +443,17 @@ export default function BuilderPage() {
               {activeStep === 3 && (
                 <EducationForm 
                   education={formData.education}
+                  handleArrayChange={handleArrayChange}
+                  addArrayItem={addArrayItem}
+                  removeArrayItem={removeArrayItem}
+                />
+              )}
+
+              {activeStep === 4 && (
+                <SkillsLanguagesCertificationsForm 
                   skills={formData.skills}
+                  languages={formData.languages}
+                  certifications={formData.certifications}
                   handleArrayChange={handleArrayChange}
                   addArrayItem={addArrayItem}
                   removeArrayItem={removeArrayItem}
@@ -424,7 +461,7 @@ export default function BuilderPage() {
                 />
               )}
 
-              {activeStep === 4 && (
+              {activeStep === 5 && (
                 <ExportPanel 
                   activeTemplate={activeTemplate}
                   setActiveTemplate={setActiveTemplate}
@@ -450,11 +487,11 @@ export default function BuilderPage() {
                 <span>Back</span>
               </button>
               
-              {activeStep < 4 ? (
+              {activeStep < 5 ? (
                 <button 
                   type="button"
                   className="btn btn-primary"
-                  onClick={() => setActiveStep(prev => Math.min(4, prev + 1))}
+                  onClick={() => setActiveStep(prev => Math.min(5, prev + 1))}
                 >
                   <span>Next</span>
                   <ChevronRight size={16} />

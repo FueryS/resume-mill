@@ -71,11 +71,9 @@ function resolveGradePlaceholder(gradeType, boardGradeFormat) {
 
 export default function EducationForm({
   education,
-  skills,
   handleArrayChange,
   addArrayItem,
   removeArrayItem,
-  onSkillsChange,
 }) {
   return (
     <div className={`${styles.formSection} animate-scale-in`}>
@@ -258,20 +256,6 @@ export default function EducationForm({
         <Plus size={16} />
         <span>Add Education</span>
       </button>
-
-      {/* ── SECTION B: Skills list input ─────────────────────────────────── */}
-      <h4 className={styles.subsectionTitle} style={{ marginTop: '30px' }}>Skills &amp; Frameworks</h4>
-
-      <div className={styles.formGroup}>
-        <label htmlFor="skills">Skills (comma separated)</label>
-        <textarea
-          id="skills"
-          rows="4"
-          value={skills || ''}
-          onChange={(e) => onSkillsChange(e.target.value)}
-          placeholder="React, Next.js, JavaScript, Node.js, Git, HTML, CSS, SQL, Python"
-        />
-      </div>
 
     </div>
   );

@@ -3,7 +3,7 @@
 /* Base A4 page representation */
 .resumePage {
   width: 794px;
-  height: 1123px;
+  min-height: 1123px;
   background-color: #ffffff;
   padding: 50px;
   box-sizing: border-box;
@@ -357,5 +357,217 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+
+/* Project Links Style */
+.projectLinks {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.projectLink {
+  font-size: 10px;
+  color: var(--primary);
+  text-decoration: none;
+  font-weight: 700;
+  background-color: rgba(79, 70, 229, 0.08);
+  padding: 2px 6px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.projectLink:hover {
+  background-color: var(--primary);
+  color: #ffffff;
+}
+
+.elegant .projectLink {
+  color: #1f2937;
+  background-color: #f3f4f6;
+  border: 1px solid #d1d5db;
+  font-family: Georgia, serif;
+  font-weight: 500;
+}
+
+.elegant .projectLink:hover {
+  background-color: #1f2937;
+  color: #ffffff;
+}
+
+.creative .projectLink {
+  color: #64748b;
+  background-color: #f1f5f9;
+  border: 1px solid #e2e8f0;
+}
+
+.creative .projectLink:hover {
+  background-color: #475569;
+  color: #ffffff;
+}
+
+/* Skills Pill Tags */
+.skillsPillContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.skillPill {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-main);
+  background-color: #f3f4f6;
+  border: 1px solid #e5e7eb;
+  padding: 3px 10px;
+  border-radius: 20px;
+  display: inline-block;
+}
+
+.modern .skillPill {
+  background-color: rgba(79, 70, 229, 0.05);
+  border-color: rgba(79, 70, 229, 0.15);
+  color: #312e81;
+}
+
+.elegantSkillPill {
+  font-family: Georgia, serif;
+  font-weight: 500;
+  background-color: #ffffff;
+  border: 1px solid #1f2937;
+  color: #111827;
+  border-radius: 0;
+  padding: 2px 8px;
+}
+
+.creativeSkillsContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 8px;
+}
+
+.creativeSkillPill {
+  font-size: 10px;
+  font-weight: 500;
+  color: #cbd5e1;
+  background-color: #334155;
+  padding: 2px 8px;
+  border-radius: 4px;
+  border: 1px solid #475569;
+}
+
+/* Languages Styles */
+.languagesGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.langRow {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.langName {
+  font-size: 11px;
+  font-weight: 700;
+  color: #374151;
+}
+
+.progressBarBg {
+  width: 100%;
+  height: 6px;
+  background-color: #e5e7eb;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.progressBarFill {
+  height: 100%;
+  background-color: var(--primary);
+  border-radius: 3px;
+}
+
+/* Elegant Languages */
+.elegantLanguagesContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.elegantLangRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px dashed #e5e7eb;
+  padding-bottom: 4px;
+}
+
+.elegantLangRow .langName {
+  font-family: Georgia, serif;
+  font-style: italic;
+}
+
+.ratingDots {
+  color: #1f2937;
+}
+
+/* Creative Languages */
+.creativeLanguagesContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.creativeLangRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* Certifications Styles */
+.certBlock {
+  margin-bottom: 12px;
+}
+
+.certBlock:last-of-type {
+  margin-bottom: 0;
+}
+
+.certName {
+  font-size: 12px;
+  font-weight: 700;
+  color: #111827;
+}
+
+.elegant .certName {
+  font-family: Georgia, serif;
+}
+
+.certOrg {
+  font-size: 11.5px;
+  font-weight: 500;
+  color: #4b5563;
+}
+
+.certLink {
+  font-size: 10px;
+  color: var(--primary);
+  text-decoration: underline;
+  font-weight: 600;
+}
+
+.elegant .certLink {
+  color: #1f2937;
+}
+
+.creative .certLink {
+  color: #94a3b8;
 }
 

@@ -1,6 +1,7 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 /**
  * ResumePreview.jsx
- * 
+ *
  * Purpose:
  * Renders the live-updating printable A4 resume page preview in the builder.
  * Swaps template components based on the selected layout theme ('modern', 'elegant', or 'creative').
@@ -10,46 +11,84 @@
  * Features a fullscreen preview modal with device-fit scaling and history back button interceptor.
  */
 
-'use client';
+"use client";
 
-import React, { useState, useEffect, useRef } from 'react';
-import { Maximize2, Eye, X } from 'lucide-react';
-import Modern_Page from '@/components/Templates/resume/Modern_Page';
-import Elegant_Page from '@/components/Templates/resume/Elegant_Page';
-import Creative_Page from '@/components/Templates/resume/Creative_Page';
-import styles from '@/app/builder/page.module.css';
+import React, { useState, useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
+import { Maximize2, Eye, X, ChevronLeft, ChevronRight } from "lucide-react";
+import Modern_Page from "@/components/Templates/resume/Modern_Page";
+import Elegant_Page from "@/components/Templates/resume/Elegant_Page";
+import Creative_Page from "@/components/Templates/resume/Creative_Page";
+import { partitionResumeData } from "@/utils/pagePartitioner";
+import styles from "@/app/builder/page.module.css";
 
-export default function ResumePreview({ 
-  formData, 
+export default function ResumePreview({
+  formData,
   activeTemplate,
   showFullscreen,
   setShowFullscreen,
-  supportWithWatermark = true
+  supportWithWatermark = true,
 }) {
   const [zoomPercent, setZoomPercent] = useState(85);
   const [viewportWidth, setViewportWidth] = useState(1200);
-  
+  const [mounted, setMounted] = useState(false);
+
+  const sheetRef = useRef(null);
+  const [currentPage, setCurrentPage] = useState(1);
+
+  // Partition form data into pages list dynamically
+  const pages = partitionResumeData(formData);
+  const totalPages = Math.max(1, pages.length);
+
+  // Set mounted on mount to support portals safely in SSR env
+  useEffect(() => {
+    setMounted(true);
+    return () => setMounted(false);
+  }, []);
+
+  useEffect(() => {
+    if (currentPage > totalPages) {
+      setCurrentPage(1);
+    }
+  }, [totalPages, currentPage]);
+
+  // Lock body scroll when fullscreen modal is active
+  useEffect(() => {
+    if (showFullscreen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [showFullscreen]);
+
   const containerRef = useRef(null);
   const isFirstRender = useRef(true);
-  const touchStartRef = useRef({ 
-    x1: 0, y1: 0, 
-    x2: 0, y2: 0, 
-    distance: 0, 
+  const touchStartRef = useRef({
+    x1: 0,
+    y1: 0,
+    x2: 0,
+    y2: 0,
+    distance: 0,
     zoom: 85,
-    scrollTop: 0, 
-    scrollLeft: 0 
+    scrollTop: 0,
+    scrollLeft: 0,
   });
 
   // Monitor resize to auto-fit A4 preview scale and track viewport width for fullscreen scale
   useEffect(() => {
     const handleResize = () => {
       setViewportWidth(window.innerWidth);
-      
+
       if (containerRef.current) {
         const width = containerRef.current.getBoundingClientRect().width;
         // Keep 48px padding for neat layout borders
-        const fitScale = Math.round(Math.max(30, Math.min(100, ((width - 48) / 794) * 100)));
-        
+        const fitScale = Math.round(
+          Math.max(30, Math.min(100, ((width - 48) / 794) * 100)),
+        );
+
         // Auto-apply fit zoom factor on mount
         if (isFirstRender.current) {
           setZoomPercent(fitScale);
@@ -57,25 +96,25 @@ export default function ResumePreview({
         }
       }
     };
-    
+
     handleResize();
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
 
   // Intercept device back button to close the fullscreen preview (App-like UX)
   useEffect(() => {
     if (!showFullscreen) return;
 
-    window.history.pushState({ previewFullscreen: true }, '');
+    window.history.pushState({ previewFullscreen: true }, "");
 
     const handlePopState = () => {
       setShowFullscreen(false);
     };
 
-    window.addEventListener('popstate', handlePopState);
+    window.addEventListener("popstate", handlePopState);
     return () => {
-      window.removeEventListener('popstate', handlePopState);
+      window.removeEventListener("popstate", handlePopState);
       if (window.history.state?.previewFullscreen) {
         window.history.back();
       }
@@ -85,7 +124,9 @@ export default function ResumePreview({
   const handleFitToScreen = () => {
     if (containerRef.current) {
       const width = containerRef.current.getBoundingClientRect().width;
-      const fitScale = Math.round(Math.max(30, Math.min(100, ((width - 48) / 794) * 100)));
+      const fitScale = Math.round(
+        Math.max(30, Math.min(100, ((width - 48) / 794) * 100)),
+      );
       setZoomPercent(fitScale);
     }
   };
@@ -96,7 +137,7 @@ export default function ResumePreview({
       const t1 = e.touches[0];
       const t2 = e.touches[1];
       const dist = Math.hypot(t2.clientX - t1.clientX, t2.clientY - t1.clientY);
-      
+
       if (containerRef.current) {
         touchStartRef.current = {
           x1: t1.clientX,
@@ -106,7 +147,7 @@ export default function ResumePreview({
           distance: dist,
           zoom: zoomPercent,
           scrollTop: containerRef.current.scrollTop,
-          scrollLeft: containerRef.current.scrollLeft
+          scrollLeft: containerRef.current.scrollLeft,
         };
       }
     }
@@ -116,28 +157,34 @@ export default function ResumePreview({
     if (e.touches.length === 2 && containerRef.current) {
       // Prevent browser default pinch-zooming of the viewport page
       e.preventDefault();
-      
+
       const t1 = e.touches[0];
       const t2 = e.touches[1];
-      
+
       // 1. Pinch to Zoom
       const dist = Math.hypot(t2.clientX - t1.clientX, t2.clientY - t1.clientY);
       if (touchStartRef.current.distance > 0) {
         const scaleFactor = dist / touchStartRef.current.distance;
-        const newZoom = Math.max(30, Math.min(150, Math.round(touchStartRef.current.zoom * scaleFactor)));
+        const newZoom = Math.max(
+          30,
+          Math.min(150, Math.round(touchStartRef.current.zoom * scaleFactor)),
+        );
         setZoomPercent(newZoom);
       }
-      
+
       // 2. Pan/Scroll Panning
-      const initialMidX = (touchStartRef.current.x1 + touchStartRef.current.x2) / 2;
-      const initialMidY = (touchStartRef.current.y1 + touchStartRef.current.y2) / 2;
+      const initialMidX =
+        (touchStartRef.current.x1 + touchStartRef.current.x2) / 2;
+      const initialMidY =
+        (touchStartRef.current.y1 + touchStartRef.current.y2) / 2;
       const currentMidX = (t1.clientX + t2.clientX) / 2;
       const currentMidY = (t1.clientY + t2.clientY) / 2;
-      
+
       const deltaX = currentMidX - initialMidX;
       const deltaY = currentMidY - initialMidY;
-      
-      containerRef.current.scrollLeft = touchStartRef.current.scrollLeft - deltaX;
+
+      containerRef.current.scrollLeft =
+        touchStartRef.current.scrollLeft - deltaX;
       containerRef.current.scrollTop = touchStartRef.current.scrollTop - deltaY;
     }
   };
@@ -147,106 +194,181 @@ export default function ResumePreview({
 
   return (
     <div className={styles.previewPanel}>
-      
       {/* Live status banner */}
       <div className={styles.previewHeader}>
         <span className={styles.liveBadge}>Live A4 Print Preview</span>
-        <span className={styles.previewHint}>Matches exactly what saves as PDF (A4 size).</span>
+        <span className={styles.previewHint}>
+          Matches exactly what saves as PDF (A4 size).
+        </span>
       </div>
-      
+
       {/* Printable Area wrapper container */}
-      <div 
+      <div
         ref={containerRef}
-        id="resume-printable-area" 
+        id="resume-printable-area"
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         style={{
           flex: 1,
-          overflow: 'auto',
-          backgroundColor: '#e2e8f0',
-          padding: '24px 20px 24px 20px',
-          borderRadius: 'var(--radius-sm)',
-          border: '1px solid var(--border-color)',
-          display: 'flex',
-          justifyContent: 'flex-start',
-          alignItems: 'flex-start',
-          touchAction: 'pan-x pan-y',
-          maxWidth: '100%'
+          overflow: "auto",
+          backgroundColor: "#e2e8f0",
+          padding: "24px 20px 24px 20px",
+          borderRadius: "var(--radius-sm)",
+          border: "1px solid var(--border-color)",
+          display: "flex",
+          justifyContent: "flex-start",
+          alignItems: "flex-start",
+          touchAction: "pan-x pan-y",
+          maxWidth: "100%",
         }}
       >
         {/* Outer responsive layout wrapper: behaves as a width-first container.
             Uses margin: 0 auto to center it when smaller, and scroll cleanly when larger. */}
-        <div 
+        <div
           className="printable-layout-wrapper"
           style={{
             width: `${794 * (zoomPercent / 100)}px`,
             height: `${1123 * (zoomPercent / 100)}px`,
-            position: 'relative',
+            position: "relative",
             flexShrink: 0,
-            boxShadow: '0 10px 30px rgba(0,0,0,0.1)',
-            overflow: 'hidden',
-            marginLeft: 'auto',
-            marginRight: 'auto'
+            boxShadow: "0 10px 30px rgba(0,0,0,0.1)",
+            overflow: "hidden",
+            marginLeft: "auto",
+            marginRight: "auto",
           }}
         >
           {/* Inner A4 Page: Scaled via transform-origin: top left */}
-          <div 
+          <div
             className="printable-sheet"
-            style={{ 
-              transform: `scale(${zoomPercent / 100})`, 
-              transformOrigin: 'top left',
-              width: '794px',
-              height: '1123px',
-              position: 'absolute',
+            ref={sheetRef}
+            style={{
+              transform: `scale(${zoomPercent / 100})`,
+              transformOrigin: "top left",
+              width: "794px",
+              height: "1123px",
+              position: "absolute",
               top: 0,
-              left: 0
+              left: 0,
             }}
           >
-            {activeTemplate === 'modern' && <Modern_Page data={formData} showWatermark={supportWithWatermark} />}
-            {activeTemplate === 'elegant' && <Elegant_Page data={formData} showWatermark={supportWithWatermark} />}
-            {activeTemplate === 'creative' && <Creative_Page data={formData} showWatermark={supportWithWatermark} />}
+            {activeTemplate === "modern" && (
+              <Modern_Page
+                data={formData}
+                pageData={pages[currentPage - 1]}
+                showWatermark={supportWithWatermark}
+              />
+            )}
+            {activeTemplate === "elegant" && (
+              <Elegant_Page
+                data={formData}
+                pageData={pages[currentPage - 1]}
+                showWatermark={supportWithWatermark}
+              />
+            )}
+            {activeTemplate === "creative" && (
+              <Creative_Page
+                data={formData}
+                pageData={pages[currentPage - 1]}
+                showWatermark={supportWithWatermark}
+              />
+            )}
           </div>
         </div>
       </div>
 
       {/* Controls Bar (Fit to Screen & Full Screen) — in-flow so it never overlaps footer */}
-      <div 
+      <div
         className="no-print"
         style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: '12px',
-          backgroundColor: 'rgba(30, 41, 59, 0.85)',
-          backdropFilter: 'blur(8px)',
-          padding: '8px 16px',
-          borderRadius: 'var(--radius-full)',
-          boxShadow: '0 8px 32px rgba(0,0,0,0.15)',
-          color: '#ffffff',
-          border: '1px solid rgba(255,255,255,0.1)',
-          alignSelf: 'center',
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          gap: "12px",
+          backgroundColor: "rgba(30, 41, 59, 0.85)",
+          backdropFilter: "blur(8px)",
+          padding: "8px 16px",
+          borderRadius: "var(--radius-full)",
+          boxShadow: "0 8px 32px rgba(0,0,0,0.15)",
+          color: "#ffffff",
+          border: "1px solid rgba(255,255,255,0.1)",
+          alignSelf: "center",
           flexShrink: 0,
-          marginTop: '8px',
-          zIndex: 10
+          marginTop: "8px",
+          zIndex: 10,
         }}
       >
+        {/* Page navigation controls if multi-page */}
+        {totalPages > 1 && (
+          <>
+            <button
+              onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+              disabled={currentPage === 1}
+              style={{
+                color: currentPage === 1 ? "rgba(255,255,255,0.4)" : "#ffffff",
+                fontSize: "12px",
+                fontWeight: "700",
+                cursor: currentPage === 1 ? "not-allowed" : "pointer",
+                backgroundColor: "transparent",
+                border: "none",
+                outline: "none",
+                padding: "4px 6px",
+                display: "flex",
+                alignItems: "center",
+              }}
+              title="Previous Page"
+            >
+              <ChevronLeft size={16} />
+            </button>
+            <span style={{ fontSize: "12px", fontWeight: "600", minWidth: "60px", textAlign: "center" }}>
+              Page {currentPage} of {totalPages}
+            </span>
+            <button
+              onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+              disabled={currentPage === totalPages}
+              style={{
+                color: currentPage === totalPages ? "rgba(255,255,255,0.4)" : "#ffffff",
+                fontSize: "12px",
+                fontWeight: "700",
+                cursor: currentPage === totalPages ? "not-allowed" : "pointer",
+                backgroundColor: "transparent",
+                border: "none",
+                outline: "none",
+                padding: "4px 6px",
+                display: "flex",
+                alignItems: "center",
+              }}
+              title="Next Page"
+            >
+              <ChevronRight size={16} />
+            </button>
+            {/* Vertical Divider */}
+            <div
+              style={{
+                width: "1px",
+                height: "16px",
+                backgroundColor: "rgba(255,255,255,0.2)",
+              }}
+            ></div>
+          </>
+        )}
+
         {/* Fit to Screen Button */}
         <button
           onClick={handleFitToScreen}
-          style={{ 
-            color: '#ffffff', 
-            fontSize: '12px', 
-            fontWeight: '700', 
-            textTransform: 'uppercase', 
-            letterSpacing: '0.05em',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '6px',
-            cursor: 'pointer',
-            backgroundColor: 'transparent',
-            border: 'none',
-            outline: 'none',
-            padding: '4px 8px'
+          style={{
+            color: "#ffffff",
+            fontSize: "12px",
+            fontWeight: "700",
+            textTransform: "uppercase",
+            letterSpacing: "0.05em",
+            display: "flex",
+            alignItems: "center",
+            gap: "6px",
+            cursor: "pointer",
+            backgroundColor: "transparent",
+            border: "none",
+            outline: "none",
+            padding: "4px 8px",
           }}
           title="Fit to Screen"
         >
@@ -255,25 +377,31 @@ export default function ResumePreview({
         </button>
 
         {/* Vertical Divider */}
-        <div style={{ width: '1px', height: '16px', backgroundColor: 'rgba(255,255,255,0.2)' }}></div>
+        <div
+          style={{
+            width: "1px",
+            height: "16px",
+            backgroundColor: "rgba(255,255,255,0.2)",
+          }}
+        ></div>
 
         {/* Full Screen Preview Button */}
         <button
           onClick={() => setShowFullscreen(true)}
-          style={{ 
-            color: '#ffffff', 
-            fontSize: '12px', 
-            fontWeight: '700', 
-            textTransform: 'uppercase', 
-            letterSpacing: '0.05em',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '6px',
-            cursor: 'pointer',
-            backgroundColor: 'transparent',
-            border: 'none',
-            outline: 'none',
-            padding: '4px 8px'
+          style={{
+            color: "#ffffff",
+            fontSize: "12px",
+            fontWeight: "700",
+            textTransform: "uppercase",
+            letterSpacing: "0.05em",
+            display: "flex",
+            alignItems: "center",
+            gap: "6px",
+            cursor: "pointer",
+            backgroundColor: "transparent",
+            border: "none",
+            outline: "none",
+            padding: "4px 8px",
           }}
           title="Full Screen Preview"
         >
@@ -283,85 +411,158 @@ export default function ResumePreview({
       </div>
 
       {/* Fullscreen Overlay Modal (Responsive Scaling) */}
-      {showFullscreen && (
-        <div 
-          className="no-print fullscreen-modal-overlay" 
+      {showFullscreen && mounted && createPortal(
+        <div
+          className="no-print fullscreen-modal-overlay"
           onClick={() => setShowFullscreen(false)}
           style={{
-            position: 'fixed',
+            position: "fixed",
             top: 0,
             left: 0,
-            width: '100vw',
-            height: '100vh',
-            backgroundColor: 'rgba(15, 23, 42, 0.9)',
-            backdropFilter: 'blur(8px)',
-            zIndex: 10002,
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'flex-start',
-            overflowY: 'auto',
-            padding: '60px 16px 40px 16px'
+            right: 0,
+            bottom: 0,
+            backgroundColor: "rgba(15, 23, 42, 0.9)",
+            backdropFilter: "blur(8px)",
+            zIndex: 10010,
+            overflowY: "auto",
+            padding: "60px 16px 40px 16px",
           }}
         >
           {/* Floating Close Button */}
-          <button 
-            onClick={() => setShowFullscreen(false)} 
+          <button
+            onClick={() => setShowFullscreen(false)}
             style={{
-              position: 'fixed',
-              top: '20px',
-              right: '20px',
-              backgroundColor: 'rgba(255, 255, 255, 0.15)',
-              border: '1px solid rgba(255, 255, 255, 0.25)',
-              borderRadius: '50%',
-              width: '40px',
-              height: '40px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: '#ffffff',
-              cursor: 'pointer',
+              position: "fixed",
+              top: "20px",
+              right: "20px",
+              backgroundColor: "rgba(255, 255, 255, 0.15)",
+              border: "1px solid rgba(255, 255, 255, 0.25)",
+              borderRadius: "50%",
+              width: "40px",
+              height: "40px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              color: "#ffffff",
+              cursor: "pointer",
               zIndex: 10003,
-              transition: 'all 0.2s'
+              transition: "all 0.2s",
             }}
             title="Close Preview"
           >
             <X size={20} />
           </button>
 
-          {/* Width-first Responsive Scaling Wrapper for Fullscreen Sheet */}
-          <div 
+          {/* Scrollable vertical pages stack */}
+          <div
             onClick={(e) => e.stopPropagation()}
             style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: "24px",
               width: `${794 * modalScale}px`,
-              height: `${1123 * modalScale}px`,
-              position: 'relative',
-              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
-              overflow: 'hidden',
-              margin: 'auto 0',
-              borderRadius: 'var(--radius-sm)'
+              margin: "20px auto 40px auto",
             }}
           >
-            <div 
-              style={{ 
-                transform: `scale(${modalScale})`, 
-                transformOrigin: 'top left',
-                width: '794px',
-                height: '1123px',
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                backgroundColor: '#ffffff'
-              }}
-            >
-              {activeTemplate === 'modern' && <Modern_Page data={formData} showWatermark={supportWithWatermark} />}
-              {activeTemplate === 'elegant' && <Elegant_Page data={formData} showWatermark={supportWithWatermark} />}
-              {activeTemplate === 'creative' && <Creative_Page data={formData} showWatermark={supportWithWatermark} />}
-            </div>
+            {pages.map((page, index) => (
+              <div
+                key={index}
+                style={{
+                  width: `${794 * modalScale}px`,
+                  height: `${1123 * modalScale}px`,
+                  position: "relative",
+                  boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.5)",
+                  overflow: "hidden",
+                  borderRadius: "var(--radius-sm)",
+                  backgroundColor: "#ffffff",
+                }}
+              >
+                <div
+                  style={{
+                    transform: `scale(${modalScale})`,
+                    transformOrigin: "top left",
+                    width: "794px",
+                    height: "1123px",
+                    position: "absolute",
+                    top: 0,
+                    left: 0,
+                  }}
+                >
+                  {activeTemplate === "modern" && (
+                    <Modern_Page
+                      data={formData}
+                      pageData={page}
+                      showWatermark={supportWithWatermark}
+                    />
+                  )}
+                  {activeTemplate === "elegant" && (
+                    <Elegant_Page
+                      data={formData}
+                      pageData={page}
+                      showWatermark={supportWithWatermark}
+                    />
+                  )}
+                  {activeTemplate === "creative" && (
+                    <Creative_Page
+                      data={formData}
+                      pageData={page}
+                      showWatermark={supportWithWatermark}
+                    />
+                  )}
+                </div>
+              </div>
+            ))}
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
+      {/* Hidden PDF capture container (full dimensions, no scaling) */}
+      <div
+        id="resume-pdf-capture-container"
+        style={{
+          position: "absolute",
+          left: "-9999px",
+          top: "-9999px",
+          width: "794px",
+          height: "auto",
+        }}
+      >
+        {pages.map((page, index) => (
+          <div
+            key={index}
+            style={{
+              width: "794px",
+              height: "1123px",
+              position: "relative",
+              backgroundColor: "#ffffff",
+              overflow: "hidden",
+            }}
+          >
+            {activeTemplate === "modern" && (
+              <Modern_Page
+                data={formData}
+                pageData={page}
+                showWatermark={supportWithWatermark}
+              />
+            )}
+            {activeTemplate === "elegant" && (
+              <Elegant_Page
+                data={formData}
+                pageData={page}
+                showWatermark={supportWithWatermark}
+              />
+            )}
+            {activeTemplate === "creative" && (
+              <Creative_Page
+                data={formData}
+                pageData={page}
+                showWatermark={supportWithWatermark}
+              />
+            )}
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

@@ -10,19 +10,30 @@
 import React from 'react';
 import styles from './ResumeTemplates.module.css';
 
-const PLACEHOLDER_PFP = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIiBmaWxsPSIjZTJlOGYwIj48Y2lyY2xlIGN4PSI1MCIgY3k9IjUwIiByPSI1MCIgZmlsbD0iI2NiZDVlMSIvPjxjaXJjbGUgY3g9IjUwIiBjeT0iNDAiIHI9IjE4IiBmaWxsPSIjOTRhM2I4Ii8+PHBhdGggZD0iTTUwIDYyYy0yMCAwLTMyIDEwLTMyIDIwdjZoNjR2LTZjMC0xMC0xMi0yMC0zMi0yMHoiIGZpbGw9IiM5NGEzYjgiLz48L3N2Zz4=';
+export default function Elegant_Page({ data, pageData, showWatermark = true }) {
+  // Use pageData if partitioned, otherwise fallback to entire data
+  const personal = data?.personal || {};
+  const activePageData = pageData || {
+    showHeader: true,
+    experience: data?.experience || [],
+    projects: data?.projects || [],
+    education: data?.education || [],
+    skills: data?.skills || '',
+    languages: data?.languages || [],
+    certifications: data?.certifications || [],
+  };
 
-export default function Elegant_Page({ data, showWatermark = true }) {
-  const { personal, experience, projects, education, skills } = data;
+  const { showHeader, experience, projects, education, skills, languages, certifications } = activePageData;
 
   // Helpers to check if sections are populated
   const hasExperience = experience && experience.some(e => e.company || e.role);
   const hasProjects = projects && projects.some(p => p.name || p.description);
   const hasEducation = education && education.some(edu => edu.institution || edu.degree);
+  const hasLanguages = languages && languages.length > 0;
+  const hasCertifications = certifications && certifications.length > 0;
 
   /**
    * Derives the display label for an education entry's grade field
-   * based on the credential type selected in the form.
    */
   const resolveGradeLabel = (edu) => {
     const type   = edu.gradeType        || 'degree';
@@ -30,40 +41,64 @@ export default function Elegant_Page({ data, showWatermark = true }) {
     const custom = (edu.customGradeLabel || '').trim();
     if (type === 'board')  return format === 'marks' ? 'Marks' : 'Percentage';
     if (type === 'custom') return custom || 'Grade';
-    return 'CGPA'; // default: 'degree'
+    return 'CGPA';
+  };
+
+  // Helper to render circle dot rating
+  const renderDots = (level) => {
+    const score = level || 5;
+    return (
+      <span className={styles.ratingDots} style={{ letterSpacing: '2px', fontSize: '12px' }}>
+        {'●'.repeat(score)}{'○'.repeat(5 - score)}
+      </span>
+    );
   };
 
   return (
     <div className={`${styles.resumePage} ${styles.elegant}`}>
       
       {/* BRANDING HEADER */}
-      <div className={styles.headerBlock}>
-        {personal.pfp && (
-          <div className={styles.elegantPfpWrapper}>
-            <img src={personal.pfp} alt="Profile" className={styles.elegantPfpImage} />
+      {showHeader && (
+        <div className={styles.headerBlock}>
+          {personal.pfp && (
+            <div className={styles.elegantPfpWrapper}>
+              <img src={personal.pfp} alt="Profile" className={styles.elegantPfpImage} />
+            </div>
+          )}
+          <h1 className={styles.name}>{personal.fullName || 'YOUR NAME'}</h1>
+          <p className={styles.role}>{personal.role || 'TARGET ROLE'}</p>
+          
+          <div className={styles.contactBar}>
+            {personal.email && (
+              <span className={styles.contactItem}>{personal.email}</span>
+            )}
+            {personal.phone && (
+              <span className={styles.contactItem}>{personal.phone}</span>
+            )}
+            {personal.location && (
+              <span className={styles.contactItem}>{personal.location}</span>
+            )}
+            {personal.github && (
+              <span className={styles.contactItem}>
+                <a href={personal.github} target="_blank" rel="noopener noreferrer">GitHub</a>
+              </span>
+            )}
+            {personal.linkedin && (
+              <span className={styles.contactItem}>
+                <a href={personal.linkedin} target="_blank" rel="noopener noreferrer">LinkedIn</a>
+              </span>
+            )}
+            {personal.portfolio && (
+              <span className={styles.contactItem}>
+                <a href={personal.portfolio} target="_blank" rel="noopener noreferrer">Portfolio</a>
+              </span>
+            )}
           </div>
-        )}
-        <h1 className={styles.name}>{personal.fullName || 'YOUR NAME'}</h1>
-        <p className={styles.role}>{personal.role || 'TARGET ROLE'}</p>
-        
-        <div className={styles.contactBar}>
-          {personal.email && (
-            <span className={styles.contactItem}>{personal.email}</span>
-          )}
-          {personal.phone && (
-            <span className={styles.contactItem}>{personal.phone}</span>
-          )}
-          {personal.github && (
-            <span className={styles.contactItem}>{personal.github}</span>
-          )}
-          {personal.linkedin && (
-            <span className={styles.contactItem}>{personal.linkedin}</span>
-          )}
         </div>
-      </div>
+      )}
 
       {/* PROFESSIONAL SUMMARY */}
-      {personal.summary && (
+      {showHeader && personal.summary && (
         <div className={styles.sectionBlock}>
           <h3 className={styles.secTitle}>Professional Summary</h3>
           <div className={styles.secDivider}></div>
@@ -113,9 +148,23 @@ export default function Elegant_Page({ data, showWatermark = true }) {
               <div key={proj.id || idx} className={styles.itemBlock}>
                 <div className={styles.itemHeader}>
                   <span className={styles.itemRole}>{proj.name || 'Project Name'}</span>
-                  {proj.link && (
-                    <span className={styles.itemDates}>{proj.link}</span>
-                  )}
+                  <div className={styles.projectLinks}>
+                    {proj.liveUrl && (
+                      <a href={proj.liveUrl} target="_blank" rel="noopener noreferrer" className={styles.projectLink}>
+                        Live Demo
+                      </a>
+                    )}
+                    {proj.githubFront && (
+                      <a href={proj.githubFront} target="_blank" rel="noopener noreferrer" className={styles.projectLink}>
+                        Frontend Repo
+                      </a>
+                    )}
+                    {proj.githubBack && (
+                      <a href={proj.githubBack} target="_blank" rel="noopener noreferrer" className={styles.projectLink}>
+                        Backend Repo
+                      </a>
+                    )}
+                  </div>
                 </div>
                 {proj.technologies && (
                   <div className={styles.itemSubHeader}>
@@ -151,7 +200,8 @@ export default function Elegant_Page({ data, showWatermark = true }) {
                 </div>
                 {(edu.location || edu.grade) && (
                   <div className={styles.itemSubHeader}>
-                    <span>{edu.location || ''}</span>
+                    {edu.location && <span>{edu.location}</span>}
+                    {edu.location && edu.grade && <span> • </span>}
                     {edu.grade && <span>{resolveGradeLabel(edu)}: {edu.grade}</span>}
                   </div>
                 )}
@@ -161,12 +211,61 @@ export default function Elegant_Page({ data, showWatermark = true }) {
         </div>
       )}
 
-      {/* SKILLS SECTION */}
+      {/* SKILLS SECTION (Styled as pills with classic elegant coloring) */}
       {skills && (
         <div className={styles.sectionBlock}>
-          <h3 className={styles.secTitle}>Skills & Technologies</h3>
+          <h3 className={styles.secTitle}>Skills &amp; Technologies</h3>
           <div className={styles.secDivider}></div>
-          <p className={styles.skillsText}>{skills}</p>
+          <div className={styles.skillsPillContainer}>
+            {skills.split(',').map((s) => s.trim()).filter(Boolean).map((skill, idx) => (
+              <span key={idx} className={`${styles.skillPill} ${styles.elegantSkillPill}`}>{skill}</span>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* LANGUAGES SECTION */}
+      {hasLanguages && (
+        <div className={styles.sectionBlock}>
+          <h3 className={styles.secTitle}>Languages</h3>
+          <div className={styles.secDivider}></div>
+          <div className={styles.elegantLanguagesContainer}>
+            {languages.map((lang, idx) => (
+              <div key={lang.id || idx} className={styles.elegantLangRow}>
+                <span className={styles.langName}>{lang.name}</span>
+                {renderDots(lang.level)}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* CERTIFICATIONS SECTION */}
+      {hasCertifications && (
+        <div className={styles.sectionBlock}>
+          <h3 className={styles.secTitle}>Certifications &amp; Licenses</h3>
+          <div className={styles.secDivider}></div>
+          {certifications.map((cert, idx) => (
+            (cert.name || cert.organization) && (
+              <div key={cert.id || idx} className={styles.certBlock}>
+                <div className={styles.itemHeader}>
+                  <div>
+                    <span className={styles.certName}>{cert.name || 'Certification'}</span>
+                    <span> | </span>
+                    <span className={styles.certOrg}>{cert.organization || 'Organization'}</span>
+                  </div>
+                  {cert.date && <span className={styles.itemDates}>{cert.date}</span>}
+                </div>
+                {cert.url && (
+                  <div className={styles.itemSubHeader}>
+                    <a href={cert.url} target="_blank" rel="noopener noreferrer" className={styles.certLink}>
+                      View Credential
+                    </a>
+                  </div>
+                )}
+              </div>
+            )
+          ))}
         </div>
       )}
 
