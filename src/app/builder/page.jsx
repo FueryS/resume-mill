@@ -249,6 +249,20 @@ export default function BuilderPage() {
     });
   };
 
+  // Handler to drag-reorder items inside listing sections
+  const reorderArrayItem = (section, startIndex, endIndex) => {
+    setFormData((prev) => {
+      const items = [...(prev[section] || [])];
+      if (startIndex < 0 || startIndex >= items.length || endIndex < 0 || endIndex >= items.length) return prev;
+      const [removed] = items.splice(startIndex, 1);
+      items.splice(endIndex, 0, removed);
+      return {
+        ...prev,
+        [section]: items
+      };
+    });
+  };
+
   // Handler to modify skills summary text block
   const handleSkillsChange = (value) => {
     setFormData((prev) => ({
@@ -446,6 +460,7 @@ export default function BuilderPage() {
                   addArrayItem={addArrayItem}
                   removeArrayItem={removeArrayItem}
                   moveArrayItem={moveArrayItem}
+                  reorderArrayItem={reorderArrayItem}
                   handleAIQuery={handleAIQuery}
                   optimizingField={optimizingField}
                 />
@@ -458,6 +473,7 @@ export default function BuilderPage() {
                   addArrayItem={addArrayItem}
                   removeArrayItem={removeArrayItem}
                   moveArrayItem={moveArrayItem}
+                  reorderArrayItem={reorderArrayItem}
                   handleAIQuery={handleAIQuery}
                   optimizingField={optimizingField}
                 />
@@ -470,6 +486,7 @@ export default function BuilderPage() {
                   addArrayItem={addArrayItem}
                   removeArrayItem={removeArrayItem}
                   moveArrayItem={moveArrayItem}
+                  reorderArrayItem={reorderArrayItem}
                 />
               )}
 
@@ -482,6 +499,7 @@ export default function BuilderPage() {
                   addArrayItem={addArrayItem}
                   removeArrayItem={removeArrayItem}
                   moveArrayItem={moveArrayItem}
+                  reorderArrayItem={reorderArrayItem}
                   onSkillsChange={handleSkillsChange}
                 />
               )}
