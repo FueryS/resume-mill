@@ -171,12 +171,16 @@ export default function Elegant_Page({ data, pageData, showWatermark = true, sho
                     )}
                     {proj.githubFront && (
                       <a href={proj.githubFront} target="_blank" rel="noopener noreferrer" className={styles.projectLink}>
-                        {showFullUrls ? `Frontend: ${formatDisplayUrl(proj.githubFront)}` : 'Frontend Repo'}
+                        {showFullUrls 
+                          ? `${proj.githubBack ? 'Frontend' : 'Repository'}: ${formatDisplayUrl(proj.githubFront)}` 
+                          : proj.githubBack ? 'Frontend Repo' : 'Repository'}
                       </a>
                     )}
                     {proj.githubBack && (
                       <a href={proj.githubBack} target="_blank" rel="noopener noreferrer" className={styles.projectLink}>
-                        {showFullUrls ? `Backend: ${formatDisplayUrl(proj.githubBack)}` : 'Backend Repo'}
+                        {showFullUrls 
+                          ? `${proj.githubFront ? 'Backend' : 'Repository'}: ${formatDisplayUrl(proj.githubBack)}` 
+                          : proj.githubFront ? 'Backend Repo' : 'Repository'}
                       </a>
                     )}
                   </div>

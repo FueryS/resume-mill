@@ -45,6 +45,7 @@ const formatDisplayUrl = (url) => {
 ```
 * **Active Mode:** When `showFullUrls` is `true`, replace friendly click-labels like `"GitHub"` or `"Live Demo"` with clean, readable URL routes (e.g. `github.com/myusername`).
 * **Passive Mode:** When `showFullUrls` is `false`, render standard short labels.
+* **Conditional Repository Labels:** If both frontend and backend repository links are provided, distinguish them as `"Front Repo"` and `"Back Repo"`. If only one repository link is provided, avoid using `"Front"` or `"Back"` qualifiers and label it simply as `"Repo"`, `"Code"`, or `"Repository"` depending on the template's style guidelines.
 
 ---
 

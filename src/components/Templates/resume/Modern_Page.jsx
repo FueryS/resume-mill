@@ -199,12 +199,16 @@ export default function Modern_Page({ data, pageData, showWatermark = true, show
                     )}
                     {proj.githubFront && (
                       <a href={proj.githubFront} target="_blank" rel="noopener noreferrer" className={styles.projectLink}>
-                        {showFullUrls ? `Front: ${formatDisplayUrl(proj.githubFront)}` : 'Front Repo'}
+                        {showFullUrls 
+                          ? `${proj.githubBack ? 'Front' : 'Repo'}: ${formatDisplayUrl(proj.githubFront)}` 
+                          : proj.githubBack ? 'Front Repo' : 'Repo'}
                       </a>
                     )}
                     {proj.githubBack && (
                       <a href={proj.githubBack} target="_blank" rel="noopener noreferrer" className={styles.projectLink}>
-                        {showFullUrls ? `Back: ${formatDisplayUrl(proj.githubBack)}` : 'Back Repo'}
+                        {showFullUrls 
+                          ? `${proj.githubFront ? 'Back' : 'Repo'}: ${formatDisplayUrl(proj.githubBack)}` 
+                          : proj.githubFront ? 'Back Repo' : 'Repo'}
                       </a>
                     )}
                   </div>

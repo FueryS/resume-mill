@@ -210,12 +210,16 @@ export default function Creative_Page({ data, pageData, showWatermark = true, sh
                       )}
                       {proj.githubFront && (
                         <a href={proj.githubFront} target="_blank" rel="noopener noreferrer" className={styles.projectLink}>
-                          {showFullUrls ? `Front: ${formatDisplayUrl(proj.githubFront)}` : 'Front Repo'}
+                          {showFullUrls 
+                            ? `${proj.githubBack ? 'Front' : 'Code'}: ${formatDisplayUrl(proj.githubFront)}` 
+                            : proj.githubBack ? 'Front Repo' : 'Code'}
                         </a>
                       )}
                       {proj.githubBack && (
                         <a href={proj.githubBack} target="_blank" rel="noopener noreferrer" className={styles.projectLink}>
-                          {showFullUrls ? `Back: ${formatDisplayUrl(proj.githubBack)}` : 'Back Repo'}
+                          {showFullUrls 
+                            ? `${proj.githubFront ? 'Back' : 'Code'}: ${formatDisplayUrl(proj.githubBack)}` 
+                            : proj.githubFront ? 'Back Repo' : 'Code'}
                         </a>
                       )}
                     </div>
