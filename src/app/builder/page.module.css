@@ -682,3 +682,52 @@
 .cardBodyCollapsed {
   display: none;
 }
+
+/* Mobile Toggle Tab Navigation */
+.mobileTabToggleBar {
+  display: none;
+}
+
+@media (max-width: 968px) {
+  .mobileTabToggleBar {
+    display: flex;
+    gap: var(--space-2);
+    margin-bottom: var(--space-4);
+    background-color: var(--bg-secondary);
+    padding: var(--space-1);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-color);
+  }
+
+  .mobileTabToggleBtn {
+    flex: 1;
+    text-align: center;
+    padding: 10px;
+    border-radius: var(--radius-sm);
+    border: none;
+    background: transparent;
+    color: var(--text-muted);
+    font-size: 13.5px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .mobileTabToggleBtn:hover {
+    color: var(--text-main);
+  }
+
+  .mobileActive {
+    background-color: var(--primary) !important;
+    color: #ffffff !important;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .hideMobile {
+    display: none !important;
+  }
+
+  .formBody {
+    padding: var(--space-4) !important;
+  }
+}

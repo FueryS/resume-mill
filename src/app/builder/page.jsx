@@ -112,6 +112,9 @@ export default function BuilderPage() {
   // State representing whether to show full URL strings in template rendering
   const [showFullUrls, setShowFullUrls] = useState(false);
 
+  // State representing the active mobile layout view tab ('edit' or 'preview')
+  const [mobileTab, setMobileTab] = useState('edit');
+
   // Step names and icons list
   const steps = [
     { name: 'Profile & Summary', icon: <User size={18} /> },
@@ -490,10 +493,28 @@ export default function BuilderPage() {
   return (
     <>
       <div className={styles.builderPage}>
+        {/* Mobile segmented control tab bar */}
+        <div className={`container ${styles.mobileTabToggleBar}`}>
+          <button
+            type="button"
+            className={`${styles.mobileTabToggleBtn} ${mobileTab === 'edit' ? styles.mobileActive : ''}`}
+            onClick={() => setMobileTab('edit')}
+          >
+            Edit Fields
+          </button>
+          <button
+            type="button"
+            className={`${styles.mobileTabToggleBtn} ${mobileTab === 'preview' ? styles.mobileActive : ''}`}
+            onClick={() => setMobileTab('preview')}
+          >
+            A4 Preview
+          </button>
+        </div>
+
         <div className={`container ${styles.builderGrid}`}>
           
           {/* LEFT COLUMN PANEL: Multi-step interactive inputs */}
-          <div className={styles.formPanel}>
+          <div className={`${styles.formPanel} ${mobileTab === 'preview' ? styles.hideMobile : ''}`}>
             
             {/* Step navigation indicator block */}
             <ResumeBuildProgressNav 
@@ -622,6 +643,8 @@ export default function BuilderPage() {
             setShowFullscreen={setShowFullscreenPreview}
             supportWithWatermark={supportWithWatermark}
             showFullUrls={showFullUrls}
+            isVisible={mobileTab === 'preview'}
+            className={mobileTab === 'edit' ? styles.hideMobile : ''}
           />
 
         </div>

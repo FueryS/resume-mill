@@ -30,6 +30,8 @@ export default function ResumePreview({
   setShowFullscreen,
   supportWithWatermark = true,
   showFullUrls = false,
+  isVisible = true,
+  className = "",
 }) {
   const [zoomPercent, setZoomPercent] = useState(85);
   const [viewportWidth, setViewportWidth] = useState(1200);
@@ -103,6 +105,23 @@ export default function ResumePreview({
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
+
+  // Recalculate zoom scale when visibility changes (useful for mobile tabs switching between display none/block)
+  useEffect(() => {
+    if (isVisible && containerRef.current) {
+      // Small timeout to let browser finish display block rendering before reading client bounding rect width
+      const timer = setTimeout(() => {
+        const width = containerRef.current.getBoundingClientRect().width;
+        if (width > 0) {
+          const fitScale = Math.round(
+            Math.max(30, Math.min(100, ((width - 48) / 794) * 100))
+          );
+          setZoomPercent(fitScale);
+        }
+      }, 50);
+      return () => clearTimeout(timer);
+    }
+  }, [isVisible]);
 
   // Intercept device back button to close the fullscreen preview (App-like UX)
   useEffect(() => {
@@ -195,7 +214,7 @@ export default function ResumePreview({
   const modalScale = Math.min(1, Math.max(0.3, (viewportWidth - 32) / 794));
 
   return (
-    <div className={styles.previewPanel}>
+    <div className={`${styles.previewPanel} ${className}`}>
       {/* Live status banner */}
       <div className={styles.previewHeader}>
         <span className={styles.liveBadge}>Live A4 Print Preview</span>
