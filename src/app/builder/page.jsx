@@ -361,6 +361,98 @@ export default function BuilderPage() {
     }
   };
 
+  // Exports the current formData to a JSON file backup
+  const handleExportData = () => {
+    try {
+      const dataStr = JSON.stringify(formData, null, 2);
+      const blob = new Blob([dataStr], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      const fileName = `${(formData.personal.fullName || 'Resume').replace(/\s+/g, '_')}_backup.json`;
+      a.download = fileName;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch (e) {
+      console.error('Failed to export data', e);
+      alert('Failed to export backup data.');
+    }
+  };
+
+  // Safely parses and imports JSON backup data into the builder state
+  const handleImportData = (importedData) => {
+    const generateUniqueId = () => Date.now().toString() + Math.random().toString(36).substr(2, 9);
+    try {
+      if (!importedData || typeof importedData !== 'object') {
+        throw new Error('Invalid data format');
+      }
+
+      // Defensive merging, making sure every item has proper keys and IDs
+      const merged = {
+        ...initialFormState,
+        ...importedData,
+        personal: {
+          ...initialFormState.personal,
+          ...(importedData.personal || {})
+        },
+        experience: (importedData.experience || []).map(e => ({
+          id: e.id || generateUniqueId(),
+          company: e.company || '',
+          role: e.role || '',
+          location: e.location || '',
+          startDate: e.startDate || '',
+          endDate: e.endDate || '',
+          current: e.current || false,
+          description: e.description || ''
+        })),
+        projects: (importedData.projects || []).map(p => ({
+          id: p.id || generateUniqueId(),
+          name: p.name || '',
+          description: p.description || '',
+          technologies: p.technologies || '',
+          githubFront: p.githubFront || '',
+          githubBack: p.githubBack || '',
+          liveUrl: p.liveUrl || ''
+        })),
+        education: (importedData.education || []).map(edu => ({
+          id: edu.id || generateUniqueId(),
+          institution: edu.institution || '',
+          degree: edu.degree || '',
+          location: edu.location || '',
+          startDate: edu.startDate || '',
+          endDate: edu.endDate || '',
+          gradeType: edu.gradeType || 'degree',
+          grade: edu.grade || '',
+          boardGradeFormat: edu.boardGradeFormat || 'percentage',
+          customGradeLabel: edu.customGradeLabel || ''
+        })),
+        languages: (importedData.languages || []).map(l => ({
+          id: l.id || generateUniqueId(),
+          name: l.name || '',
+          level: typeof l.level === 'number' ? l.level : 5
+        })),
+        certifications: (importedData.certifications || []).map(c => ({
+          id: c.id || generateUniqueId(),
+          name: c.name || '',
+          organization: c.organization || '',
+          date: c.date || '',
+          url: c.url || ''
+        })),
+        skills: importedData.skills || ''
+      };
+
+      setFormData(merged);
+      // Persist directly to localStorage
+      localStorage.setItem('resume-mill-draft', JSON.stringify(merged));
+      alert('Resume data successfully imported!');
+    } catch (error) {
+      console.error('Failed to parse imported JSON data', error);
+      alert('Invalid file format. Please upload a valid ResumeMill backup file.');
+    }
+  };
+
   // Exports the live preview as a pixel-perfect PDF using html2canvas + jsPDF
   const handleDownloadPDF = async () => {
     fetch('/api/stats', { method: 'POST' }).catch(() => {});
@@ -597,6 +689,8 @@ export default function BuilderPage() {
                   setSupportWithWatermark={setSupportWithWatermark}
                   showFullUrls={showFullUrls}
                   setShowFullUrls={setShowFullUrls}
+                  onExportData={handleExportData}
+                  onImportData={handleImportData}
                 />
               )}
             </div>

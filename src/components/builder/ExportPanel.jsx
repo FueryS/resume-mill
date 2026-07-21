@@ -11,9 +11,9 @@
 
 'use client';
 
-import React from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Download, FileDown, Eye } from 'lucide-react';
+import { Download, FileDown, Eye, HelpCircle, Upload } from 'lucide-react';
 import styles from '@/app/builder/page.module.css';
 
 export default function ExportPanel({
@@ -26,9 +26,22 @@ export default function ExportPanel({
   supportWithWatermark,
   setSupportWithWatermark,
   showFullUrls,
-  setShowFullUrls
+  setShowFullUrls,
+  onExportData,
+  onImportData
 }) {
   const router = useRouter();
+  const [showTooltip, setShowTooltip] = useState(false);
+  const hoverTimerRef = useRef(null);
+  const fileInputRef = useRef(null);
+
+  useEffect(() => {
+    return () => {
+      if (hoverTimerRef.current) {
+        clearTimeout(hoverTimerRef.current);
+      }
+    };
+  }, []);
 
   const handleRedirectResume = () => {
     router.push('/templates/resume');
@@ -36,6 +49,49 @@ export default function ExportPanel({
 
   const handleRedirectPortfolio = () => {
     router.push('/templates/portfolio');
+  };
+
+  const handleMouseEnter = () => {
+    if (hoverTimerRef.current) clearTimeout(hoverTimerRef.current);
+    hoverTimerRef.current = setTimeout(() => {
+      setShowTooltip(true);
+    }, 800); // 0.8 seconds delay
+  };
+
+  const handleMouseLeave = () => {
+    if (hoverTimerRef.current) {
+      clearTimeout(hoverTimerRef.current);
+      hoverTimerRef.current = null;
+    }
+    setShowTooltip(false);
+  };
+
+  const handleTouchStart = (e) => {
+    e.stopPropagation();
+    setShowTooltip(prev => !prev);
+  };
+
+  const handleTriggerImport = () => {
+    if (confirm('Importing this backup will overwrite your current draft. Do you want to proceed?')) {
+      fileInputRef.current?.click();
+    }
+  };
+
+  const handleImportFileChange = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      try {
+        const parsed = JSON.parse(event.target.result);
+        onImportData(parsed);
+      } catch (err) {
+        alert('Invalid JSON file format.');
+      }
+    };
+    reader.readAsText(file);
+    e.target.value = '';
   };
 
   return (
@@ -207,6 +263,124 @@ export default function ExportPanel({
             Reset Draft Form
           </button>
         </div>
+      </div>
+
+      {/* 3. Backup & Restore Data */}
+      <div className={styles.exportsActionBox} style={{ marginTop: '24px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+          <h4 style={{ margin: 0 }}>Backup &amp; Restore</h4>
+          
+          {/* Question mark icon, very faded */}
+          <div 
+            style={{ 
+              position: 'relative', 
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer',
+              opacity: 0.35,
+              transition: 'opacity 0.2s',
+            }}
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
+            onTouchStart={handleTouchStart}
+          >
+            <HelpCircle size={16} />
+            
+            {/* Tooltip floating bubble */}
+            {showTooltip && (
+              <div 
+                style={{
+                  position: 'absolute',
+                  bottom: '24px',
+                  left: '50%',
+                  transform: 'translateX(-50%)',
+                  width: '260px',
+                  padding: '10px 12px',
+                  backgroundColor: '#1f2937',
+                  color: '#ffffff',
+                  fontSize: '12px',
+                  lineHeight: '1.4',
+                  borderRadius: '6px',
+                  boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+                  zIndex: 50,
+                  pointerEvents: 'none',
+                  textAlign: 'center',
+                  fontWeight: 'normal',
+                }}
+              >
+                Export your resume data to a local .json file to back up your progress, or import an existing backup file to restore your draft instantly.
+                {/* Tooltip arrow */}
+                <div 
+                  style={{
+                    position: 'absolute',
+                    top: '100%',
+                    left: '50%',
+                    transform: 'translateX(-50%)',
+                    width: 0,
+                    height: 0,
+                    borderLeft: '6px solid transparent',
+                    borderRight: '6px solid transparent',
+                    borderTop: '6px solid #1f2937',
+                  }}
+                />
+              </div>
+            )}
+          </div>
+        </div>
+        
+        <p style={{ fontSize: '12.5px', color: 'var(--text-muted)', margin: '0 0 16px 0' }}>
+          Save your written progress to your hard drive so you can resume editing later on any device.
+        </p>
+
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', width: '100%' }}>
+          {/* Export JSON button */}
+          <button 
+            type="button"
+            className="btn btn-secondary"
+            onClick={onExportData}
+            style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              justifyContent: 'center', 
+              gap: '6px',
+              padding: '10px 8px',
+              fontSize: '13px',
+              fontWeight: '600'
+            }}
+          >
+            <Upload size={14} />
+            <span>Export Data</span>
+          </button>
+
+          {/* Import JSON button */}
+          <button 
+            type="button"
+            className="btn btn-secondary"
+            onClick={handleTriggerImport}
+            style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              justifyContent: 'center', 
+              gap: '6px',
+              padding: '10px 8px',
+              fontSize: '13px',
+              fontWeight: '600'
+            }}
+          >
+            <Download size={14} />
+            <span>Import Data</span>
+          </button>
+        </div>
+
+        {/* Hidden File input for Import */}
+        <input 
+          type="file" 
+          ref={fileInputRef}
+          onChange={handleImportFileChange}
+          accept=".json"
+          style={{ display: 'none' }}
+        />
       </div>
 
     </div>
