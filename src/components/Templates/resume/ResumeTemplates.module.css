@@ -5,7 +5,7 @@
   width: 794px;
   min-height: 1123px;
   background-color: #ffffff;
-  padding: 50px;
+  padding: 38px 42px;
   box-sizing: border-box;
   color: #1f2937;
   display: flex;
@@ -33,8 +33,8 @@
 
 /* Section elements */
 .sectionBlock {
-  margin-top: 16px;
-  margin-bottom: 10px;
+  margin-top: 12px;
+  margin-bottom: 6px;
   display: flex;
   flex-direction: column;
 }
@@ -63,7 +63,7 @@
 
 /* Item block (jobs/projects/education) */
 .itemBlock {
-  margin-bottom: 8px;
+  margin-bottom: 6px;
 }
 
 .itemHeader {
@@ -146,7 +146,7 @@
 /* --- ELEGANT TEMPLATE OVERRIDES --- */
 .elegant {
   font-family: Georgia, serif;
-  padding: 55px;
+  padding: 40px 44px;
 }
 
 .elegant .headerBlock {
@@ -203,10 +203,10 @@
 }
 
 .creativeLeftColumn {
-  width: 250px;
+  width: 240px;
   background-color: #1e293b; /* Dark Slate */
   color: #f1f5f9;
-  padding: 40px 25px;
+  padding: 32px 20px;
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
@@ -215,7 +215,7 @@
 .creativeRightColumn {
   flex: 1;
   background-color: #ffffff;
-  padding: 40px 30px;
+  padding: 32px 24px;
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
@@ -576,7 +576,7 @@
   background-color: #fafaf9; /* warm off-white */
   color: #1c1917; /* dark charcoal */
   font-family: var(--font-sans), system-ui, -apple-system, sans-serif;
-  padding: 45px 50px;
+  padding: 38px 42px;
 }
 
 .timelineHeaderBlock {

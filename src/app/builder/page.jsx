@@ -476,50 +476,43 @@ export default function BuilderPage() {
       const { default: html2canvas } = await import('html2canvas');
       const { default: jsPDF } = await import('jspdf');
 
-      // scale: 3 → captures at high-DPI for crisp text
-      const canvas = await html2canvas(sheet, {
-        scale: 3,
-        useCORS: true,
-        allowTaint: true,
-        backgroundColor: '#ffffff',
-        width: 794,
-        height: unscaledHeight,
-        scrollX: 0,
-        scrollY: 0,
-        logging: false,
-      });
-
-      // Pack into A4 PDF pages (210×297mm)
-      const pdf = new jsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait' });
-      const imgData = canvas.toDataURL('image/png');
-
-      const imgWidth = 210;
-      const imgHeight = (canvas.height * imgWidth) / canvas.width; // relative height in mm
-      const pageHeightMm = 297;
-      let heightLeft = imgHeight;
-      let position = 0;
-      let pageNum = 1;
-
-      pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-      heightLeft -= pageHeightMm;
-
-      while (heightLeft > 0.5) { // offset offset threshold
-        position = -pageNum * pageHeightMm;
-        pdf.addPage();
-        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-        heightLeft -= pageHeightMm;
-        pageNum++;
+      const pageElements = Array.from(sheet.children);
+      if (!pageElements.length) {
+        alert('No pages found to export.');
+        return;
       }
 
-      // Add interactive links to the PDF pages
-      const pageElements = sheet.children;
+      const pdf = new jsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait', compress: true });
+
       for (let p = 0; p < pageElements.length; p++) {
         const pageEl = pageElements[p];
+
+        // Capture individual A4 page element at scale 2.5 (crisp ~240 DPI rendering)
+        const canvas = await html2canvas(pageEl, {
+          scale: 2.5,
+          useCORS: true,
+          allowTaint: true,
+          backgroundColor: '#ffffff',
+          width: 794,
+          height: 1123,
+          scrollX: 0,
+          scrollY: 0,
+          logging: false,
+        });
+
+        // Convert page to compressed JPEG (0.92 quality) to drastically cut PDF size (from ~70MB to <700KB)
+        const imgData = canvas.toDataURL('image/jpeg', 0.92);
+
+        if (p > 0) {
+          pdf.addPage('a4', 'portrait');
+        }
+        pdf.addImage(imgData, 'JPEG', 0, 0, 210, 297, undefined, 'FAST');
+
+        // Add interactive links for the current page
+        pdf.setPage(p + 1);
         const pageRect = pageEl.getBoundingClientRect();
         const links = pageEl.querySelectorAll('a');
-        
-        pdf.setPage(p + 1);
-        
+
         links.forEach((link) => {
           const href = link.getAttribute('href');
           if (href && (href.startsWith('http://') || href.startsWith('https://') || href.startsWith('mailto:'))) {
@@ -528,10 +521,10 @@ export default function BuilderPage() {
             const topPx = linkRect.top - pageRect.top;
             const widthPx = linkRect.width;
             const heightPx = linkRect.height;
-            
+
             const scaleX = 210 / 794;
             const scaleY = 297 / 1123;
-            
+
             pdf.link(
               leftPx * scaleX,
               topPx * scaleY,

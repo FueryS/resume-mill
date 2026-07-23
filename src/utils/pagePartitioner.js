@@ -26,18 +26,18 @@ export function partitionResumeData(data) {
   };
 
   // Height budget configuration (in pixels)
-  // Printable area is 1123px - 100px padding = 1023px
-  const PAGE_1_MAX = 800; // smaller budget due to header + summary
+  // Usable height on A4 canvas (1123px total - ~76px vertical padding - ~30px watermark = ~1017px usable)
+  // Budget limit is set to 980px so pages fill up to 96% before creating a break
+  const PAGE_1_MAX = 980;
   const PAGE_N_MAX = 980;
 
   let currentHeight = 0;
 
   // 1. Calculate Page 1 Header and Summary Height
-  // Header: Name, contact links, portfolio
-  let headerHeight = 110;
-  if (data.personal?.pfp) headerHeight = 160;
+  let headerHeight = 70;
+  if (data.personal?.pfp) headerHeight = 115;
   
-  // Estimate personal social link rows
+  // Estimate personal social link rows (4 links fit per row in CSS flex contact bar)
   let linksCount = 0;
   if (data.personal?.email) linksCount++;
   if (data.personal?.phone) linksCount++;
@@ -45,13 +45,13 @@ export function partitionResumeData(data) {
   if (data.personal?.github) linksCount++;
   if (data.personal?.linkedin) linksCount++;
   if (data.personal?.portfolio) linksCount++;
-  headerHeight += Math.ceil(linksCount / 3) * 20;
+  headerHeight += Math.ceil(linksCount / 4) * 16;
 
   currentHeight += headerHeight;
 
   // Summary text
   if (data.personal?.summary) {
-    const summaryHeight = 40 + Math.ceil(data.personal.summary.length / 85) * 16;
+    const summaryHeight = 25 + Math.ceil(data.personal.summary.length / 100) * 15;
     currentHeight += summaryHeight;
   }
 
@@ -72,7 +72,7 @@ export function partitionResumeData(data) {
       languages: [],
       skills: '',
     };
-    currentHeight = 40; // top section heading offset
+    currentHeight = 25; // top section heading offset
   };
 
   // 2. Distribute Experiences
@@ -80,14 +80,12 @@ export function partitionResumeData(data) {
     let sectionHeadingAdded = false;
 
     data.experience.forEach((item) => {
-      // Estimate card height
-      let itemHeight = 55; // company, role, location, date headers
+      let itemHeight = 32;
       if (item.description) {
-        itemHeight += Math.ceil(item.description.length / 80) * 16;
+        itemHeight += Math.ceil(item.description.length / 95) * 15;
       }
 
-      // Add section heading height once on a page
-      const headingHeight = !sectionHeadingAdded ? 40 : 0;
+      const headingHeight = !sectionHeadingAdded ? 28 : 0;
 
       if (currentHeight + itemHeight + headingHeight > getActiveLimit()) {
         moveToNextPage();
@@ -95,7 +93,7 @@ export function partitionResumeData(data) {
       }
 
       if (!sectionHeadingAdded) {
-        currentHeight += 40;
+        currentHeight += 28;
         sectionHeadingAdded = true;
       }
 
@@ -109,17 +107,15 @@ export function partitionResumeData(data) {
     let sectionHeadingAdded = false;
 
     data.projects.forEach((item) => {
-      // Estimate project card height
-      let itemHeight = 50; // name, stack, dates
-      // Add lines for links if present
+      let itemHeight = 30;
       if (item.githubFront || item.githubBack || item.liveUrl) {
-        itemHeight += 18;
+        itemHeight += 14;
       }
       if (item.description) {
-        itemHeight += Math.ceil(item.description.length / 80) * 16;
+        itemHeight += Math.ceil(item.description.length / 95) * 15;
       }
 
-      const headingHeight = !sectionHeadingAdded ? 40 : 0;
+      const headingHeight = !sectionHeadingAdded ? 28 : 0;
 
       if (currentHeight + itemHeight + headingHeight > getActiveLimit()) {
         moveToNextPage();
@@ -127,7 +123,7 @@ export function partitionResumeData(data) {
       }
 
       if (!sectionHeadingAdded) {
-        currentHeight += 40;
+        currentHeight += 28;
         sectionHeadingAdded = true;
       }
 
@@ -141,10 +137,8 @@ export function partitionResumeData(data) {
     let sectionHeadingAdded = false;
 
     data.education.forEach((item) => {
-      // Estimate education height
-      const itemHeight = 65; // Institution, degree, dates, grade, location
-
-      const headingHeight = !sectionHeadingAdded ? 40 : 0;
+      const itemHeight = 38;
+      const headingHeight = !sectionHeadingAdded ? 28 : 0;
 
       if (currentHeight + itemHeight + headingHeight > getActiveLimit()) {
         moveToNextPage();
@@ -152,7 +146,7 @@ export function partitionResumeData(data) {
       }
 
       if (!sectionHeadingAdded) {
-        currentHeight += 40;
+        currentHeight += 28;
         sectionHeadingAdded = true;
       }
 
@@ -161,11 +155,11 @@ export function partitionResumeData(data) {
     });
   }
 
-  // 5. Distribute Skills (Rendered as pill blocks)
+  // 5. Distribute Skills
   if (data.skills) {
-    // Estimate skills height
     const skillsList = data.skills.split(',').map(s => s.trim()).filter(Boolean);
-    const skillsHeight = 40 + Math.ceil(skillsList.length / 6) * 26; // approx 6 pills per row
+    // Skills pills fit ~10-12 pills per row in flex container
+    const skillsHeight = 28 + Math.ceil(skillsList.length / 10) * 22;
 
     if (currentHeight + skillsHeight > getActiveLimit()) {
       moveToNextPage();
@@ -175,26 +169,18 @@ export function partitionResumeData(data) {
     currentHeight += skillsHeight;
   }
 
-  // 6. Distribute Languages
+  // 6. Distribute Languages (Keep entire list together to avoid 1-word page breaks)
   if (data.languages && data.languages.length > 0) {
-    let sectionHeadingAdded = false;
+    const totalLangHeight = 28 + (data.languages.length * 18);
 
+    if (currentHeight + totalLangHeight > getActiveLimit()) {
+      moveToNextPage();
+    }
+
+    currentHeight += 28;
     data.languages.forEach((item) => {
-      const itemHeight = 24; // individual line
-      const headingHeight = !sectionHeadingAdded ? 40 : 0;
-
-      if (currentHeight + itemHeight + headingHeight > getActiveLimit()) {
-        moveToNextPage();
-        sectionHeadingAdded = false;
-      }
-
-      if (!sectionHeadingAdded) {
-        currentHeight += 40;
-        sectionHeadingAdded = true;
-      }
-
       currentPage.languages.push(item);
-      currentHeight += itemHeight;
+      currentHeight += 18;
     });
   }
 
@@ -203,8 +189,8 @@ export function partitionResumeData(data) {
     let sectionHeadingAdded = false;
 
     data.certifications.forEach((item) => {
-      const itemHeight = 45; // title, authority, date, link
-      const headingHeight = !sectionHeadingAdded ? 40 : 0;
+      const itemHeight = 28;
+      const headingHeight = !sectionHeadingAdded ? 28 : 0;
 
       if (currentHeight + itemHeight + headingHeight > getActiveLimit()) {
         moveToNextPage();
@@ -212,7 +198,7 @@ export function partitionResumeData(data) {
       }
 
       if (!sectionHeadingAdded) {
-        currentHeight += 40;
+        currentHeight += 28;
         sectionHeadingAdded = true;
       }
 
