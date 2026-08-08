@@ -92,8 +92,8 @@ export default function Creative_Page({
   const renderSkillItem = (skillObj, idx) => {
     if (showSkillRating) {
       return (
-        <div key={idx} className={styles.creativeLangRow} style={{ padding: '3px 0' }}>
-          <span style={{ color: '#e2e8f0', fontSize: '11px', fontWeight: '500' }}>
+        <div key={idx} className={styles.creativeMainLangRow}>
+          <span style={{ color: '#0f172a', fontSize: '11px', fontWeight: '600' }}>
             {skillObj.name}
           </span>
           {renderStars(skillObj.level)}
@@ -101,7 +101,7 @@ export default function Creative_Page({
       );
     }
     return (
-      <span key={idx} className={styles.creativeSkillItem}>
+      <span key={idx} className={styles.creativeMainSkillItem}>
         {skillObj.name}
       </span>
     );
@@ -257,9 +257,31 @@ export default function Creative_Page({
     ))
   );
 
+  const renderSidebarEdu = () => (
+    education.map((edu, idx) => (
+      (edu.institution || edu.degree) && (
+        <div key={edu.id || idx} className={styles.creativeSidebarEduBlock}>
+          {edu.degree && (
+            <div className={styles.creativeSidebarEduDegree}>{edu.degree}</div>
+          )}
+          {edu.institution && (
+            <div className={styles.creativeSidebarEduInst}>{edu.institution}</div>
+          )}
+          {(edu.startDate || edu.endDate || edu.location || edu.grade) && (
+            <div className={styles.creativeSidebarEduMeta}>
+              {edu.startDate || "Start"} – {edu.endDate || "End"}
+              {edu.location ? ` • ${edu.location}` : ""}
+              {edu.grade ? ` • ${resolveGradeLabel(edu)}: ${edu.grade}` : ""}
+            </div>
+          )}
+        </div>
+      )
+    ))
+  );
+
   const renderUngroupedSkills = () => (
     ungroupedSkills.length > 0 && (
-      <div className={showSkillRating ? styles.creativeLanguagesContainer : styles.creativeSkillsList}>
+      <div className={showSkillRating ? styles.creativeLanguagesContainer : styles.creativeMainSkillsList}>
         {ungroupedSkills.map((skill, idx) => renderSkillItem(skill, idx))}
       </div>
     )
@@ -332,447 +354,461 @@ export default function Creative_Page({
     ))
   );
 
-  return (
-    <div className={`${styles.resumePage} ${styles.creative}`}>
-      {/* LEFT COLUMN: Sidebar */}
-      <div className={styles.creativeLeftColumn}>
-        {showHeader && personal.pfp && (
-          <div className={styles.creativePfpWrapper}>
-            <img
-              src={personal.pfp}
-              alt="Profile"
-              className={styles.creativePfpImage}
-            />
-          </div>
-        )}
-
-        {showHeader && (
-          <div className={styles.brandingSection}>
-            <h1 className={styles.name}>{personal.fullName || "YOUR NAME"}</h1>
-            <p className={styles.role}>{personal.role || "TARGET ROLE"}</p>
-          </div>
-        )}
-
-        {/* CONTACT DETAILS */}
-        {showHeader && (
-          <div className={styles.sectionBlock}>
-            <h3 className={styles.secTitle}>Contact</h3>
-            <div className={styles.contactBar}>
-              {personal.email && (
-                <span className={styles.contactItem}>{personal.email}</span>
-              )}
-              {personal.phone && (
-                <span className={styles.contactItem}>{personal.phone}</span>
-              )}
-              {personal.location && (
-                <span className={styles.contactItem}>{personal.location}</span>
-              )}
-              {personal.github && (
-                <span className={styles.contactItem}>
-                  <a
-                    href={personal.github}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    style={{ color: "#94a3b8" }}
-                  >
-                    {showFullUrls
-                      ? formatDisplayUrl(personal.github)
-                      : "GitHub"}
-                  </a>
-                </span>
-              )}
-              {personal.linkedin && (
-                <span className={styles.contactItem}>
-                  <a
-                    href={personal.linkedin}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    style={{ color: "#94a3b8" }}
-                  >
-                    {showFullUrls
-                      ? formatDisplayUrl(personal.linkedin)
-                      : "LinkedIn"}
-                  </a>
-                </span>
-              )}
-              {personal.portfolio && (
-                <span className={styles.contactItem}>
-                  <a
-                    href={personal.portfolio}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    style={{ color: "#94a3b8" }}
-                  >
-                    {showFullUrls
-                      ? formatDisplayUrl(personal.portfolio)
-                      : "Portfolio"}
-                  </a>
-                </span>
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* PROFILE SUMMARY */}
-        {showHeader && personal.summary && (
-          <div className={styles.sectionBlock}>
-            <h3 className={styles.secTitle}>About Me</h3>
-            <p
-              className={styles.summaryText}
-              style={{
-                color: "#cbd5e1",
-                fontSize: "11.5px",
-                lineHeight: "1.6",
-              }}
-            >
-              {personal.summary}
-            </p>
-          </div>
-        )}
-
-        {/* SKILLS */}
-        {hasSkills && (
-          <div className={styles.sectionBlock}>
-            <h3 className={styles.secTitle}>Skills</h3>
-            
-            {skillsPos === 'start' && renderUngroupedSkills()}
-
-            {/* Render Sub-Grouped Skills */}
-            {skillGroupKeys.map((gName) => (
-              <div key={gName} className={styles.groupContainer}>
-                <div style={{ fontSize: "11px", fontWeight: "700", color: "#94a3b8", textTransform: "uppercase", marginBottom: "4px" }}>
-                  {gName}
-                </div>
-                <div className={styles.groupedItemsWrapper}>
-                  <div className={showSkillRating ? styles.creativeLanguagesContainer : styles.creativeSkillsList}>
-                    {skillGroups[gName].map((skill, idx) => renderSkillItem(skill, idx))}
-                  </div>
-                </div>
-              </div>
-            ))}
-
-            {skillsPos === 'end' && renderUngroupedSkills()}
-          </div>
-        )}
-
-        {/* LANGUAGES */}
-        {hasLanguages && (
-          <div className={styles.sectionBlock}>
-            <h3 className={styles.secTitle}>Languages</h3>
-            <div className={styles.creativeLanguagesContainer}>
-              {languages.map((lang, idx) => (
-                <div key={lang.id || idx} className={styles.creativeLangRow}>
-                  <span
-                    className={styles.langName}
-                    style={{
-                      color: "#e2e8f0",
-                      fontSize: "11px",
-                      fontWeight: "500",
-                    }}
-                  >
-                    {lang.name}
-                  </span>
-                  {renderStars(lang.level)}
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* RIGHT COLUMN: Main Content */}
-      <div className={styles.creativeRightColumn}>
-        {/* EXPERIENCE */}
-        {hasExperience && (
-          <div className={styles.sectionBlock}>
-            <h3 className={styles.secTitle}>Experience</h3>
-            
-            {expPos === 'start' && renderUngroupedExp()}
-
-            {/* Sub-Grouped Experience */}
-            {expGroupKeys.map((gName) => (
-              <div key={gName} className={styles.groupContainer}>
-                <div className={styles.subCategoryTitle}>{gName}</div>
-                <div className={styles.groupedItemsWrapper}>
-                  {expGroups[gName].map((exp, idx) => (
-                    (exp.company || exp.role) && (
-                      <div key={exp.id || idx} className={styles.itemBlock}>
-                        <div className={styles.itemHeader}>
-                          <div>
-                            {exp.role && (
-                              <span className={styles.itemRole}>{exp.role}</span>
-                            )}
-                            {exp.role && exp.company && <span> | </span>}
-                            {exp.company && (
-                              <span className={styles.itemCompany}>
-                                {exp.company}
-                              </span>
-                            )}
-                          </div>
-                          <span className={styles.itemDates}>
-                            {exp.startDate || "Start"} –{" "}
-                            {exp.endDate || (exp.current ? "Present" : "End")}
-                          </span>
-                        </div>
-                        {exp.location && (
-                          <div className={styles.itemSubHeader}>
-                            <span>{exp.location}</span>
-                          </div>
-                        )}
-                        {exp.description && (
-                          <p className={styles.itemDesc}>{exp.description}</p>
-                        )}
-                      </div>
-                    )
-                  ))}
-                </div>
-              </div>
-            ))}
-
-            {expPos === 'end' && renderUngroupedExp()}
-
-          </div>
-        )}
-
-        {/* PROJECTS */}
-        {hasProjects && (
-          <div className={styles.sectionBlock}>
-            <h3 className={styles.secTitle}>Projects</h3>
-            
-            {projPos === 'start' && renderUngroupedProj()}
-
-            {/* Sub-Grouped Projects */}
-            {projGroupKeys.map((gName) => (
-              <div key={gName} className={styles.groupContainer}>
-                <div className={styles.subCategoryTitle}>{gName}</div>
-                <div className={styles.groupedItemsWrapper}>
-                  {projGroups[gName].map((proj, idx) => (
-                    (proj.name || proj.description) && (
-                      <div key={proj.id || idx} className={styles.itemBlock}>
-                        <div className={styles.itemHeader}>
-                          <span className={styles.itemRole}>
-                            {proj.name || "Project Name"}
-                          </span>
-                          <div className={styles.projectLinks}>
-                            {proj.liveUrl && (
-                              <a
-                                href={proj.liveUrl}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className={styles.projectLink}
-                              >
-                                {showFullUrls
-                                  ? `Live: ${formatDisplayUrl(proj.liveUrl)}`
-                                  : "Live Demo"}
-                              </a>
-                            )}
-                            {proj.githubFront && (
-                              <a
-                                href={proj.githubFront}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className={styles.projectLink}
-                              >
-                                {showFullUrls
-                                  ? `${proj.githubBack ? "Front" : "Code"}: ${formatDisplayUrl(proj.githubFront)}`
-                                  : proj.githubBack
-                                    ? "Front Repo"
-                                    : "Code"}
-                              </a>
-                            )}
-                            {proj.githubBack && (
-                              <a
-                                href={proj.githubBack}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className={styles.projectLink}
-                              >
-                                {showFullUrls
-                                  ? `${proj.githubFront ? "Back" : "Code"}: ${formatDisplayUrl(proj.githubBack)}`
-                                  : proj.githubFront
-                                    ? "Back Repo"
-                                    : "Code"}
-                              </a>
-                            )}
-                          </div>
-                        </div>
-                        {proj.technologies && (
-                          <div className={styles.itemSubHeader}>
-                            <span>Tech: {proj.technologies}</span>
-                          </div>
-                        )}
-                        {proj.description && (
-                          <p className={styles.itemDesc}>{proj.description}</p>
-                        )}
-                      </div>
-                    )
-                  ))}
-                </div>
-              </div>
-            ))}
-
-            {projPos === 'end' && renderUngroupedProj()}
-
-          </div>
-        )}
-
-        {/* EDUCATION */}
-        {hasEducation && (
-          <div className={styles.sectionBlock}>
-            <h3 className={styles.secTitle}>Education</h3>
-            
-            {eduPos === 'start' && renderUngroupedEdu()}
-
-            {/* Sub-Grouped Education */}
-            {eduGroupKeys.map((gName) => (
-              <div key={gName} className={styles.groupContainer}>
-                <div className={styles.subCategoryTitle}>{gName}</div>
-                <div className={styles.groupedItemsWrapper}>
-                  {eduGroups[gName].map((edu, idx) => (
-                    (edu.institution || edu.degree) && (
-                      <div key={edu.id || idx} className={styles.itemBlock}>
-                        <div className={styles.itemHeader}>
-                          <div>
-                            {edu.degree && (
-                              <span className={styles.itemRole}>{edu.degree}</span>
-                            )}
-                            {edu.degree && edu.institution && <span>, </span>}
-                            {edu.institution && (
-                              <span className={styles.itemCompany}>
-                                {edu.institution}
-                              </span>
-                            )}
-                          </div>
-                          <span className={styles.itemDates}>
-                            {edu.startDate || "Start"} – {edu.endDate || "End"}
-                          </span>
-                        </div>
-                        {(edu.location || edu.grade) && (
-                          <div className={styles.itemSubHeader}>
-                            {edu.location && <span>{edu.location}</span>}
-                            {edu.location && edu.grade && <span> • </span>}
-                            {edu.grade && (
-                              <span>
-                                {resolveGradeLabel(edu)}: {edu.grade}
-                              </span>
-                            )}
-                          </div>
-                        )}
-                      </div>
-                    )
-                  ))}
-                </div>
-              </div>
-            ))}
-
-            {eduPos === 'end' && renderUngroupedEdu()}
-
-          </div>
-        )}
-
-        {/* CERTIFICATIONS */}
-        {hasCertifications && (
-          <div className={styles.sectionBlock}>
-            <h3 className={styles.secTitle}>Certifications</h3>
-            
-            {certPos === 'start' && renderUngroupedCert()}
-
-            {/* Sub-Grouped Certifications */}
-            {certGroupKeys.map((gName) => (
-              <div key={gName} className={styles.groupContainer}>
-                <div className={styles.subCategoryTitle}>{gName}</div>
-                <div className={styles.groupedItemsWrapper}>
-                  {certGroups[gName].map((cert, idx) => (
-                    (cert.name || cert.organization) && (
-                      <div key={cert.id || idx} className={styles.certBlock}>
-                        <div className={styles.itemHeader}>
-                          <div>
-                            {cert.name && (
-                              <span className={styles.certName}>{cert.name}</span>
-                            )}
-                            {cert.name && cert.organization && <span> | </span>}
-                            {cert.organization && (
-                              <span className={styles.certOrg}>
-                                {cert.organization}
-                              </span>
-                            )}
-                          </div>
-                          {cert.date && (
-                            <span className={styles.itemDates}>{cert.date}</span>
+  const renderMainSections = (isSubsequentPage = false) => (
+    <>
+      {/* EXPERIENCE */}
+      {hasExperience && (
+        <div className={styles.sectionBlock}>
+          <h3 className={styles.secTitle}>Experience</h3>
+          {expPos === 'start' && renderUngroupedExp()}
+          {expGroupKeys.map((gName) => (
+            <div key={gName} className={styles.groupContainer}>
+              <div className={styles.subCategoryTitle}>{gName}</div>
+              <div className={styles.groupedItemsWrapper}>
+                {expGroups[gName].map((exp, idx) => (
+                  (exp.company || exp.role) && (
+                    <div key={exp.id || idx} className={styles.itemBlock}>
+                      <div className={styles.itemHeader}>
+                        <div>
+                          {exp.role && (
+                            <span className={styles.itemRole}>{exp.role}</span>
+                          )}
+                          {exp.role && exp.company && <span> | </span>}
+                          {exp.company && (
+                            <span className={styles.itemCompany}>
+                              {exp.company}
+                            </span>
                           )}
                         </div>
-                        {cert.url && (
-                          <div className={styles.itemSubHeader}>
+                        <span className={styles.itemDates}>
+                          {exp.startDate || "Start"} –{" "}
+                          {exp.endDate || (exp.current ? "Present" : "End")}
+                        </span>
+                      </div>
+                      {exp.location && (
+                        <div className={styles.itemSubHeader}>
+                          <span>{exp.location}</span>
+                        </div>
+                      )}
+                      {exp.description && (
+                        <p className={styles.itemDesc}>{exp.description}</p>
+                      )}
+                    </div>
+                  )
+                ))}
+              </div>
+            </div>
+          ))}
+          {expPos === 'end' && renderUngroupedExp()}
+        </div>
+      )}
+
+      {/* PROJECTS */}
+      {hasProjects && (
+        <div className={styles.sectionBlock}>
+          <h3 className={styles.secTitle}>Projects</h3>
+          {projPos === 'start' && renderUngroupedProj()}
+          {projGroupKeys.map((gName) => (
+            <div key={gName} className={styles.groupContainer}>
+              <div className={styles.subCategoryTitle}>{gName}</div>
+              <div className={styles.groupedItemsWrapper}>
+                {projGroups[gName].map((proj, idx) => (
+                  (proj.name || proj.description) && (
+                    <div key={proj.id || idx} className={styles.itemBlock}>
+                      <div className={styles.itemHeader}>
+                        <span className={styles.itemRole}>
+                          {proj.name || "Project Name"}
+                        </span>
+                        <div className={styles.projectLinks}>
+                          {proj.liveUrl && (
                             <a
-                              href={cert.url}
+                              href={proj.liveUrl}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className={styles.certLink}
+                              className={styles.projectLink}
                             >
                               {showFullUrls
-                                ? formatDisplayUrl(cert.url)
-                                : "View Credential"}
+                                ? `Live: ${formatDisplayUrl(proj.liveUrl)}`
+                                : "Live Demo"}
                             </a>
-                          </div>
-                        )}
-                      </div>
-                    )
-                  ))}
-                </div>
-              </div>
-            ))}
-
-            {certPos === 'end' && renderUngroupedCert()}
-
-          </div>
-        )}
-
-        {/* STANDALONE ACHIEVEMENTS & AWARDS SECTION */}
-        {hasAchievements && (
-          <div className={styles.sectionBlock}>
-            <h3 className={styles.secTitle}>Achievements &amp; Awards</h3>
-            
-            {achPos === 'start' && renderUngroupedAch()}
-
-            {/* Sub-Grouped Achievements */}
-            {achGroupKeys.map((gName) => (
-              <div key={gName} className={styles.groupContainer}>
-                <div className={styles.subCategoryTitle}>{gName}</div>
-                <div className={styles.groupedItemsWrapper}>
-                  {achGroups[gName].map((ach, idx) => (
-                    (ach.title || ach.description) && (
-                      <div key={ach.id || idx} className={styles.itemBlock}>
-                        <div className={styles.itemHeader}>
-                          <div>
-                            {ach.title && (
-                              <span className={styles.itemRole}>{ach.title}</span>
-                            )}
-                            {ach.title && ach.organization && <span> | </span>}
-                            {ach.organization && (
-                              <span className={styles.itemCompany}>
-                                {ach.organization}
-                              </span>
-                            )}
-                          </div>
-                          {ach.date && (
-                            <span className={styles.itemDates}>{ach.date}</span>
+                          )}
+                          {proj.githubFront && (
+                            <a
+                              href={proj.githubFront}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className={styles.projectLink}
+                            >
+                              {showFullUrls
+                                ? `${proj.githubBack ? "Front" : "Code"}: ${formatDisplayUrl(proj.githubFront)}`
+                                : proj.githubBack
+                                  ? "Front Repo"
+                                  : "Code"}
+                            </a>
+                          )}
+                          {proj.githubBack && (
+                            <a
+                              href={proj.githubBack}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className={styles.projectLink}
+                            >
+                              {showFullUrls
+                                ? `${proj.githubFront ? "Back" : "Code"}: ${formatDisplayUrl(proj.githubBack)}`
+                                : proj.githubFront
+                                  ? "Back Repo"
+                                  : "Code"}
+                            </a>
                           )}
                         </div>
-                        {ach.description && (
-                          <p className={styles.itemDesc}>{ach.description}</p>
+                      </div>
+                      {proj.technologies && (
+                        <div className={styles.itemSubHeader}>
+                          <span>Tech: {proj.technologies}</span>
+                        </div>
+                      )}
+                      {proj.description && (
+                        <p className={styles.itemDesc}>{proj.description}</p>
+                      )}
+                    </div>
+                  )
+                ))}
+              </div>
+            </div>
+          ))}
+          {projPos === 'end' && renderUngroupedProj()}
+        </div>
+      )}
+
+      {/* EDUCATION (Displayed in main column on Page 2+ if present) */}
+      {isSubsequentPage && hasEducation && (
+        <div className={styles.sectionBlock}>
+          <h3 className={styles.secTitle}>Education</h3>
+          {eduPos === 'start' && renderUngroupedEdu()}
+          {eduGroupKeys.map((gName) => (
+            <div key={gName} className={styles.groupContainer}>
+              <div className={styles.subCategoryTitle}>{gName}</div>
+              <div className={styles.groupedItemsWrapper}>
+                {eduGroups[gName].map((edu, idx) => (
+                  (edu.institution || edu.degree) && (
+                    <div key={edu.id || idx} className={styles.itemBlock}>
+                      <div className={styles.itemHeader}>
+                        <div>
+                          {edu.degree && (
+                            <span className={styles.itemRole}>{edu.degree}</span>
+                          )}
+                          {edu.degree && edu.institution && <span>, </span>}
+                          {edu.institution && (
+                            <span className={styles.itemCompany}>
+                              {edu.institution}
+                            </span>
+                          )}
+                        </div>
+                        <span className={styles.itemDates}>
+                          {edu.startDate || "Start"} – {edu.endDate || "End"}
+                        </span>
+                      </div>
+                      {(edu.location || edu.grade) && (
+                        <div className={styles.itemSubHeader}>
+                          {edu.location && <span>{edu.location}</span>}
+                          {edu.location && edu.grade && <span> • </span>}
+                          {edu.grade && (
+                            <span>
+                              {resolveGradeLabel(edu)}: {edu.grade}
+                            </span>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  )
+                ))}
+              </div>
+            </div>
+          ))}
+          {eduPos === 'end' && renderUngroupedEdu()}
+        </div>
+      )}
+
+      {/* SKILLS (STRICTLY IN MAIN CONTENT AREA ACROSS ALL PAGES) */}
+      {hasSkills && (
+        <div className={styles.sectionBlock}>
+          <h3 className={styles.secTitle}>Skills</h3>
+          {skillsPos === 'start' && renderUngroupedSkills()}
+          {skillGroupKeys.map((gName) => (
+            <div key={gName} className={styles.groupContainer}>
+              <div style={{ fontSize: "11px", fontWeight: "700", color: "#64748b", textTransform: "uppercase", marginBottom: "4px" }}>
+                {gName}
+              </div>
+              <div className={styles.groupedItemsWrapper}>
+                <div className={showSkillRating ? styles.creativeLanguagesContainer : styles.creativeMainSkillsList}>
+                  {skillGroups[gName].map((skill, idx) => renderSkillItem(skill, idx))}
+                </div>
+              </div>
+            </div>
+          ))}
+          {skillsPos === 'end' && renderUngroupedSkills()}
+        </div>
+      )}
+
+      {/* CERTIFICATIONS */}
+      {hasCertifications && (
+        <div className={styles.sectionBlock}>
+          <h3 className={styles.secTitle}>Certifications</h3>
+          {certPos === 'start' && renderUngroupedCert()}
+          {certGroupKeys.map((gName) => (
+            <div key={gName} className={styles.groupContainer}>
+              <div className={styles.subCategoryTitle}>{gName}</div>
+              <div className={styles.groupedItemsWrapper}>
+                {certGroups[gName].map((cert, idx) => (
+                  (cert.name || cert.organization) && (
+                    <div key={cert.id || idx} className={styles.certBlock}>
+                      <div className={styles.itemHeader}>
+                        <div>
+                          {cert.name && (
+                            <span className={styles.certName}>{cert.name}</span>
+                          )}
+                          {cert.name && cert.organization && <span> | </span>}
+                          {cert.organization && (
+                            <span className={styles.certOrg}>
+                              {cert.organization}
+                            </span>
+                          )}
+                        </div>
+                        {cert.date && (
+                          <span className={styles.itemDates}>{cert.date}</span>
                         )}
                       </div>
-                    )
+                      {cert.url && (
+                        <div className={styles.itemSubHeader}>
+                          <a
+                            href={cert.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className={styles.certLink}
+                          >
+                            {showFullUrls
+                              ? formatDisplayUrl(cert.url)
+                              : "View Credential"}
+                          </a>
+                        </div>
+                      )}
+                    </div>
+                  )
+                ))}
+              </div>
+            </div>
+          ))}
+          {certPos === 'end' && renderUngroupedCert()}
+        </div>
+      )}
+
+      {/* STANDALONE ACHIEVEMENTS & AWARDS SECTION */}
+      {hasAchievements && (
+        <div className={styles.sectionBlock}>
+          <h3 className={styles.secTitle}>Achievements &amp; Awards</h3>
+          {achPos === 'start' && renderUngroupedAch()}
+          {achGroupKeys.map((gName) => (
+            <div key={gName} className={styles.groupContainer}>
+              <div className={styles.subCategoryTitle}>{gName}</div>
+              <div className={styles.groupedItemsWrapper}>
+                {achGroups[gName].map((ach, idx) => (
+                  (ach.title || ach.description) && (
+                    <div key={ach.id || idx} className={styles.itemBlock}>
+                      <div className={styles.itemHeader}>
+                        <div>
+                          {ach.title && (
+                            <span className={styles.itemRole}>{ach.title}</span>
+                          )}
+                          {ach.title && ach.organization && <span> | </span>}
+                          {ach.organization && (
+                            <span className={styles.itemCompany}>
+                              {ach.organization}
+                            </span>
+                          )}
+                        </div>
+                        {ach.date && (
+                          <span className={styles.itemDates}>{ach.date}</span>
+                        )}
+                      </div>
+                      {ach.description && (
+                        <p className={styles.itemDesc}>{ach.description}</p>
+                      )}
+                    </div>
+                  )
+                ))}
+              </div>
+            </div>
+          ))}
+          {achPos === 'end' && renderUngroupedAch()}
+        </div>
+      )}
+
+      {/* LANGUAGES (On Subsequent Pages if Languages items spill over) */}
+      {isSubsequentPage && hasLanguages && (
+        <div className={styles.sectionBlock}>
+          <h3 className={styles.secTitle}>Languages</h3>
+          <div className={styles.creativeLanguagesContainer}>
+            {languages.map((lang, idx) => (
+              <div key={lang.id || idx} className={styles.creativeMainLangRow}>
+                <span
+                  style={{
+                    color: "#0f172a",
+                    fontSize: "11px",
+                    fontWeight: "600",
+                  }}
+                >
+                  {lang.name}
+                </span>
+                {renderStars(lang.level)}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </>
+  );
+
+  return (
+    <div className={`${styles.resumePage} ${styles.creative}`}>
+      {/* PAGE 1: DUAL-COLUMN WITH SIDEBAR */}
+      {showHeader ? (
+        <>
+          {/* LEFT COLUMN: Dark Sidebar */}
+          <div className={styles.creativeLeftColumn}>
+            {personal.pfp && (
+              <div className={styles.creativePfpWrapper}>
+                <img
+                  src={personal.pfp}
+                  alt="Profile"
+                  className={styles.creativePfpImage}
+                />
+              </div>
+            )}
+
+            <div className={styles.brandingSection}>
+              <h1 className={styles.name}>{personal.fullName || "YOUR NAME"}</h1>
+              <p className={styles.role}>{personal.role || "TARGET ROLE"}</p>
+            </div>
+
+            {/* CONTACT DETAILS */}
+            <div className={styles.sectionBlock}>
+              <h3 className={styles.secTitle}>Contact</h3>
+              <div className={styles.contactBar}>
+                {personal.email && (
+                  <span className={styles.contactItem}>{personal.email}</span>
+                )}
+                {personal.phone && (
+                  <span className={styles.contactItem}>{personal.phone}</span>
+                )}
+                {personal.location && (
+                  <span className={styles.contactItem}>{personal.location}</span>
+                )}
+                {personal.github && (
+                  <span className={styles.contactItem}>
+                    <a
+                      href={personal.github}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{ color: "#94a3b8" }}
+                    >
+                      {showFullUrls
+                        ? formatDisplayUrl(personal.github)
+                        : "GitHub"}
+                    </a>
+                  </span>
+                )}
+                {personal.linkedin && (
+                  <span className={styles.contactItem}>
+                    <a
+                      href={personal.linkedin}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{ color: "#94a3b8" }}
+                    >
+                      {showFullUrls
+                        ? formatDisplayUrl(personal.linkedin)
+                        : "LinkedIn"}
+                    </a>
+                  </span>
+                )}
+                {personal.portfolio && (
+                  <span className={styles.contactItem}>
+                    <a
+                      href={personal.portfolio}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{ color: "#94a3b8" }}
+                    >
+                      {showFullUrls
+                        ? formatDisplayUrl(personal.portfolio)
+                        : "Portfolio"}
+                    </a>
+                  </span>
+                )}
+              </div>
+            </div>
+
+            {/* PROFILE SUMMARY ("ABOUT ME") */}
+            {personal.summary && (
+              <div className={styles.sectionBlock}>
+                <h3 className={styles.secTitle}>About Me</h3>
+                <p
+                  className={styles.summaryText}
+                  style={{
+                    color: "#cbd5e1",
+                    fontSize: "11.5px",
+                    lineHeight: "1.6",
+                  }}
+                >
+                  {personal.summary}
+                </p>
+              </div>
+            )}
+
+            {/* EDUCATION (Paragraph / Block format in Sidebar) */}
+            {hasEducation && (
+              <div className={styles.sectionBlock}>
+                <h3 className={styles.secTitle}>Education</h3>
+                {renderSidebarEdu()}
+              </div>
+            )}
+
+            {/* LANGUAGES */}
+            {hasLanguages && (
+              <div className={styles.sectionBlock}>
+                <h3 className={styles.secTitle}>Languages</h3>
+                <div className={styles.creativeLanguagesContainer}>
+                  {languages.map((lang, idx) => (
+                    <div key={lang.id || idx} className={styles.creativeLangRow}>
+                      <span
+                        className={styles.langName}
+                        style={{
+                          color: "#e2e8f0",
+                          fontSize: "11px",
+                          fontWeight: "500",
+                        }}
+                      >
+                        {lang.name}
+                      </span>
+                      {renderStars(lang.level)}
+                    </div>
                   ))}
                 </div>
               </div>
-            ))}
-
-            {achPos === 'end' && renderUngroupedAch()}
-
+            )}
           </div>
-        )}
-      </div>
+
+          {/* RIGHT COLUMN: Main Content */}
+          <div className={styles.creativeRightColumn}>
+            {renderMainSections(false)}
+          </div>
+        </>
+      ) : (
+        /* PAGE 2+: SIMPLE SINGLE-COLUMN PAGE (NO SIDEBAR) */
+        <div className={styles.creativeSingleColumn}>
+          {renderMainSections(true)}
+        </div>
+      )}
 
       {/* Branding Watermark */}
       {showWatermark && (

@@ -150,9 +150,7 @@ Each template presents text differently (font sizes, column widths, line heights
    * **Group Tint Box:** Maximum `4 items` per group container before triggering page partitioner.
 
 4. **Creative Template (`Creative_Page.jsx`):**
-   * Dual-column layout (Dark Left Sidebar + Light Right Main Content).
-   * **Sidebar Fields (Contact Info, Skills, Spoken Languages, Education):**
-     * **Strict Width Limit:** `30 chars` per line to prevent horizontal overflow outside the dark sidebar.
-   * **Main Column Fields (Summary, Experience, Projects):**
-     * **Summary Limit:** `400 chars` max.
-     * **Project Description Limit:** `300 chars` per project.
+   * **Page 1 Dual-Column Layout:** Features a dark left sidebar reserved for personal information (PFP, Name & Target Role, Contacts, About Me / Summary, and Education in paragraph/block format).
+   * **Page 2+ Single-Column Layout:** Subsequent pages render without a sidebar in a clean full-width single-column layout while retaining Creative theme color accents, typography, and section styling.
+   * **Skills Section Location:** Skills are strictly placed in the main body content area across all pages (never in the sidebar).
+   * **Sidebar Width Constraint:** `35 chars` per line to prevent horizontal overflow in the dark sidebar.
