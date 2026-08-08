@@ -4,6 +4,7 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import CookieBanner from '@/components/CookieBanner';
 import GoogleAnalytics from '@/components/GoogleAnalytics';
+import ThemeProvider from '@/components/ThemeProvider';
 
 const outfit = Outfit({
   subsets: ['latin'],
@@ -71,22 +72,24 @@ export default function RootLayout({ children }) {
         />
       </head>
       <body>
-        {/* Dynamic privacy-first GA4 Loader */}
-        <GoogleAnalytics />
+        <ThemeProvider>
+          {/* Dynamic privacy-first GA4 Loader */}
+          <GoogleAnalytics />
 
-        {/* Global Nav Header */}
-        <Header />
+          {/* Global Nav Header */}
+          <Header />
 
-        {/* Main Content Area */}
-        <main style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-          {children}
-        </main>
+          {/* Main Content Area */}
+          <main style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+            {children}
+          </main>
 
-        {/* Global Footer */}
-        <Footer />
+          {/* Global Footer */}
+          <Footer />
 
-        {/* Compliance Cookie Banner */}
-        <CookieBanner />
+          {/* Compliance Cookie Banner */}
+          <CookieBanner />
+        </ThemeProvider>
       </body>
     </html>
   );

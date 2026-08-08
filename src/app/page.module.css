@@ -149,9 +149,10 @@
 /* Features Section */
 .featuresSection {
   padding: 80px 0;
-  background-color: #FFFFFF;
+  background-color: var(--bg-secondary);
   border-top: 1px solid var(--border-color);
   border-bottom: 1px solid var(--border-color);
+  transition: var(--transition-theme);
 }
 
 .sectionHeader {
@@ -271,7 +272,7 @@
 }
 
 .supportCard {
-  background: linear-gradient(135deg, #FAF9F6, #FFF5F2);
+  background: linear-gradient(135deg, var(--bg-primary), var(--accent-light));
   border: 1px solid var(--border-color);
   border-radius: var(--radius-lg);
   padding: var(--space-10) var(--space-8);
@@ -282,6 +283,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  transition: var(--transition-theme);
 }
 
 .supportBadge {

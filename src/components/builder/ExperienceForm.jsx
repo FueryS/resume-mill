@@ -279,7 +279,9 @@ export default function ExperienceForm({
               marginBottom: '16px',
               backgroundColor: isGroupDragging ? 'rgba(79, 70, 229, 0.12)' : 'rgba(79, 70, 229, 0.03)',
               opacity: isGroupDragging ? 0.6 : 1,
-              transition: 'background-color 0.2s ease, opacity 0.2s ease'
+              transition: 'background-color 0.2s ease, opacity 0.2s ease',
+              overflow: 'hidden',
+              boxSizing: 'border-box'
             }}
           >
             <GroupHeader

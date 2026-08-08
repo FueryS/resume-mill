@@ -1,6 +1,7 @@
 /* src/styles/theme.css */
 
-:root {
+:root,
+[data-theme="light"] {
   /* Colors (HSL) */
   --primary-hue: 243;
   --primary-saturation: 75%;
@@ -21,6 +22,7 @@
   --bg-primary: #FAF9F6; /* Soft Warm White / Cream */
   --bg-secondary: #FFFFFF;
   --bg-tertiary: #F3F4F6;
+  --header-bg: rgba(255, 255, 255, 0.85);
   
   --text-main: #1F2937; /* Deep Charcoal */
   --text-muted: #6B7280; /* Soft Slate Gray */
@@ -65,6 +67,61 @@
   --transition-normal: 0.25s ease;
   --transition-slow: 0.4s cubic-bezier(0.16, 1, 0.3, 1);
   --transition-bounce: 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  --transition-theme: background-color 0.4s ease, color 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease;
+}
+
+/* Reduced-Intensity Light Theme for Landing Page when OS is Dark */
+[data-theme="dimmed-light"] {
+  --bg-primary: #F0EDE6; /* Soft warm off-white, zero harsh glare */
+  --bg-secondary: #E6E1D7;
+  --bg-tertiary: #DCD5C7;
+  --header-bg: rgba(240, 237, 230, 0.88);
+
+  --text-main: #2C333F;
+  --text-muted: #5C6473;
+  --text-inverse: #FFFFFF;
+
+  --border-color: #D6D0C2;
+  --border-hover: #C2BBAA;
+
+  --primary-light: #E2DDEE;
+  --accent-light: #F7E4DC;
+
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 8px 16px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 16px 32px rgba(0, 0, 0, 0.09);
+}
+
+/* Professional Graphite & Charcoal Slate Dark Theme for App Pages */
+[data-theme="dark"] {
+  --bg-primary: #12161F; /* Deep charcoal slate */
+  --bg-secondary: #1A202C; /* Elevated graphite surface */
+  --bg-tertiary: #242C3D;
+  --header-bg: rgba(26, 32, 44, 0.88);
+
+  --text-main: #F3F4F6;
+  --text-muted: #9CA3AF;
+  --text-inverse: #0F172A;
+
+  --border-color: #2D3748;
+  --border-hover: #4A5568;
+
+  --primary: hsl(243, 85%, 68%);
+  --primary-hover: hsl(243, 85%, 75%);
+  --primary-light: rgba(99, 102, 241, 0.18);
+
+  --accent: hsl(14, 96%, 62%);
+  --accent-hover: hsl(14, 96%, 70%);
+  --accent-light: rgba(249, 115, 22, 0.18);
+
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 16px 36px rgba(0, 0, 0, 0.5);
+  --shadow-accent: 0 8px 24px rgba(249, 115, 22, 0.35);
+}
+
+body {
+  transition: var(--transition-theme);
 }
 
 /* Base resets or common helper utilities */

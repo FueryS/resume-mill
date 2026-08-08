@@ -47,8 +47,28 @@ export default function GroupHeader({
   };
 
   return (
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: isCollapsed ? '0px' : '10px' }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flex: 1 }}>
+    <div
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        gap: '8px',
+        width: '100%',
+        maxWidth: '100%',
+        boxSizing: 'border-box',
+        marginBottom: isCollapsed ? '0px' : '10px'
+      }}
+    >
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '6px',
+          flex: '1 1 0%',
+          minWidth: 0,
+          overflow: 'hidden'
+        }}
+      >
         {isCollapsible && (
           <button
             type="button"
@@ -63,7 +83,8 @@ export default function GroupHeader({
               padding: '2px',
               color: 'var(--primary, #4f46e5)',
               transform: isCollapsed ? 'rotate(-90deg)' : 'rotate(0deg)',
-              transition: 'transform 0.2s ease'
+              transition: 'transform 0.2s ease',
+              flexShrink: 0
             }}
             title={isCollapsed ? "Expand group items" : "Collapse group items (>2 items)"}
           >
@@ -71,7 +92,7 @@ export default function GroupHeader({
           </button>
         )}
 
-        <Folder size={16} color="var(--primary, #4f46e5)" />
+        <Folder size={16} color="var(--primary, #4f46e5)" style={{ flexShrink: 0 }} />
         <input
           type="text"
           value={localName}
@@ -88,7 +109,13 @@ export default function GroupHeader({
             outline: 'none',
             padding: '2px 4px',
             borderRadius: '4px',
-            transition: 'all 0.2s ease'
+            transition: 'all 0.2s ease',
+            flex: '1 1 auto',
+            minWidth: '40px',
+            maxWidth: '100%',
+            textOverflow: 'ellipsis',
+            overflow: 'hidden',
+            whiteSpace: 'nowrap'
           }}
           onFocus={(e) => {
             e.target.style.borderBottom = '1px solid var(--primary, #4f46e5)';
@@ -96,12 +123,23 @@ export default function GroupHeader({
           }}
           title="Click to rename group"
         />
-        <span style={{ fontSize: '11px', fontWeight: '600', padding: '2px 6px', borderRadius: '10px', backgroundColor: 'rgba(79, 70, 229, 0.1)', color: 'var(--primary, #4f46e5)' }}>
+        <span
+          style={{
+            fontSize: '10.5px',
+            fontWeight: '600',
+            padding: '2px 6px',
+            borderRadius: '10px',
+            backgroundColor: 'rgba(79, 70, 229, 0.1)',
+            color: 'var(--primary, #4f46e5)',
+            flexShrink: 0,
+            whiteSpace: 'nowrap'
+          }}
+        >
           {itemCount} {isCollapsed ? '(collapsed)' : ''}
         </span>
       </div>
 
-      <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '4px', flexShrink: 0 }}>
         <div
           className={styles.dragHandle}
           onMouseDown={() => onGroupHandleGrab && onGroupHandleGrab(true)}
@@ -109,7 +147,15 @@ export default function GroupHeader({
           onTouchStart={() => onGroupHandleGrab && onGroupHandleGrab(true)}
           onTouchEnd={() => onGroupHandleGrab && onGroupHandleGrab(false)}
           title="Drag to Reorder Group"
-          style={{ cursor: 'grab', padding: '2px', display: 'flex', alignItems: 'center', color: 'var(--primary, #4f46e5)', opacity: 0.8 }}
+          style={{
+            cursor: 'grab',
+            padding: '4px',
+            display: 'flex',
+            alignItems: 'center',
+            color: 'var(--primary, #4f46e5)',
+            opacity: 0.8,
+            flexShrink: 0
+          }}
         >
           <GripVertical size={16} />
         </div>
@@ -118,6 +164,7 @@ export default function GroupHeader({
           className={styles.btnRemove}
           onClick={onDelete}
           title="Delete Group"
+          style={{ flexShrink: 0 }}
         >
           <Trash2 size={14} />
         </button>

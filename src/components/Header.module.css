@@ -1,7 +1,7 @@
 /* src/components/Header.module.css */
 
 .siteHeader {
-  background-color: rgba(255, 255, 255, 0.85);
+  background-color: var(--header-bg);
   backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--border-color);
   position: sticky;
@@ -10,7 +10,7 @@
   height: 70px;
   display: flex;
   align-items: center;
-  transition: all var(--transition-normal);
+  transition: var(--transition-theme);
 }
 
 .headerContainer {
