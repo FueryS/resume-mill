@@ -41,8 +41,8 @@ export default function ResumePreview({
   const sheetRef = useRef(null);
   const [currentPage, setCurrentPage] = useState(1);
 
-  // Partition form data into pages list dynamically
-  const pages = partitionResumeData(formData, safeZonePercent);
+  // Partition form data into pages list dynamically based on template & safe zone percent
+  const pages = partitionResumeData(formData, safeZonePercent, activeTemplate);
   const totalPages = Math.max(1, pages.length);
 
   // Set mounted on mount to support portals safely in SSR env

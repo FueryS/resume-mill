@@ -76,25 +76,6 @@ export default function EducationForm({
 
   const isHandleGrabbed = useRef(false);
   const isGroupHandleGrabbed = useRef(false);
-  const prevCountRef = useRef(totalCount);
-
-  // Auto-collapse trigger whenever count increases to a multiple of 5 (5, 10, 15...)
-  useEffect(() => {
-    if (totalCount > 0 && totalCount % 5 === 0 && totalCount !== prevCountRef.current) {
-      if (onToggleCollapsed) {
-        eduList.forEach((item) => {
-          if (item.id) onToggleCollapsed(item.id, false);
-        });
-      }
-
-      const allCollapsedGroups = {};
-      (sectionGroups?.education || []).forEach((gName) => {
-        allCollapsedGroups[gName] = true;
-      });
-      setCollapsedGroups(allCollapsedGroups);
-    }
-    prevCountRef.current = totalCount;
-  }, [totalCount, sectionGroups?.education, onToggleCollapsed]);
 
   // Group Delete Modal state
   const [deleteModalState, setDeleteModalState] = useState({

@@ -3,7 +3,8 @@
 /* Base A4 page representation */
 .resumePage {
   width: 794px;
-  min-height: 1123px;
+  height: 1123px;
+  max-height: 1123px;
   background-color: #ffffff;
   padding: 38px 42px;
   box-sizing: border-box;
@@ -13,6 +14,7 @@
   text-align: left;
   position: relative;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
 }
 
 /* Contact bar utilities */
@@ -305,16 +307,21 @@
 
 .creativeLeftColumn {
   width: 280px;
+  height: 1123px;
+  max-height: 1123px;
   background-color: #1e293b; /* Dark Slate */
   color: #f1f5f9;
   padding: 32px 20px;
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
+  overflow: hidden;
 }
 
 .creativeRightColumn {
   flex: 1;
+  height: 1123px;
+  max-height: 1123px;
   background-color: #ffffff;
   padding: 32px 24px;
   display: flex;
@@ -325,6 +332,8 @@
 
 .creativeSingleColumn {
   width: 100%;
+  height: 1123px;
+  max-height: 1123px;
   flex: 1;
   background-color: #ffffff;
   padding: 32px 36px;

@@ -93,54 +93,7 @@ export default function SkillsLanguagesCertificationsForm({
   const isAchHandleGrabbed = useRef(false);
   const isGroupHandleGrabbed = useRef(false);
 
-  const prevSkillCountRef = useRef(skillList.length);
-  const prevCertCountRef = useRef(certList.length);
-  const prevAchCountRef = useRef(achList.length);
 
-  // Auto-collapse trigger for Technical Skills (every 5 increment)
-  useEffect(() => {
-    const count = skillList.length;
-    if (count > 0 && count % 5 === 0 && count !== prevSkillCountRef.current) {
-      const allCollapsed = {};
-      skillList.forEach(item => { if (item.id) allCollapsed[item.id] = true; });
-      setCollapsedSkills(allCollapsed);
-
-      const allGroups = {};
-      (sectionGroups?.skills || []).forEach(gName => { allGroups[`skills-${gName}`] = true; });
-      setCollapsedGroups(prev => ({ ...prev, ...allGroups }));
-    }
-    prevSkillCountRef.current = count;
-  }, [skillList.length, sectionGroups?.skills]);
-
-  // Auto-collapse trigger for Certifications (every 5 increment)
-  useEffect(() => {
-    const count = certList.length;
-    if (count > 0 && count % 5 === 0 && count !== prevCertCountRef.current) {
-      const allCollapsed = {};
-      certList.forEach(item => { if (item.id) allCollapsed[item.id] = true; });
-      setCollapsedCertifications(allCollapsed);
-
-      const allGroups = {};
-      (sectionGroups?.certifications || []).forEach(gName => { allGroups[`certifications-${gName}`] = true; });
-      setCollapsedGroups(prev => ({ ...prev, ...allGroups }));
-    }
-    prevCertCountRef.current = count;
-  }, [certList.length, sectionGroups?.certifications]);
-
-  // Auto-collapse trigger for Achievements (every 5 increment)
-  useEffect(() => {
-    const count = achList.length;
-    if (count > 0 && count % 5 === 0 && count !== prevAchCountRef.current) {
-      const allCollapsed = {};
-      achList.forEach(item => { if (item.id) allCollapsed[item.id] = true; });
-      setCollapsedAchievements(allCollapsed);
-
-      const allGroups = {};
-      (sectionGroups?.achievements || []).forEach(gName => { allGroups[`achievements-${gName}`] = true; });
-      setCollapsedGroups(prev => ({ ...prev, ...allGroups }));
-    }
-    prevAchCountRef.current = count;
-  }, [achList.length, sectionGroups?.achievements]);
 
   // Group Delete Modal state
   const [deleteModalState, setDeleteModalState] = useState({
