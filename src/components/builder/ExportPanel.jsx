@@ -235,14 +235,14 @@ export default function ExportPanel({
           </span>
         </div>
 
-        {/* Page Safe Zone Threshold Input Control (Clamped 60% - 100%) */}
+        {/* Page Safe Zone Threshold Range Slider Control (60% - 100%) */}
         <div 
           style={{
             display: 'flex',
             flexDirection: 'column',
-            gap: '8px',
+            gap: '10px',
             margin: '10px 0 16px 0',
-            padding: '12px 14px',
+            padding: '14px 16px',
             backgroundColor: 'var(--bg-tertiary)',
             borderRadius: 'var(--radius-md)',
             border: '1px solid var(--border-color)',
@@ -251,44 +251,50 @@ export default function ExportPanel({
         >
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
             <label style={{ fontSize: '13px', fontWeight: '600', color: 'var(--text-main)' }}>
-              Page Safe Zone Threshold (%):
+              Page Safe Zone Threshold:
             </label>
-            <input 
-              type="number" 
-              min={60}
-              max={100}
-              value={safeZonePercent} 
-              onChange={(e) => {
-                const val = e.target.value;
-                if (val === '') {
-                  setSafeZonePercent('');
-                  return;
-                }
-                let num = parseInt(val, 10);
-                if (isNaN(num)) return;
-                if (num > 100) num = 100;
-                setSafeZonePercent(num);
-              }}
-              onBlur={(e) => {
-                let num = parseInt(e.target.value, 10);
-                if (isNaN(num) || num < 60) num = 60;
-                if (num > 100) num = 100;
-                setSafeZonePercent(num);
-              }}
+            <span 
               style={{ 
-                width: '75px',
-                padding: '4px 8px',
                 fontSize: '13px',
                 fontWeight: '700',
-                borderRadius: '6px',
-                border: '1px solid var(--border-color)',
-                textAlign: 'center',
-                backgroundColor: 'var(--bg-primary)',
-                color: 'var(--primary)'
+                padding: '2px 10px',
+                borderRadius: '12px',
+                backgroundColor: 'rgba(59, 130, 246, 0.12)',
+                color: 'var(--primary)',
+                border: '1px solid rgba(59, 130, 246, 0.25)'
               }}
-            />
+            >
+              {safeZonePercent}%
+            </span>
           </div>
-          <span style={{ fontSize: '11px', color: 'var(--text-muted, #64748b)', lineHeight: '1.4' }}>
+
+          <input 
+            type="range" 
+            min={60}
+            max={100}
+            step={1}
+            value={safeZonePercent || 88} 
+            onChange={(e) => {
+              const num = parseInt(e.target.value, 10);
+              if (!isNaN(num)) {
+                setSafeZonePercent(Math.max(60, Math.min(100, num)));
+              }
+            }}
+            style={{ 
+              width: '100%',
+              cursor: 'pointer',
+              accentColor: 'var(--primary)',
+              height: '6px'
+            }}
+          />
+
+          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: 'var(--text-muted, #64748b)', fontWeight: '500' }}>
+            <span>60% (Spacious)</span>
+            <span>88% (Default)</span>
+            <span>100% (Dense)</span>
+          </div>
+
+          <span style={{ fontSize: '11px', color: 'var(--text-muted, #64748b)', lineHeight: '1.4', marginTop: '2px' }}>
             Adjust bottom page threshold (60% - 100%). Elements touching boundary move to next page.
           </span>
         </div>

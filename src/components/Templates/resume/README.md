@@ -1,6 +1,6 @@
 # Resume Templates Architecture & Style Guide
 
-This document describes the structure, formatting rules, and design principles followed by all templates in ResumeMill. Use this guide when creating new templates or editing existing ones.
+This document describes the structure, formatting rules, design principles, and maximum input length constraints followed by all templates in ResumeMill. Use this guide when creating new templates or editing existing ones.
 
 ---
 
@@ -97,3 +97,62 @@ To give users a clear visual indication of group membership, templates employ co
 * **Creative Template (`Creative_Page.jsx`):**
   * **Combination:** **Approach 1 (Python Indentation) + Approach 3 (Thin Slate/White Dashed Line)**
   * **Styling:** Main column items indented with slate dashed border (`border-left: 1.5px dashed rgba(148, 163, 184, 0.45); margin-left: 14px;`). Dark sidebar skills indented with subtle translucent white border (`border-left: 1.5px dashed rgba(255, 255, 255, 0.25);`).
+
+---
+
+## 7. Maximum Input Character & Word Count Limits
+
+Each template presents text differently (font sizes, column widths, line heights, sidebars). To prevent text from overflowing, wrapping into messy multi-line blocks, or breaking template page aesthetics, input fields must enforce maximum character limits.
+
+### Standard Field Maximum Character Limits:
+
+| Input Field | Max Characters | Max Words (Approx) | Purpose / Visual Constraint |
+| :--- | :--- | :--- | :--- |
+| **Full Name** (`personal.fullName`) | **50 chars** | ~6 - 8 words | Prevents main header from wrapping into 3+ awkward lines |
+| **Job Title / Role** (`personal.role`) | **60 chars** | ~8 - 10 words | Fits cleanly on a single subtitle line below full name |
+| **Email Address** (`personal.email`) | **50 chars** | 1 email | Ensures contact info bar remains single-line |
+| **Phone Number** (`personal.phone`) | **25 chars** | ~2 - 3 words | Standard format with country extensions |
+| **Location** (`personal.location`) | **45 chars** | ~4 - 6 words | City, State, Country display |
+| **Web Links / URLs** (`github`, `linkedin`, etc.) | **70 chars** | ~1 URL | Prevents URL strings from overflowing container width |
+| **Professional Summary** (`personal.summary`) | **500 chars** | ~75 words (~4-5 lines) | Prevents summary from dominating Page 1 |
+| **Company / Organization Name** | **60 chars** | ~8 - 10 words | Fits header line alongside employment dates |
+| **Position / Role Title** | **60 chars** | ~8 - 10 words | Fits header line alongside company name |
+| **Date Strings** (`startDate`, `endDate`, `date`) | **25 chars** | ~2 - 4 words | e.g., `"Jun 2024 - Present"` or `"2021 - 2023"` |
+| **Project Name** (`projects.name`) | **50 chars** | ~6 - 8 words | Keeps project header clean and readable |
+| **Technologies Used** (`projects.technologies`) | **85 chars** | ~10 - 12 tech tags | Fits on 1-2 lines below project title |
+| **Item Description** (`experience`, `projects`) | **350 chars** per item | ~50 words (~3 bullet lines) | Prevents individual cards from exceeding page bounds |
+| **Institution Name** (`education.institution`) | **65 chars** | ~8 - 10 words | Fits education header line alongside dates |
+| **Degree / Field of Study** (`education.degree`) | **75 chars** | ~10 - 12 words | Fits degree header line alongside institution |
+| **Skill Name** (`skills.name`) | **35 chars** | ~4 - 5 words | Prevents skill pills from stretching full page width |
+| **Sub-Category Group Name** (`group`) | **40 chars** | ~4 - 5 words | Keeps sub-category titles clean and concise |
+| **Language Name & Level** | **35 chars** | ~4 words | Fits 2-column language grid layout |
+
+---
+
+### Template-Specific Capacity Specifications:
+
+1. **Modern Template (`Modern_Page.jsx`):**
+   * Single-column full-width layout.
+   * **Summary Limit:** `500 chars` max.
+   * **Project Description Limit:** `350 chars` per project.
+   * **Skill Name Limit:** `35 chars` max per pill (fits 3-4 pills per line).
+
+2. **Timeline Red Template (`Timeline_Page.jsx`):**
+   * Single-column layout with left vertical timeline border axis.
+   * **Summary Limit:** `450 chars` max.
+   * **Project Description Limit:** `300 chars` per project (prevents text from crowding the red left border axis).
+   * **Sub-Group Title Limit:** `35 chars` max.
+
+3. **Elegant Template (`Elegant_Page.jsx`):**
+   * Executive serif centered layout with subtle background tint group boxes.
+   * **Summary Limit:** `550 chars` max (justified text formatting).
+   * **Project Description Limit:** `350 chars` per project.
+   * **Group Tint Box:** Maximum `4 items` per group container before triggering page partitioner.
+
+4. **Creative Template (`Creative_Page.jsx`):**
+   * Dual-column layout (Dark Left Sidebar + Light Right Main Content).
+   * **Sidebar Fields (Contact Info, Skills, Spoken Languages, Education):**
+     * **Strict Width Limit:** `30 chars` per line to prevent horizontal overflow outside the dark sidebar.
+   * **Main Column Fields (Summary, Experience, Projects):**
+     * **Summary Limit:** `400 chars` max.
+     * **Project Description Limit:** `300 chars` per project.
