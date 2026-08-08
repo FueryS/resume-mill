@@ -27,6 +27,8 @@ export default function ExportPanel({
   setSupportWithWatermark,
   showFullUrls,
   setShowFullUrls,
+  safeZonePercent = 88,
+  setSafeZonePercent,
   onExportData,
   onImportData
 }) {
@@ -230,6 +232,64 @@ export default function ExportPanel({
           />
           <span style={{ fontSize: '13px', fontWeight: '600', color: 'var(--text-main)' }}>
             Display full URL texts (recommended for print)
+          </span>
+        </div>
+
+        {/* Page Safe Zone Threshold Input Control (Clamped 60% - 100%) */}
+        <div 
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '8px',
+            margin: '10px 0 16px 0',
+            padding: '12px 14px',
+            backgroundColor: 'var(--bg-tertiary)',
+            borderRadius: 'var(--radius-md)',
+            border: '1px solid var(--border-color)',
+            width: '100%'
+          }} 
+        >
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
+            <label style={{ fontSize: '13px', fontWeight: '600', color: 'var(--text-main)' }}>
+              Page Safe Zone Threshold (%):
+            </label>
+            <input 
+              type="number" 
+              min={60}
+              max={100}
+              value={safeZonePercent} 
+              onChange={(e) => {
+                const val = e.target.value;
+                if (val === '') {
+                  setSafeZonePercent('');
+                  return;
+                }
+                let num = parseInt(val, 10);
+                if (isNaN(num)) return;
+                if (num > 100) num = 100;
+                setSafeZonePercent(num);
+              }}
+              onBlur={(e) => {
+                let num = parseInt(e.target.value, 10);
+                if (isNaN(num) || num < 60) num = 60;
+                if (num > 100) num = 100;
+                setSafeZonePercent(num);
+              }}
+              style={{ 
+                width: '75px',
+                padding: '4px 8px',
+                fontSize: '13px',
+                fontWeight: '700',
+                borderRadius: '6px',
+                border: '1px solid var(--border-color)',
+                textAlign: 'center',
+                backgroundColor: 'var(--bg-primary)',
+                color: 'var(--primary)'
+              }}
+            />
+          </div>
+          <span style={{ fontSize: '11px', color: 'var(--text-muted, #64748b)', lineHeight: '1.4' }}>
+            Adjust bottom page threshold (60% - 100%). Elements touching boundary move to next page.
           </span>
         </div>
 

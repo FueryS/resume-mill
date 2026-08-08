@@ -55,6 +55,109 @@
   margin-bottom: 8px;
 }
 
+.subCategoryTitle {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #4b5563;
+  margin-top: 8px;
+  margin-bottom: 4px;
+  padding-bottom: 2px;
+  border-bottom: 1px dashed #e5e7eb;
+}
+
+/* Sub-Category Grouping Base Containers */
+.groupContainer {
+  margin-top: 6px;
+  margin-bottom: 10px;
+}
+
+.groupedItemsWrapper {
+  margin-top: 4px;
+}
+
+/* ── 1. Timeline Red Template: Approach 3 (Dashed Line) + Approach 1 (Python Indentation) ── */
+.timeline .groupContainer {
+  margin-top: 8px;
+  margin-bottom: 12px;
+}
+
+.timeline .subCategoryTitle {
+  color: #ef4444;
+  border-bottom: 1px dashed rgba(239, 68, 68, 0.35);
+  font-weight: 800;
+}
+
+.timeline .groupedItemsWrapper {
+  margin-left: 14px;
+  padding-left: 12px;
+  border-left: 1.5px dashed rgba(220, 38, 38, 0.4);
+  position: relative;
+}
+
+/* ── 2. Modern Template: Approach 1 (Indentation) + Approach 3 (Thin Accent Border Line) ── */
+.modern .groupContainer {
+  margin-top: 8px;
+  margin-bottom: 12px;
+}
+
+.modern .subCategoryTitle {
+  color: #4f46e5;
+  border-bottom: 1px dashed rgba(79, 70, 229, 0.25);
+  font-weight: 700;
+}
+
+.modern .groupedItemsWrapper {
+  margin-left: 14px;
+  padding-left: 12px;
+  border-left: 1.5px dashed rgba(79, 70, 229, 0.35);
+}
+
+/* ── 3. Elegant Template: Approach 1 (Indentation) + Approach 2 (Subtle Background Tint) ── */
+.elegant .groupContainer {
+  margin-top: 8px;
+  margin-bottom: 14px;
+}
+
+.elegant .subCategoryTitle {
+  color: #1f2937;
+  border-bottom: 1px dashed #d1d5db;
+  font-weight: 700;
+}
+
+.elegant .groupedItemsWrapper {
+  margin-left: 14px;
+  padding: 8px 12px;
+  background-color: rgba(0, 0, 0, 0.025);
+  border-left: 2px solid #374151;
+  border-radius: 4px;
+}
+
+/* ── 4. Creative Template: Approach 1 (Indentation) + Approach 3 (Thin Border Line) ── */
+.creative .groupContainer {
+  margin-top: 8px;
+  margin-bottom: 12px;
+}
+
+.creative .subCategoryTitle {
+  color: #0f172a;
+  border-bottom: 1px dashed #cbd5e1;
+  font-weight: 700;
+}
+
+.creative .groupedItemsWrapper {
+  margin-left: 14px;
+  padding-left: 12px;
+  border-left: 1.5px dashed rgba(148, 163, 184, 0.45);
+}
+
+.creative .creativeLeftColumn .groupedItemsWrapper {
+  margin-left: 10px;
+  padding-left: 8px;
+  border-left: 1.5px dashed rgba(255, 255, 255, 0.25);
+}
+
 .summaryText {
   font-size: 12px;
   line-height: 1.5;
@@ -142,7 +245,6 @@
   height: 1.5px;
 }
 
-
 /* --- ELEGANT TEMPLATE OVERRIDES --- */
 .elegant {
   font-family: Georgia, serif;
@@ -193,7 +295,6 @@
   text-align: justify;
 }
 
-
 /* --- CREATIVE TEMPLATE OVERRIDES (DUAL COLUMN) --- */
 .creative {
   font-family: var(--font-sans), Arial, sans-serif;
@@ -203,7 +304,7 @@
 }
 
 .creativeLeftColumn {
-  width: 240px;
+  width: 280px;
   background-color: #1e293b; /* Dark Slate */
   color: #f1f5f9;
   padding: 32px 20px;
@@ -270,7 +371,7 @@
 
 .creative .skillsText {
   color: #cbd5e1;
-  font-size: 11px;
+  font-size: 8px;
 }
 
 .creativeRightColumn .itemRole {
@@ -350,7 +451,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  box-shadow:
+    0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06);
 }
 
 .creativePfpImage {
@@ -412,6 +515,32 @@
   flex-wrap: wrap;
   gap: 6px;
   margin-top: 6px;
+}
+
+.skillsGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 6px 14px;
+  margin-top: 6px;
+}
+
+.skillRatingRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 3px 10px;
+  border-radius: 6px;
+  background-color: rgba(243, 244, 246, 0.6);
+  border: 1px solid #e5e7eb;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+.skillRatingStars {
+  color: #fbbf24;
+  letter-spacing: 1px;
+  font-size: 11px;
 }
 
 .skillPill {
@@ -575,7 +704,11 @@
 .timeline {
   background-color: #fafaf9; /* warm off-white */
   color: #1c1917; /* dark charcoal */
-  font-family: var(--font-sans), system-ui, -apple-system, sans-serif;
+  font-family:
+    var(--font-sans),
+    system-ui,
+    -apple-system,
+    sans-serif;
   padding: 38px 42px;
 }
 

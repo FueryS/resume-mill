@@ -17,7 +17,7 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { 
   User, Briefcase, GraduationCap, FolderGit2, 
   Download, Heart, ChevronLeft, ChevronRight, Sparkles 
@@ -53,10 +53,10 @@ const initialFormState = {
     pfp: '',
   },
   experience: [
-    { id: '1', company: '', role: '', location: '', startDate: '', endDate: '', current: false, description: '' }
+    { id: '1', company: '', role: '', location: '', startDate: '', endDate: '', current: false, description: '', group: 'none' }
   ],
   projects: [
-    { id: '1', name: '', description: '', technologies: '', githubFront: '', githubBack: '', liveUrl: '' }
+    { id: '1', name: '', description: '', technologies: '', githubFront: '', githubBack: '', liveUrl: '', group: 'none' }
   ],
   education: [
     {
@@ -74,11 +74,32 @@ const initialFormState = {
       boardGradeFormat: 'percentage',
       /** only used when gradeType === 'custom': user-defined label */
       customGradeLabel: '',
+      group: 'none',
     }
   ],
-  certifications: [],
+  skills: [
+    { id: '1', name: '', level: 5, group: 'none' }
+  ],
+  showSkillRating: false,
   languages: [],
-  skills: '',
+  certifications: [],
+  achievements: [],
+  sectionGroups: {
+    experience: [],
+    projects: [],
+    education: [],
+    skills: [],
+    certifications: [],
+    achievements: []
+  },
+  ungroupedPosition: {
+    experience: 'start',
+    projects: 'start',
+    education: 'start',
+    skills: 'start',
+    certifications: 'start',
+    achievements: 'start'
+  }
 };
 
 export default function BuilderPage() {
@@ -112,6 +133,9 @@ export default function BuilderPage() {
   // State representing whether to show full URL strings in template rendering
   const [showFullUrls, setShowFullUrls] = useState(false);
 
+  // State representing custom safe zone threshold percentage (clamped 60% - 100%)
+  const [safeZonePercent, setSafeZonePercent] = useState(88);
+
   // State representing the active mobile layout view tab ('edit' or 'preview')
   const [mobileTab, setMobileTab] = useState('edit');
 
@@ -131,8 +155,23 @@ export default function BuilderPage() {
     if (savedDraft) {
       try {
         const parsed = JSON.parse(savedDraft);
-        // Defensively merge default schemas to handle schema extensions on older drafts
         const generateUniqueId = () => Date.now().toString() + Math.random().toString(36).substr(2, 9);
+        
+        // Backward compatibility: Auto-migrate comma-separated skills string to array of objects
+        let parsedSkills = parsed.skills;
+        if (typeof parsedSkills === 'string') {
+          const rawList = parsedSkills.split(',').map(s => s.trim()).filter(Boolean);
+          parsedSkills = rawList.map(skillName => ({
+            id: generateUniqueId(),
+            name: skillName,
+            level: 5,
+            group: 'none'
+          }));
+        }
+        if (!Array.isArray(parsedSkills) || parsedSkills.length === 0) {
+          parsedSkills = initialFormState.skills;
+        }
+
         const merged = {
           ...initialFormState,
           ...parsed,
@@ -142,15 +181,18 @@ export default function BuilderPage() {
           },
           experience: (parsed.experience || initialFormState.experience).map(e => ({
             id: e.id || generateUniqueId(),
+            group: e.group || 'none',
             ...e
           })),
           projects: (parsed.projects || []).map(p => ({
             ...initialFormState.projects[0],
             id: p.id || generateUniqueId(),
+            group: p.group || 'none',
             ...p
           })),
           education: (parsed.education || initialFormState.education).map(edu => ({
             id: edu.id || generateUniqueId(),
+            group: edu.group || 'none',
             ...edu
           })),
           languages: (parsed.languages || []).map(l => ({
@@ -159,8 +201,19 @@ export default function BuilderPage() {
           })),
           certifications: (parsed.certifications || []).map(c => ({
             id: c.id || generateUniqueId(),
+            group: c.group || 'none',
             ...c
           })),
+          achievements: (parsed.achievements || []).map(a => ({
+            id: a.id || generateUniqueId(),
+            group: a.group || 'none',
+            ...a
+          })),
+          skills: parsedSkills.map(s => (typeof s === 'string' ? { id: generateUniqueId(), name: s, level: 5, group: 'none' } : { id: s.id || generateUniqueId(), group: s.group || 'none', ...s })),
+          sectionGroups: {
+            ...initialFormState.sectionGroups,
+            ...(parsed.sectionGroups || {})
+          }
         };
         setFormData(merged);
       } catch (e) {
@@ -174,6 +227,13 @@ export default function BuilderPage() {
     const savedShowFullUrls = localStorage.getItem('resume-mill-show-full-urls');
     if (savedShowFullUrls !== null) {
       setShowFullUrls(savedShowFullUrls === 'true');
+    }
+    const savedSafeZone = localStorage.getItem('resume-mill-safe-zone');
+    if (savedSafeZone) {
+      const parsed = parseInt(savedSafeZone, 10);
+      if (!isNaN(parsed)) {
+        setSafeZonePercent(Math.max(60, Math.min(100, parsed)));
+      }
     }
     setIsLoaded(true);
   }, []);
@@ -199,9 +259,106 @@ export default function BuilderPage() {
     }
   }, [showFullUrls, isLoaded]);
 
+  // Hook to automatically persist safeZonePercent choice updates
+  useEffect(() => {
+    if (isLoaded) {
+      localStorage.setItem('resume-mill-safe-zone', safeZonePercent);
+    }
+  }, [safeZonePercent, isLoaded]);
+
+  // History stacks for Undo / Redo functionality
+  const [pastHistory, setPastHistory] = useState([]);
+  const [futureHistory, setFutureHistory] = useState([]);
+  const isPerformingUndoRedo = useRef(false);
+  const debounceTimerRef = useRef(null);
+
+  // Push a snapshot onto pastHistory stack
+  const pushSnapshot = (snapshot) => {
+    if (isPerformingUndoRedo.current) return;
+    setPastHistory((prev) => {
+      const next = [...prev, snapshot];
+      if (next.length > 40) next.shift(); // Limit history depth to 40 steps
+      return next;
+    });
+    setFutureHistory([]);
+  };
+
+  // Instant snapshot checkpoint for structural events (add, delete, reorder, group, AI apply)
+  const snapshotBeforeAction = () => {
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current);
+      debounceTimerRef.current = null;
+    }
+    pushSnapshot(formData);
+  };
+
+  // Debounced snapshot checkpoint for continuous text typing
+  const snapshotBeforeTyping = () => {
+    if (isPerformingUndoRedo.current) return;
+    if (!debounceTimerRef.current) {
+      pushSnapshot(formData);
+    }
+    if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
+    debounceTimerRef.current = setTimeout(() => {
+      debounceTimerRef.current = null;
+    }, 600);
+  };
+
+  // Undo Handler
+  const handleUndo = () => {
+    if (pastHistory.length === 0) return;
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current);
+      debounceTimerRef.current = null;
+    }
+    isPerformingUndoRedo.current = true;
+    const previousState = pastHistory[pastHistory.length - 1];
+    setPastHistory((prev) => prev.slice(0, -1));
+    setFutureHistory((prev) => [formData, ...prev]);
+    setFormData(previousState);
+    setTimeout(() => {
+      isPerformingUndoRedo.current = false;
+    }, 50);
+  };
+
+  // Redo Handler
+  const handleRedo = () => {
+    if (futureHistory.length === 0) return;
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current);
+      debounceTimerRef.current = null;
+    }
+    isPerformingUndoRedo.current = true;
+    const nextState = futureHistory[0];
+    setFutureHistory((prev) => prev.slice(1));
+    setPastHistory((prev) => [...prev, formData]);
+    setFormData(nextState);
+    setTimeout(() => {
+      isPerformingUndoRedo.current = false;
+    }, 50);
+  };
+
+  // Global Keyboard Shortcuts (Ctrl+Z for Undo, Ctrl+Y / Ctrl+Shift+Z for Redo)
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.ctrlKey || e.metaKey) {
+        if (e.key.toLowerCase() === 'z' && !e.shiftKey) {
+          e.preventDefault();
+          handleUndo();
+        } else if (e.key.toLowerCase() === 'y' || (e.key.toLowerCase() === 'z' && e.shiftKey)) {
+          e.preventDefault();
+          handleRedo();
+        }
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [pastHistory, futureHistory, formData]);
+
   // Handler for simple top-level personal details changes
   const handlePersonalChange = (e) => {
     const { name, value } = e.target;
+    snapshotBeforeTyping();
     setFormData((prev) => ({
       ...prev,
       personal: { ...prev.personal, [name]: value }
@@ -210,11 +367,133 @@ export default function BuilderPage() {
 
   // Handler to modify specific attributes inside arrays (Experience, Projects, Education)
   const handleArrayChange = (section, id, field, value) => {
+    snapshotBeforeTyping();
     setFormData((prev) => ({
       ...prev,
       [section]: prev[section].map((item) => 
         item.id === id ? { ...item, [field]: value } : item
       )
+    }));
+  };
+
+  // Add a new sub-group to a section
+  const addGroup = (section, groupName) => {
+    if (!groupName || !groupName.trim()) return;
+    const cleanName = groupName.trim();
+    snapshotBeforeAction();
+    setFormData((prev) => {
+      const currentGroups = prev.sectionGroups?.[section] || [];
+      if (currentGroups.includes(cleanName)) return prev;
+      return {
+        ...prev,
+        sectionGroups: {
+          ...prev.sectionGroups,
+          [section]: [...currentGroups, cleanName]
+        }
+      };
+    });
+  };
+
+  // Rename an existing sub-group
+  const renameGroup = (section, oldName, newName) => {
+    if (!newName || !newName.trim() || oldName === newName) return;
+    const cleanNewName = newName.trim();
+    snapshotBeforeAction();
+    setFormData((prev) => {
+      const currentGroups = prev.sectionGroups?.[section] || [];
+      const updatedGroups = currentGroups.map(g => g === oldName ? cleanNewName : g);
+      const updatedItems = (prev[section] || []).map(item => 
+        item.group === oldName ? { ...item, group: cleanNewName } : item
+      );
+      return {
+        ...prev,
+        [section]: updatedItems,
+        sectionGroups: {
+          ...prev.sectionGroups,
+          [section]: updatedGroups
+        }
+      };
+    });
+  };
+
+  // UnGroup section: deletes group container, sets cards group to "none"
+  const unGroupSection = (section, groupName) => {
+    snapshotBeforeAction();
+    setFormData((prev) => {
+      const currentGroups = prev.sectionGroups?.[section] || [];
+      const updatedGroups = currentGroups.filter(g => g !== groupName);
+      const updatedItems = (prev[section] || []).map(item => 
+        item.group === groupName ? { ...item, group: 'none' } : item
+      );
+      return {
+        ...prev,
+        [section]: updatedItems,
+        sectionGroups: {
+          ...prev.sectionGroups,
+          [section]: updatedGroups
+        }
+      };
+    });
+  };
+
+  // Delete Group & Items: deletes group container AND deletes all cards inside it
+  const deleteGroupAndItems = (section, groupName) => {
+    snapshotBeforeAction();
+    setFormData((prev) => {
+      const currentGroups = prev.sectionGroups?.[section] || [];
+      const updatedGroups = currentGroups.filter(g => g !== groupName);
+      const updatedItems = (prev[section] || []).filter(item => item.group !== groupName);
+      return {
+        ...prev,
+        [section]: updatedItems,
+        sectionGroups: {
+          ...prev.sectionGroups,
+          [section]: updatedGroups
+        }
+      };
+    });
+  };
+
+  // Update a card's assigned group
+  const handleCardGroupChange = (section, id, newGroup) => {
+    snapshotBeforeAction();
+    setFormData((prev) => ({
+      ...prev,
+      [section]: (prev[section] || []).map(item => 
+        item.id === id ? { ...item, group: newGroup || 'none' } : item
+      )
+    }));
+  };
+
+  // Reorder sub-groups within a section
+  const reorderGroup = (section, fromIndex, toIndex) => {
+    snapshotBeforeAction();
+    setFormData((prev) => {
+      const currentGroups = [...(prev.sectionGroups?.[section] || [])];
+      if (fromIndex < 0 || fromIndex >= currentGroups.length || toIndex < 0 || toIndex >= currentGroups.length) {
+        return prev;
+      }
+      const [movedGroup] = currentGroups.splice(fromIndex, 1);
+      currentGroups.splice(toIndex, 0, movedGroup);
+      return {
+        ...prev,
+        sectionGroups: {
+          ...prev.sectionGroups,
+          [section]: currentGroups
+        }
+      };
+    });
+  };
+
+  // Toggle ungrouped items position ('start' or 'end') for a section
+  const setUngroupedPosition = (section, position) => {
+    snapshotBeforeAction();
+    setFormData((prev) => ({
+      ...prev,
+      ungroupedPosition: {
+        ...(prev.ungroupedPosition || {}),
+        [section]: position
+      }
     }));
   };
 
@@ -224,9 +503,9 @@ export default function BuilderPage() {
     const uniqueId = Date.now().toString() + Math.random().toString(36).substr(2, 9);
     
     if (section === 'experience') {
-      newItem = { id: uniqueId, company: '', role: '', location: '', startDate: '', endDate: '', current: false, description: '' };
+      newItem = { id: uniqueId, company: '', role: '', location: '', startDate: '', endDate: '', current: false, description: '', group: 'none' };
     } else if (section === 'projects') {
-      newItem = { id: uniqueId, name: '', description: '', technologies: '', githubFront: '', githubBack: '', liveUrl: '' };
+      newItem = { id: uniqueId, name: '', description: '', technologies: '', githubFront: '', githubBack: '', liveUrl: '', group: 'none' };
     } else if (section === 'education') {
       newItem = {
         id: uniqueId,
@@ -239,12 +518,18 @@ export default function BuilderPage() {
         grade: '',
         boardGradeFormat: 'percentage',
         customGradeLabel: '',
+        group: 'none',
       };
+    } else if (section === 'skills') {
+      newItem = { id: uniqueId, name: '', level: 5, group: 'none' };
     } else if (section === 'languages') {
       newItem = { id: uniqueId, name: '', level: 5 };
     } else if (section === 'certifications') {
-      newItem = { id: uniqueId, name: '', organization: '', date: '', url: '' };
+      newItem = { id: uniqueId, name: '', organization: '', date: '', url: '', group: 'none' };
+    } else if (section === 'achievements') {
+      newItem = { id: uniqueId, title: '', organization: '', date: '', description: '', url: '', group: 'none' };
     }
+    snapshotBeforeAction();
     setFormData((prev) => ({
       ...prev,
       [section]: [...(prev[section] || []), newItem]
@@ -253,6 +538,7 @@ export default function BuilderPage() {
 
   // Handler to remove a card item from listing sections
   const removeArrayItem = (section, id) => {
+    snapshotBeforeAction();
     setFormData((prev) => ({
       ...prev,
       [section]: prev[section].filter((item) => item.id !== id)
@@ -261,6 +547,7 @@ export default function BuilderPage() {
 
   // Handler to change the order of items inside listing sections
   const moveArrayItem = (section, id, direction) => {
+    snapshotBeforeAction();
     setFormData((prev) => {
       const items = [...(prev[section] || [])];
       const index = items.findIndex((item) => item.id === id);
@@ -282,6 +569,7 @@ export default function BuilderPage() {
 
   // Handler to drag-reorder items inside listing sections
   const reorderArrayItem = (section, startIndex, endIndex) => {
+    snapshotBeforeAction();
     setFormData((prev) => {
       const items = [...(prev[section] || [])];
       if (startIndex < 0 || startIndex >= items.length || endIndex < 0 || endIndex >= items.length) return prev;
@@ -405,7 +693,8 @@ export default function BuilderPage() {
           startDate: e.startDate || '',
           endDate: e.endDate || '',
           current: e.current || false,
-          description: e.description || ''
+          description: e.description || '',
+          group: e.group || 'none'
         })),
         projects: (importedData.projects || []).map(p => ({
           id: p.id || generateUniqueId(),
@@ -414,7 +703,8 @@ export default function BuilderPage() {
           technologies: p.technologies || '',
           githubFront: p.githubFront || '',
           githubBack: p.githubBack || '',
-          liveUrl: p.liveUrl || ''
+          liveUrl: p.liveUrl || '',
+          group: p.group || 'none'
         })),
         education: (importedData.education || []).map(edu => ({
           id: edu.id || generateUniqueId(),
@@ -426,7 +716,8 @@ export default function BuilderPage() {
           gradeType: edu.gradeType || 'degree',
           grade: edu.grade || '',
           boardGradeFormat: edu.boardGradeFormat || 'percentage',
-          customGradeLabel: edu.customGradeLabel || ''
+          customGradeLabel: edu.customGradeLabel || '',
+          group: edu.group || 'none'
         })),
         languages: (importedData.languages || []).map(l => ({
           id: l.id || generateUniqueId(),
@@ -438,9 +729,30 @@ export default function BuilderPage() {
           name: c.name || '',
           organization: c.organization || '',
           date: c.date || '',
-          url: c.url || ''
+          url: c.url || '',
+          group: c.group || 'none'
         })),
-        skills: importedData.skills || ''
+        achievements: (importedData.achievements || []).map(a => ({
+          id: a.id || generateUniqueId(),
+          title: a.title || a.name || '',
+          organization: a.organization || '',
+          date: a.date || '',
+          description: a.description || '',
+          url: a.url || '',
+          group: a.group || 'none'
+        })),
+        skills: typeof importedData.skills === 'string'
+          ? importedData.skills.split(',').map(s => s.trim()).filter(Boolean).map(skillName => ({
+              id: generateUniqueId(),
+              name: skillName,
+              level: 5,
+              group: 'none'
+            }))
+          : (importedData.skills || []).map(s => (typeof s === 'string' ? { id: generateUniqueId(), name: s, level: 5, group: 'none' } : { id: s.id || generateUniqueId(), name: s.name || '', level: typeof s.level === 'number' ? s.level : 5, group: s.group || 'none' })),
+        sectionGroups: {
+          ...initialFormState.sectionGroups,
+          ...(importedData.sectionGroups || {})
+        }
       };
 
       setFormData(merged);
@@ -606,6 +918,10 @@ export default function BuilderPage() {
               steps={steps}
               activeStep={activeStep}
               setActiveStep={setActiveStep}
+              onUndo={handleUndo}
+              onRedo={handleRedo}
+              canUndo={pastHistory.length > 0}
+              canRedo={futureHistory.length > 0}
             />
 
             {/* Dynamic Step form content matching state */}
@@ -622,6 +938,9 @@ export default function BuilderPage() {
               {activeStep === 1 && (
                 <ExperienceForm 
                   experience={formData.experience}
+                  sectionGroups={formData.sectionGroups}
+                  ungroupedPosition={formData.ungroupedPosition}
+                  setUngroupedPosition={setUngroupedPosition}
                   handleArrayChange={handleArrayChange}
                   addArrayItem={addArrayItem}
                   removeArrayItem={removeArrayItem}
@@ -629,12 +948,21 @@ export default function BuilderPage() {
                   reorderArrayItem={reorderArrayItem}
                   handleAIQuery={handleAIQuery}
                   optimizingField={optimizingField}
+                  addGroup={addGroup}
+                  renameGroup={renameGroup}
+                  unGroupSection={unGroupSection}
+                  deleteGroupAndItems={deleteGroupAndItems}
+                  handleCardGroupChange={handleCardGroupChange}
+                  reorderGroup={reorderGroup}
                 />
               )}
 
               {activeStep === 2 && (
                 <ProjectsForm 
                   projects={formData.projects}
+                  sectionGroups={formData.sectionGroups}
+                  ungroupedPosition={formData.ungroupedPosition}
+                  setUngroupedPosition={setUngroupedPosition}
                   handleArrayChange={handleArrayChange}
                   addArrayItem={addArrayItem}
                   removeArrayItem={removeArrayItem}
@@ -642,31 +970,62 @@ export default function BuilderPage() {
                   reorderArrayItem={reorderArrayItem}
                   handleAIQuery={handleAIQuery}
                   optimizingField={optimizingField}
+                  addGroup={addGroup}
+                  renameGroup={renameGroup}
+                  unGroupSection={unGroupSection}
+                  deleteGroupAndItems={deleteGroupAndItems}
+                  handleCardGroupChange={handleCardGroupChange}
+                  reorderGroup={reorderGroup}
                 />
               )}
 
               {activeStep === 3 && (
                 <EducationForm 
                   education={formData.education}
+                  sectionGroups={formData.sectionGroups}
+                  ungroupedPosition={formData.ungroupedPosition}
+                  setUngroupedPosition={setUngroupedPosition}
                   handleArrayChange={handleArrayChange}
                   addArrayItem={addArrayItem}
                   removeArrayItem={removeArrayItem}
                   moveArrayItem={moveArrayItem}
                   reorderArrayItem={reorderArrayItem}
+                  addGroup={addGroup}
+                  renameGroup={renameGroup}
+                  unGroupSection={unGroupSection}
+                  deleteGroupAndItems={deleteGroupAndItems}
+                  handleCardGroupChange={handleCardGroupChange}
+                  reorderGroup={reorderGroup}
                 />
               )}
 
               {activeStep === 4 && (
                 <SkillsLanguagesCertificationsForm 
                   skills={formData.skills}
+                  showSkillRating={formData.showSkillRating}
+                  onToggleSkillRating={(val) => {
+                    snapshotBeforeAction();
+                    setFormData(prev => ({ ...prev, showSkillRating: val }));
+                  }}
                   languages={formData.languages}
                   certifications={formData.certifications}
+                  achievements={formData.achievements}
+                  sectionGroups={formData.sectionGroups}
+                  ungroupedPosition={formData.ungroupedPosition}
+                  setUngroupedPosition={setUngroupedPosition}
                   handleArrayChange={handleArrayChange}
                   addArrayItem={addArrayItem}
                   removeArrayItem={removeArrayItem}
                   moveArrayItem={moveArrayItem}
                   reorderArrayItem={reorderArrayItem}
-                  onSkillsChange={handleSkillsChange}
+                  addGroup={addGroup}
+                  renameGroup={renameGroup}
+                  unGroupSection={unGroupSection}
+                  deleteGroupAndItems={deleteGroupAndItems}
+                  handleCardGroupChange={handleCardGroupChange}
+                  reorderGroup={reorderGroup}
+                  handleAIQuery={handleAIQuery}
+                  optimizingField={optimizingField}
                 />
               )}
 
@@ -682,6 +1041,8 @@ export default function BuilderPage() {
                   setSupportWithWatermark={setSupportWithWatermark}
                   showFullUrls={showFullUrls}
                   setShowFullUrls={setShowFullUrls}
+                  safeZonePercent={safeZonePercent}
+                  setSafeZonePercent={setSafeZonePercent}
                   onExportData={handleExportData}
                   onImportData={handleImportData}
                 />
@@ -730,6 +1091,7 @@ export default function BuilderPage() {
             setShowFullscreen={setShowFullscreenPreview}
             supportWithWatermark={supportWithWatermark}
             showFullUrls={showFullUrls}
+            safeZonePercent={safeZonePercent}
             isVisible={mobileTab === 'preview'}
             className={mobileTab === 'edit' ? styles.hideMobile : ''}
           />
@@ -748,6 +1110,7 @@ export default function BuilderPage() {
         optimizedText={aiReviewData?.optimizedText || ''}
         onApprove={() => {
           if (!aiReviewData) return;
+          snapshotBeforeAction();
           const { section, id, field, optimizedText } = aiReviewData;
           if (section === 'personal') {
             setFormData((prev) => ({

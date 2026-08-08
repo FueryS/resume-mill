@@ -30,6 +30,7 @@ export default function ResumePreview({
   setShowFullscreen,
   supportWithWatermark = true,
   showFullUrls = false,
+  safeZonePercent = 88,
   isVisible = true,
   className = "",
 }) {
@@ -41,7 +42,7 @@ export default function ResumePreview({
   const [currentPage, setCurrentPage] = useState(1);
 
   // Partition form data into pages list dynamically
-  const pages = partitionResumeData(formData);
+  const pages = partitionResumeData(formData, safeZonePercent);
   const totalPages = Math.max(1, pages.length);
 
   // Set mounted on mount to support portals safely in SSR env
