@@ -89,26 +89,26 @@
 }
 
 .formBody {
-  padding: var(--space-6);
+  padding: var(--space-6) var(--space-8);
   flex: 1;
 }
 
 .formSection {
   display: flex;
   flex-direction: column;
-  gap: var(--space-4);
+  gap: var(--space-5);
 }
 
 .formRow {
   display: flex;
-  gap: var(--space-4);
+  gap: var(--space-5);
 }
 
 .formGroup {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: var(--space-2);
+  gap: 6px;
 }
 
 .formGroup label {
@@ -120,7 +120,7 @@
 .formGroup input,
 .formGroup textarea {
   width: 100%;
-  padding: 10px 14px;
+  padding: 11px 16px;
   border: 1px solid var(--border-color);
   border-radius: var(--radius-md);
   font-size: 14px;
@@ -128,13 +128,14 @@
   color: var(--text-main);
   outline: none;
   background-color: var(--bg-secondary);
-  transition: border-color var(--transition-fast);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
   margin-top: auto;
 }
 
 .formGroup input:focus,
 .formGroup textarea:focus {
   border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.08);
 }
 
 /* AI optimization link in headers */
@@ -186,11 +187,11 @@
 .itemCard {
   border: 1px solid var(--border-color);
   border-radius: var(--radius-md);
-  padding: var(--space-4);
+  padding: var(--space-5);
   background-color: var(--bg-primary);
   display: flex;
   flex-direction: column;
-  gap: var(--space-4);
+  gap: var(--space-3);
   position: relative;
 }
 
@@ -199,7 +200,7 @@
   justify-content: space-between;
   align-items: center;
   border-bottom: 1px dashed var(--border-color);
-  padding-bottom: var(--space-2);
+  padding-bottom: var(--space-3);
 }
 
 .itemCardHeader h5 {
@@ -252,8 +253,9 @@
 .btnAdd {
   width: 100%;
   justify-content: center;
-  padding: 12px;
+  padding: 14px;
   border: 1px dashed var(--border-hover);
+  margin-top: var(--space-2);
 }
 
 .formCheckbox {
@@ -274,7 +276,8 @@
   font-weight: 800;
   color: var(--text-main);
   border-bottom: 1px solid var(--border-color);
-  padding-bottom: var(--space-2);
+  padding-bottom: var(--space-3);
+  margin-top: var(--space-3);
 }
 
 /* Final step templates & exports */
@@ -369,7 +372,7 @@
 /* Form Footer navigation */
 .formFooter {
   border-top: 1px solid var(--border-color);
-  padding: var(--space-4) var(--space-6);
+  padding: var(--space-5) var(--space-8);
   background-color: var(--bg-primary);
   display: flex;
   justify-content: space-between;
@@ -664,7 +667,7 @@
   color: var(--text-main) !important;
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
 }
 
 .collapseIcon {
@@ -729,5 +732,26 @@
 
   .formBody {
     padding: var(--space-4) !important;
+  }
+
+  .formRow {
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  .itemCard {
+    padding: var(--space-4);
+    gap: var(--space-4);
+  }
+
+  .itemCardHeader {
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+
+  .formGroup input,
+  .formGroup textarea {
+    font-size: 14.5px;
+    padding: 12px 14px;
   }
 }

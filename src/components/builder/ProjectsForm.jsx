@@ -35,14 +35,15 @@ export default function ProjectsForm({
   unGroupSection,
   deleteGroupAndItems,
   handleCardGroupChange,
-  reorderGroup
+  reorderGroup,
+  collapsedStates = {},
+  onToggleCollapsed
 }) {
   const projList = projects || [];
   const totalCount = projList.length;
   const isAutoCollapsed = totalCount >= 5;
   const currentUngroupedPos = ungroupedPosition?.projects || 'start';
 
-  const [collapsedState, setCollapsedState] = useState({});
   const [collapsedGroups, setCollapsedGroups] = useState({});
   const [draggedCardId, setDraggedCardId] = useState(null);
   const [draggedGroupName, setDraggedGroupName] = useState(null);
@@ -54,11 +55,11 @@ export default function ProjectsForm({
   // Auto-collapse trigger whenever count increases to a multiple of 5 (5, 10, 15...)
   useEffect(() => {
     if (totalCount > 0 && totalCount % 5 === 0 && totalCount !== prevCountRef.current) {
-      const allCollapsedCards = {};
-      projList.forEach((item) => {
-        if (item.id) allCollapsedCards[item.id] = true;
-      });
-      setCollapsedState(allCollapsedCards);
+      if (onToggleCollapsed) {
+        projList.forEach((item) => {
+          if (item.id) onToggleCollapsed(item.id, false);
+        });
+      }
 
       const allCollapsedGroups = {};
       (sectionGroups?.projects || []).forEach((gName) => {
@@ -67,7 +68,7 @@ export default function ProjectsForm({
       setCollapsedGroups(allCollapsedGroups);
     }
     prevCountRef.current = totalCount;
-  }, [totalCount, sectionGroups?.projects]);
+  }, [totalCount, sectionGroups?.projects, onToggleCollapsed]);
 
   // Group Delete Modal state
   const [deleteModalState, setDeleteModalState] = useState({
@@ -77,10 +78,9 @@ export default function ProjectsForm({
   });
 
   const toggleCollapse = (id) => {
-    setCollapsedState((prev) => {
-      const current = prev[id] !== undefined ? prev[id] : isAutoCollapsed;
-      return { ...prev, [id]: !current };
-    });
+    if (onToggleCollapsed) {
+      onToggleCollapsed(id, isAutoCollapsed);
+    }
   };
 
   const toggleGroupCollapse = (groupName) => {
@@ -225,11 +225,11 @@ export default function ProjectsForm({
           handleAIQuery={handleAIQuery}
           optimizingField={optimizingField}
           collapsed={
-            collapsedState[proj.id] !== undefined
-              ? collapsedState[proj.id]
+            collapsedStates[proj.id] !== undefined
+              ? collapsedStates[proj.id]
               : isAutoCollapsed
           }
-          toggleCollapse={() => toggleCollapse(proj.id)}
+          toggleCollapse={() => onToggleCollapsed ? onToggleCollapsed(proj.id, isAutoCollapsed) : toggleCollapse(proj.id)}
           isHandleGrabbed={isHandleGrabbed}
           draggedCardId={draggedCardId}
           reorderArrayItem={reorderArrayItem}
@@ -259,9 +259,9 @@ export default function ProjectsForm({
         const groupItems = projList.filter(item => item.group === groupName);
         const isCollapsible = groupItems.length > 2 || isAutoCollapsed;
         const isCollapsed = isCollapsible && (
-          collapsedGroups[groupName] !== undefined
-            ? collapsedGroups[groupName]
-            : isAutoCollapsed
+          collapsedStates[`proj-group-${groupName}`] !== undefined
+            ? collapsedStates[`proj-group-${groupName}`]
+            : (collapsedGroups[groupName] !== undefined ? collapsedGroups[groupName] : isAutoCollapsed)
         );
         const isGroupDragging = draggedGroupName === groupName;
 
@@ -290,7 +290,7 @@ export default function ProjectsForm({
               onDelete={() => openDeleteModal(groupName)}
               isCollapsible={isCollapsible}
               isCollapsed={isCollapsed}
-              onToggleCollapse={() => toggleGroupCollapse(groupName)}
+              onToggleCollapse={() => { if (onToggleCollapsed) onToggleCollapsed(`proj-group-${groupName}`, isAutoCollapsed); toggleGroupCollapse(groupName); }}
               onGroupHandleGrab={(val) => { isGroupHandleGrabbed.current = val; }}
             />
 
@@ -307,11 +307,11 @@ export default function ProjectsForm({
                 handleAIQuery={handleAIQuery}
                 optimizingField={optimizingField}
                 collapsed={
-                  collapsedState[proj.id] !== undefined
-                    ? collapsedState[proj.id]
+                  collapsedStates[proj.id] !== undefined
+                    ? collapsedStates[proj.id]
                     : isAutoCollapsed
                 }
-                toggleCollapse={() => toggleCollapse(proj.id)}
+                toggleCollapse={() => onToggleCollapsed ? onToggleCollapsed(proj.id, isAutoCollapsed) : toggleCollapse(proj.id)}
                 isHandleGrabbed={isHandleGrabbed}
                 draggedCardId={draggedCardId}
                 reorderArrayItem={reorderArrayItem}
@@ -458,6 +458,7 @@ function RenderProjCard({
               type="text"
               value={proj.name || ''}
               onChange={(e) => handleArrayChange('projects', proj.id, 'name', e.target.value)}
+              maxLength={50}
               placeholder="E-Commerce Store"
             />
           </div>
@@ -467,6 +468,7 @@ function RenderProjCard({
               type="url"
               value={proj.liveUrl || ''}
               onChange={(e) => handleArrayChange('projects', proj.id, 'liveUrl', e.target.value)}
+              maxLength={70}
               placeholder="https://my-app.vercel.app"
             />
           </div>
@@ -479,6 +481,7 @@ function RenderProjCard({
               type="url"
               value={proj.githubFront || ''}
               onChange={(e) => handleArrayChange('projects', proj.id, 'githubFront', e.target.value)}
+              maxLength={70}
               placeholder="https://github.com/username/repo-frontend"
             />
           </div>
@@ -488,6 +491,7 @@ function RenderProjCard({
               type="url"
               value={proj.githubBack || ''}
               onChange={(e) => handleArrayChange('projects', proj.id, 'githubBack', e.target.value)}
+              maxLength={70}
               placeholder="https://github.com/username/repo-backend"
             />
           </div>
@@ -499,6 +503,7 @@ function RenderProjCard({
             type="text"
             value={proj.technologies || ''}
             onChange={(e) => handleArrayChange('projects', proj.id, 'technologies', e.target.value)}
+            maxLength={85}
             placeholder="Next.js, TailwindCSS, MongoDB, Stripe"
           />
         </div>
@@ -524,6 +529,7 @@ function RenderProjCard({
             rows="3"
             value={proj.description || ''}
             onChange={(e) => handleArrayChange('projects', proj.id, 'description', e.target.value)}
+            maxLength={350}
             placeholder="Describe your achievements and tasks. E.g., Built an interactive React dashboard that reduced layout shift by 40%."
           />
         </div>

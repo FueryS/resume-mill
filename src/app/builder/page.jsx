@@ -259,6 +259,31 @@ export default function BuilderPage() {
     }
   }, [showFullUrls, isLoaded]);
 
+  // Persistent collapsed card & group states across sessions
+  const [collapsedStates, setCollapsedStates] = useState({});
+
+  // Hydrate collapsed states from localStorage on mount
+  useEffect(() => {
+    const savedCollapsed = localStorage.getItem('resume-mill-collapsed-states');
+    if (savedCollapsed) {
+      try {
+        setCollapsedStates(JSON.parse(savedCollapsed));
+      } catch (e) {
+        console.error('Failed to parse saved collapsed states', e);
+      }
+    }
+  }, []);
+
+  // Handler to toggle card/group collapse and persist to localStorage
+  const handleToggleCollapsed = (key, defaultCollapsed = false) => {
+    setCollapsedStates(prev => {
+      const currentVal = prev[key] !== undefined ? prev[key] : defaultCollapsed;
+      const next = { ...prev, [key]: !currentVal };
+      localStorage.setItem('resume-mill-collapsed-states', JSON.stringify(next));
+      return next;
+    });
+  };
+
   // Hook to automatically persist safeZonePercent choice updates
   useEffect(() => {
     if (isLoaded) {
@@ -954,6 +979,8 @@ export default function BuilderPage() {
                   deleteGroupAndItems={deleteGroupAndItems}
                   handleCardGroupChange={handleCardGroupChange}
                   reorderGroup={reorderGroup}
+                  collapsedStates={collapsedStates}
+                  onToggleCollapsed={handleToggleCollapsed}
                 />
               )}
 
@@ -976,6 +1003,8 @@ export default function BuilderPage() {
                   deleteGroupAndItems={deleteGroupAndItems}
                   handleCardGroupChange={handleCardGroupChange}
                   reorderGroup={reorderGroup}
+                  collapsedStates={collapsedStates}
+                  onToggleCollapsed={handleToggleCollapsed}
                 />
               )}
 
@@ -996,6 +1025,8 @@ export default function BuilderPage() {
                   deleteGroupAndItems={deleteGroupAndItems}
                   handleCardGroupChange={handleCardGroupChange}
                   reorderGroup={reorderGroup}
+                  collapsedStates={collapsedStates}
+                  onToggleCollapsed={handleToggleCollapsed}
                 />
               )}
 
@@ -1026,6 +1057,8 @@ export default function BuilderPage() {
                   reorderGroup={reorderGroup}
                   handleAIQuery={handleAIQuery}
                   optimizingField={optimizingField}
+                  collapsedStates={collapsedStates}
+                  onToggleCollapsed={handleToggleCollapsed}
                 />
               )}
 

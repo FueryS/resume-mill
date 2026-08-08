@@ -5,6 +5,7 @@
  * Renders the form inputs for Step 1 of the resume builder:
  * Name, Target Title, Contact Info, Social Handles, Professional Summary,
  * and Profile Picture (with a drag-and-zoom cropping modal).
+ * Enforces strict input character limits to prevent design breakage.
  */
 
 'use client';
@@ -30,7 +31,6 @@ export default function PersonalInfoForm({
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Check size limit (e.g. 5MB) for performance
     if (file.size > 5 * 1024 * 1024) {
       alert('File is too large. Please upload an image smaller than 5MB.');
       return;
@@ -43,7 +43,6 @@ export default function PersonalInfoForm({
     };
     reader.readAsDataURL(file);
     
-    // Clear input so same file can be re-selected if needed
     e.target.value = '';
   };
 
@@ -135,6 +134,7 @@ export default function PersonalInfoForm({
             name="fullName" 
             value={personal.fullName || ''}
             onChange={handlePersonalChange}
+            maxLength={50}
             placeholder="John Doe"
           />
         </div>
@@ -146,6 +146,7 @@ export default function PersonalInfoForm({
             name="role" 
             value={personal.role || ''}
             onChange={handlePersonalChange}
+            maxLength={60}
             placeholder="Frontend Engineer / Product Manager"
           />
         </div>
@@ -161,6 +162,7 @@ export default function PersonalInfoForm({
             name="email" 
             value={personal.email || ''}
             onChange={handlePersonalChange}
+            maxLength={50}
             placeholder="john.doe@example.com"
           />
         </div>
@@ -172,6 +174,7 @@ export default function PersonalInfoForm({
             name="phone" 
             value={personal.phone || ''}
             onChange={handlePersonalChange}
+            maxLength={25}
             placeholder="+91 98765 43210"
           />
         </div>
@@ -187,6 +190,7 @@ export default function PersonalInfoForm({
             name="github" 
             value={personal.github || ''}
             onChange={handlePersonalChange}
+            maxLength={70}
             placeholder="https://github.com/username"
           />
         </div>
@@ -198,6 +202,7 @@ export default function PersonalInfoForm({
             name="linkedin" 
             value={personal.linkedin || ''}
             onChange={handlePersonalChange}
+            maxLength={70}
             placeholder="https://linkedin.com/in/username"
           />
         </div>
@@ -213,6 +218,7 @@ export default function PersonalInfoForm({
             name="location" 
             value={personal.location || ''}
             onChange={handlePersonalChange}
+            maxLength={45}
             placeholder="San Francisco, CA"
           />
         </div>
@@ -224,6 +230,7 @@ export default function PersonalInfoForm({
             name="portfolio" 
             value={personal.portfolio || ''}
             onChange={handlePersonalChange}
+            maxLength={70}
             placeholder="https://myportfolio.com"
           />
         </div>
@@ -253,6 +260,7 @@ export default function PersonalInfoForm({
           rows="4"
           value={personal.summary || ''}
           onChange={handlePersonalChange}
+          maxLength={500}
           placeholder="Summarize your professional experience, technical expertise, and career objectives."
         />
       </div>

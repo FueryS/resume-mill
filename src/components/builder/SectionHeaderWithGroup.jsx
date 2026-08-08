@@ -25,7 +25,7 @@ export default function SectionHeaderWithGroup({
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
-        marginBottom: '15px'
+        marginBottom: '20px'
       }}
     >
       <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>

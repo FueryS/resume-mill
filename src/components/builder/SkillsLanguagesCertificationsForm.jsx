@@ -52,7 +52,9 @@ export default function SkillsLanguagesCertificationsForm({
   handleCardGroupChange,
   reorderGroup,
   handleAIQuery,
-  optimizingField
+  optimizingField,
+  collapsedStates = {},
+  onToggleCollapsed
 }) {
   const skillList = Array.isArray(skills) ? skills : [];
   const langList = languages || [];
@@ -148,29 +150,42 @@ export default function SkillsLanguagesCertificationsForm({
     itemCount: 0
   });
 
-  const toggleSkillCollapse = (id) => setCollapsedSkills(prev => {
-    const current = prev[id] !== undefined ? prev[id] : isSkillsAutoCollapsed;
-    return { ...prev, [id]: !current };
-  });
+  const toggleSkillCollapse = (id) => {
+    if (onToggleCollapsed) onToggleCollapsed(id, isSkillsAutoCollapsed);
+    setCollapsedSkills(prev => {
+      const current = collapsedStates[id] !== undefined ? collapsedStates[id] : (prev[id] !== undefined ? prev[id] : isSkillsAutoCollapsed);
+      return { ...prev, [id]: !current };
+    });
+  };
 
-  const toggleLangCollapse = (id) => setCollapsedLanguages(prev => {
-    const current = prev[id] !== undefined ? prev[id] : isLangsAutoCollapsed;
-    return { ...prev, [id]: !current };
-  });
+  const toggleLangCollapse = (id) => {
+    if (onToggleCollapsed) onToggleCollapsed(id, isLangsAutoCollapsed);
+    setCollapsedLanguages(prev => {
+      const current = collapsedStates[id] !== undefined ? collapsedStates[id] : (prev[id] !== undefined ? prev[id] : isLangsAutoCollapsed);
+      return { ...prev, [id]: !current };
+    });
+  };
 
-  const toggleCertCollapse = (id) => setCollapsedCertifications(prev => {
-    const current = prev[id] !== undefined ? prev[id] : isCertsAutoCollapsed;
-    return { ...prev, [id]: !current };
-  });
+  const toggleCertCollapse = (id) => {
+    if (onToggleCollapsed) onToggleCollapsed(id, isCertsAutoCollapsed);
+    setCollapsedCertifications(prev => {
+      const current = collapsedStates[id] !== undefined ? collapsedStates[id] : (prev[id] !== undefined ? prev[id] : isCertsAutoCollapsed);
+      return { ...prev, [id]: !current };
+    });
+  };
 
-  const toggleAchCollapse = (id) => setCollapsedAchievements(prev => {
-    const current = prev[id] !== undefined ? prev[id] : isAchsAutoCollapsed;
-    return { ...prev, [id]: !current };
-  });
+  const toggleAchCollapse = (id) => {
+    if (onToggleCollapsed) onToggleCollapsed(id, isAchsAutoCollapsed);
+    setCollapsedAchievements(prev => {
+      const current = collapsedStates[id] !== undefined ? collapsedStates[id] : (prev[id] !== undefined ? prev[id] : isAchsAutoCollapsed);
+      return { ...prev, [id]: !current };
+    });
+  };
 
   const toggleGroupCollapse = (key, sectionAutoCollapsed) => {
+    if (onToggleCollapsed) onToggleCollapsed(key, sectionAutoCollapsed);
     setCollapsedGroups(prev => {
-      const current = prev[key] !== undefined ? prev[key] : sectionAutoCollapsed;
+      const current = collapsedStates[key] !== undefined ? collapsedStates[key] : (prev[key] !== undefined ? prev[key] : sectionAutoCollapsed);
       return { ...prev, [key]: !current };
     });
   };
@@ -321,9 +336,9 @@ export default function SkillsLanguagesCertificationsForm({
           removeArrayItem={removeArrayItem}
           handleCardGroupChange={handleCardGroupChange}
           collapsed={
-            collapsedSkills[skill.id] !== undefined
-              ? collapsedSkills[skill.id]
-              : isSkillsAutoCollapsed
+            collapsedStates[skill.id] !== undefined
+              ? collapsedStates[skill.id]
+              : (collapsedSkills[skill.id] !== undefined ? collapsedSkills[skill.id] : isSkillsAutoCollapsed)
           }
           toggleCollapse={() => toggleSkillCollapse(skill.id)}
           isHandleGrabbed={isSkillHandleGrabbed}
@@ -367,9 +382,9 @@ export default function SkillsLanguagesCertificationsForm({
           removeArrayItem={removeArrayItem}
           handleCardGroupChange={handleCardGroupChange}
           collapsed={
-            collapsedCertifications[cert.id] !== undefined
-              ? collapsedCertifications[cert.id]
-              : isCertsAutoCollapsed
+            collapsedStates[cert.id] !== undefined
+              ? collapsedStates[cert.id]
+              : (collapsedCertifications[cert.id] !== undefined ? collapsedCertifications[cert.id] : isCertsAutoCollapsed)
           }
           toggleCollapse={() => toggleCertCollapse(cert.id)}
           isHandleGrabbed={isCertHandleGrabbed}
@@ -413,9 +428,9 @@ export default function SkillsLanguagesCertificationsForm({
           removeArrayItem={removeArrayItem}
           handleCardGroupChange={handleCardGroupChange}
           collapsed={
-            collapsedAchievements[ach.id] !== undefined
-              ? collapsedAchievements[ach.id]
-              : isAchsAutoCollapsed
+            collapsedStates[ach.id] !== undefined
+              ? collapsedStates[ach.id]
+              : (collapsedAchievements[ach.id] !== undefined ? collapsedAchievements[ach.id] : isAchsAutoCollapsed)
           }
           toggleCollapse={() => toggleAchCollapse(ach.id)}
           isHandleGrabbed={isAchHandleGrabbed}
@@ -487,9 +502,9 @@ export default function SkillsLanguagesCertificationsForm({
         const groupKey = `skills-${groupName}`;
         const isCollapsible = groupItems.length > 2 || isSkillsAutoCollapsed;
         const isCollapsed = isCollapsible && (
-          collapsedGroups[groupKey] !== undefined
-            ? collapsedGroups[groupKey]
-            : isSkillsAutoCollapsed
+          collapsedStates[groupKey] !== undefined
+            ? collapsedStates[groupKey]
+            : (collapsedGroups[groupKey] !== undefined ? collapsedGroups[groupKey] : isSkillsAutoCollapsed)
         );
         const isGroupDragging = draggedGroupName === groupName;
 
@@ -533,9 +548,9 @@ export default function SkillsLanguagesCertificationsForm({
                 removeArrayItem={removeArrayItem}
                 handleCardGroupChange={handleCardGroupChange}
                 collapsed={
-                  collapsedSkills[skill.id] !== undefined
-                    ? collapsedSkills[skill.id]
-                    : isSkillsAutoCollapsed
+                  collapsedStates[skill.id] !== undefined
+                    ? collapsedStates[skill.id]
+                    : (collapsedSkills[skill.id] !== undefined ? collapsedSkills[skill.id] : isSkillsAutoCollapsed)
                 }
                 toggleCollapse={() => toggleSkillCollapse(skill.id)}
                 isHandleGrabbed={isSkillHandleGrabbed}
@@ -572,9 +587,9 @@ export default function SkillsLanguagesCertificationsForm({
 
       {langList.map((lang, idx) => {
         const isDragging = draggedLangId === lang.id;
-        const isCollapsed = collapsedLanguages[lang.id] !== undefined
-          ? collapsedLanguages[lang.id]
-          : isLangsAutoCollapsed;
+        const isCollapsed = collapsedStates[lang.id] !== undefined
+          ? collapsedStates[lang.id]
+          : (collapsedLanguages[lang.id] !== undefined ? collapsedLanguages[lang.id] : isLangsAutoCollapsed);
 
         return (
           <div 
@@ -704,9 +719,9 @@ export default function SkillsLanguagesCertificationsForm({
         const groupKey = `certifications-${groupName}`;
         const isCollapsible = groupItems.length > 2 || isCertsAutoCollapsed;
         const isCollapsed = isCollapsible && (
-          collapsedGroups[groupKey] !== undefined
-            ? collapsedGroups[groupKey]
-            : isCertsAutoCollapsed
+          collapsedStates[groupKey] !== undefined
+            ? collapsedStates[groupKey]
+            : (collapsedGroups[groupKey] !== undefined ? collapsedGroups[groupKey] : isCertsAutoCollapsed)
         );
         const isGroupDragging = draggedGroupName === groupName;
 
@@ -800,9 +815,9 @@ export default function SkillsLanguagesCertificationsForm({
         const groupKey = `achievements-${groupName}`;
         const isCollapsible = groupItems.length > 2 || isAchsAutoCollapsed;
         const isCollapsed = isCollapsible && (
-          collapsedGroups[groupKey] !== undefined
-            ? collapsedGroups[groupKey]
-            : isAchsAutoCollapsed
+          collapsedStates[groupKey] !== undefined
+            ? collapsedStates[groupKey]
+            : (collapsedGroups[groupKey] !== undefined ? collapsedGroups[groupKey] : isAchsAutoCollapsed)
         );
         const isGroupDragging = draggedGroupName === groupName;
 
@@ -996,6 +1011,7 @@ function RenderSkillCard({
               type="text"
               value={skill.name || ''}
               onChange={(e) => handleArrayChange('skills', skill.id, 'name', e.target.value)}
+              maxLength={35}
               placeholder="React.js, Python, AWS, Docker"
             />
           </div>
@@ -1119,6 +1135,7 @@ function RenderCertCard({
               type="text"
               value={cert.name || ''}
               onChange={(e) => handleArrayChange('certifications', cert.id, 'name', e.target.value)}
+              maxLength={75}
               placeholder="AWS Certified Solutions Architect"
             />
           </div>
@@ -1128,6 +1145,7 @@ function RenderCertCard({
               type="text"
               value={cert.organization || ''}
               onChange={(e) => handleArrayChange('certifications', cert.id, 'organization', e.target.value)}
+              maxLength={65}
               placeholder="Amazon Web Services (AWS)"
             />
           </div>
@@ -1140,6 +1158,7 @@ function RenderCertCard({
               type="text"
               value={cert.date || ''}
               onChange={(e) => handleArrayChange('certifications', cert.id, 'date', e.target.value)}
+              maxLength={25}
               placeholder="October 2024"
             />
           </div>
@@ -1149,6 +1168,7 @@ function RenderCertCard({
               type="url"
               value={cert.url || ''}
               onChange={(e) => handleArrayChange('certifications', cert.id, 'url', e.target.value)}
+              maxLength={70}
               placeholder="https://credly.com/credentials/..."
             />
           </div>
@@ -1260,6 +1280,7 @@ function RenderAchCard({
               type="text"
               value={ach.title || ''}
               onChange={(e) => handleArrayChange('achievements', ach.id, 'title', e.target.value)}
+              maxLength={50}
               placeholder="1st Place in Hackathon"
             />
           </div>
@@ -1269,6 +1290,7 @@ function RenderAchCard({
               type="text"
               value={ach.organization || ''}
               onChange={(e) => handleArrayChange('achievements', ach.id, 'organization', e.target.value)}
+              maxLength={65}
               placeholder="Tech Crunch / University"
             />
           </div>
@@ -1281,6 +1303,7 @@ function RenderAchCard({
               type="text"
               value={ach.date || ''}
               onChange={(e) => handleArrayChange('achievements', ach.id, 'date', e.target.value)}
+              maxLength={25}
               placeholder="2025"
             />
           </div>
@@ -1290,6 +1313,7 @@ function RenderAchCard({
               type="url"
               value={ach.url || ''}
               onChange={(e) => handleArrayChange('achievements', ach.id, 'url', e.target.value)}
+              maxLength={70}
               placeholder="https://..."
             />
           </div>
@@ -1301,6 +1325,7 @@ function RenderAchCard({
             rows="2"
             value={ach.description || ''}
             onChange={(e) => handleArrayChange('achievements', ach.id, 'description', e.target.value)}
+            maxLength={350}
             placeholder="Awarded 1st place among 50+ teams for building an innovative solution."
           />
         </div>

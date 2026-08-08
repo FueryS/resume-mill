@@ -61,14 +61,15 @@ export default function EducationForm({
   unGroupSection,
   deleteGroupAndItems,
   handleCardGroupChange,
-  reorderGroup
+  reorderGroup,
+  collapsedStates = {},
+  onToggleCollapsed
 }) {
   const eduList = education || [];
   const totalCount = eduList.length;
   const isAutoCollapsed = totalCount >= 5;
   const currentUngroupedPos = ungroupedPosition?.education || 'start';
 
-  const [collapsedState, setCollapsedState] = useState({});
   const [collapsedGroups, setCollapsedGroups] = useState({});
   const [draggedCardId, setDraggedCardId] = useState(null);
   const [draggedGroupName, setDraggedGroupName] = useState(null);
@@ -80,11 +81,11 @@ export default function EducationForm({
   // Auto-collapse trigger whenever count increases to a multiple of 5 (5, 10, 15...)
   useEffect(() => {
     if (totalCount > 0 && totalCount % 5 === 0 && totalCount !== prevCountRef.current) {
-      const allCollapsedCards = {};
-      eduList.forEach((item) => {
-        if (item.id) allCollapsedCards[item.id] = true;
-      });
-      setCollapsedState(allCollapsedCards);
+      if (onToggleCollapsed) {
+        eduList.forEach((item) => {
+          if (item.id) onToggleCollapsed(item.id, false);
+        });
+      }
 
       const allCollapsedGroups = {};
       (sectionGroups?.education || []).forEach((gName) => {
@@ -93,7 +94,7 @@ export default function EducationForm({
       setCollapsedGroups(allCollapsedGroups);
     }
     prevCountRef.current = totalCount;
-  }, [totalCount, sectionGroups?.education]);
+  }, [totalCount, sectionGroups?.education, onToggleCollapsed]);
 
   // Group Delete Modal state
   const [deleteModalState, setDeleteModalState] = useState({
@@ -103,10 +104,9 @@ export default function EducationForm({
   });
 
   const toggleCollapse = (id) => {
-    setCollapsedState((prev) => {
-      const current = prev[id] !== undefined ? prev[id] : isAutoCollapsed;
-      return { ...prev, [id]: !current };
-    });
+    if (onToggleCollapsed) {
+      onToggleCollapsed(id, isAutoCollapsed);
+    }
   };
 
   const toggleGroupCollapse = (groupName) => {
@@ -184,35 +184,18 @@ export default function EducationForm({
     <div
       onDragOver={(e) => e.preventDefault()}
       onDrop={(e) => handleGroupDrop(e, 'none')}
-      style={{
-        border: '1.5px dashed var(--border-color, #cbd5e1)',
-        borderRadius: '8px',
-        padding: '10px',
-        marginBottom: '16px',
-        backgroundColor: 'var(--bg-secondary, #f8fafc)',
-        minHeight: '40px'
-      }}
+      className={eduStyles.ungroupedContainer}
     >
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
-        <span style={{ fontSize: '11.5px', fontWeight: '700', color: 'var(--text-muted, #64748b)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+      <div className={eduStyles.ungroupedHeaderRow}>
+        <span className={eduStyles.ungroupedTitle}>
           Ungrouped Items ({ungroupedItems.length})
         </span>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '4px', backgroundColor: 'var(--bg-primary, #ffffff)', padding: '2px 6px', borderRadius: '12px', border: '1px solid var(--border-color, #e2e8f0)' }}>
+        <div className={eduStyles.positionToggleGroup}>
           <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Position:</span>
           <button
             type="button"
             onClick={() => setUngroupedPosition && setUngroupedPosition('education', 'start')}
-            style={{
-              padding: '2px 8px',
-              fontSize: '11px',
-              fontWeight: '600',
-              borderRadius: '10px',
-              border: 'none',
-              cursor: 'pointer',
-              backgroundColor: currentUngroupedPos === 'start' ? 'var(--primary, #4f46e5)' : 'transparent',
-              color: currentUngroupedPos === 'start' ? '#ffffff' : 'var(--text-muted)',
-              transition: 'all 0.2s ease'
-            }}
+            className={`${eduStyles.positionToggleBtn} ${currentUngroupedPos === 'start' ? eduStyles.positionToggleBtnActive : ''}`}
             title="Place ungrouped items at start (above groups)"
           >
             At Start ↑
@@ -220,17 +203,7 @@ export default function EducationForm({
           <button
             type="button"
             onClick={() => setUngroupedPosition && setUngroupedPosition('education', 'end')}
-            style={{
-              padding: '2px 8px',
-              fontSize: '11px',
-              fontWeight: '600',
-              borderRadius: '10px',
-              border: 'none',
-              cursor: 'pointer',
-              backgroundColor: currentUngroupedPos === 'end' ? 'var(--primary, #4f46e5)' : 'transparent',
-              color: currentUngroupedPos === 'end' ? '#ffffff' : 'var(--text-muted)',
-              transition: 'all 0.2s ease'
-            }}
+            className={`${eduStyles.positionToggleBtn} ${currentUngroupedPos === 'end' ? eduStyles.positionToggleBtnActive : ''}`}
             title="Place ungrouped items at end (below groups)"
           >
             At End ↓
@@ -249,11 +222,11 @@ export default function EducationForm({
           removeArrayItem={removeArrayItem}
           handleCardGroupChange={handleCardGroupChange}
           collapsed={
-            collapsedState[edu.id] !== undefined
-              ? collapsedState[edu.id]
+            collapsedStates[edu.id] !== undefined
+              ? collapsedStates[edu.id]
               : isAutoCollapsed
           }
-          toggleCollapse={() => toggleCollapse(edu.id)}
+          toggleCollapse={() => onToggleCollapsed ? onToggleCollapsed(edu.id, isAutoCollapsed) : toggleCollapse(edu.id)}
           isHandleGrabbed={isHandleGrabbed}
           draggedCardId={draggedCardId}
           reorderArrayItem={reorderArrayItem}
@@ -283,9 +256,9 @@ export default function EducationForm({
         const groupItems = eduList.filter(item => item.group === groupName);
         const isCollapsible = groupItems.length > 2 || isAutoCollapsed;
         const isCollapsed = isCollapsible && (
-          collapsedGroups[groupName] !== undefined
-            ? collapsedGroups[groupName]
-            : isAutoCollapsed
+          collapsedStates[`edu-group-${groupName}`] !== undefined
+            ? collapsedStates[`edu-group-${groupName}`]
+            : (collapsedGroups[groupName] !== undefined ? collapsedGroups[groupName] : isAutoCollapsed)
         );
         const isGroupDragging = draggedGroupName === groupName;
 
@@ -314,7 +287,7 @@ export default function EducationForm({
               onDelete={() => openDeleteModal(groupName)}
               isCollapsible={isCollapsible}
               isCollapsed={isCollapsed}
-              onToggleCollapse={() => toggleGroupCollapse(groupName)}
+              onToggleCollapse={() => { if (onToggleCollapsed) onToggleCollapsed(`edu-group-${groupName}`, isAutoCollapsed); toggleGroupCollapse(groupName); }}
               onGroupHandleGrab={(val) => { isGroupHandleGrabbed.current = val; }}
             />
 
@@ -329,11 +302,11 @@ export default function EducationForm({
                 removeArrayItem={removeArrayItem}
                 handleCardGroupChange={handleCardGroupChange}
                 collapsed={
-                  collapsedState[edu.id] !== undefined
-                    ? collapsedState[edu.id]
+                  collapsedStates[edu.id] !== undefined
+                    ? collapsedStates[edu.id]
                     : isAutoCollapsed
                 }
-                toggleCollapse={() => toggleCollapse(edu.id)}
+                toggleCollapse={() => onToggleCollapsed ? onToggleCollapsed(edu.id, isAutoCollapsed) : toggleCollapse(edu.id)}
                 isHandleGrabbed={isHandleGrabbed}
                 draggedCardId={draggedCardId}
                 reorderArrayItem={reorderArrayItem}
@@ -484,6 +457,7 @@ function RenderEduCard({
               type="text"
               value={edu.institution || ''}
               onChange={(e) => handleArrayChange('education', edu.id, 'institution', e.target.value)}
+              maxLength={65}
               placeholder="Indian Institute of Technology"
             />
           </div>
@@ -493,6 +467,7 @@ function RenderEduCard({
               type="text"
               value={edu.degree || ''}
               onChange={(e) => handleArrayChange('education', edu.id, 'degree', e.target.value)}
+              maxLength={75}
               placeholder="Bachelor of Technology in Computer Science"
             />
           </div>
@@ -505,6 +480,7 @@ function RenderEduCard({
               type="text"
               value={edu.location || ''}
               onChange={(e) => handleArrayChange('education', edu.id, 'location', e.target.value)}
+              maxLength={45}
               placeholder="Mumbai, India"
             />
           </div>
@@ -515,6 +491,7 @@ function RenderEduCard({
                 type="text"
                 value={edu.startDate || ''}
                 onChange={(e) => handleArrayChange('education', edu.id, 'startDate', e.target.value)}
+                maxLength={25}
                 placeholder="2021"
               />
             </div>
@@ -524,6 +501,7 @@ function RenderEduCard({
                 type="text"
                 value={edu.endDate || ''}
                 onChange={(e) => handleArrayChange('education', edu.id, 'endDate', e.target.value)}
+                maxLength={25}
                 placeholder="2025"
               />
             </div>
@@ -572,6 +550,7 @@ function RenderEduCard({
                 type="text"
                 value={customGradeLabel}
                 onChange={(e) => handleArrayChange('education', edu.id, 'customGradeLabel', e.target.value)}
+                maxLength={30}
                 placeholder="e.g. Class Rank / Score"
                 className={eduStyles.customLabelInput}
               />
@@ -579,13 +558,14 @@ function RenderEduCard({
           )}
 
           <div className={eduStyles.gradeInputRow}>
-            <div className={styles.formGroup} style={{ maxWidth: '240px' }}>
+            <div className={`${styles.formGroup} ${eduStyles.gradeInputGroup}`}>
               <label htmlFor={`gradeVal-${edu.id}`}>{gradeLabel}</label>
               <input
                 id={`gradeVal-${edu.id}`}
                 type="text"
                 value={edu.grade || ''}
                 onChange={(e) => handleArrayChange('education', edu.id, 'grade', e.target.value)}
+                maxLength={25}
                 placeholder={gradePlaceholder}
               />
             </div>

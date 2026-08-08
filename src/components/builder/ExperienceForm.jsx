@@ -19,7 +19,7 @@ import GroupDeleteModal from './GroupDeleteModal';
 import GroupHeader from './GroupHeader';
 
 export default function ExperienceForm({
-  experience,
+  experience: expList,
   sectionGroups,
   ungroupedPosition,
   setUngroupedPosition,
@@ -35,14 +35,14 @@ export default function ExperienceForm({
   unGroupSection,
   deleteGroupAndItems,
   handleCardGroupChange,
-  reorderGroup
+  reorderGroup,
+  collapsedStates = {},
+  onToggleCollapsed
 }) {
-  const expList = experience || [];
   const totalCount = expList.length;
   const isAutoCollapsed = totalCount >= 5;
   const currentUngroupedPos = ungroupedPosition?.experience || 'start';
 
-  const [collapsedState, setCollapsedState] = useState({});
   const [collapsedGroups, setCollapsedGroups] = useState({});
   const [draggedCardId, setDraggedCardId] = useState(null);
   const [draggedGroupName, setDraggedGroupName] = useState(null);
@@ -54,11 +54,11 @@ export default function ExperienceForm({
   // Auto-collapse trigger whenever count increases to a multiple of 5 (5, 10, 15...)
   useEffect(() => {
     if (totalCount > 0 && totalCount % 5 === 0 && totalCount !== prevCountRef.current) {
-      const allCollapsedCards = {};
-      expList.forEach((item) => {
-        if (item.id) allCollapsedCards[item.id] = true;
-      });
-      setCollapsedState(allCollapsedCards);
+      if (onToggleCollapsed) {
+        expList.forEach((item) => {
+          if (item.id) onToggleCollapsed(item.id, false);
+        });
+      }
 
       const allCollapsedGroups = {};
       (sectionGroups?.experience || []).forEach((gName) => {
@@ -67,7 +67,7 @@ export default function ExperienceForm({
       setCollapsedGroups(allCollapsedGroups);
     }
     prevCountRef.current = totalCount;
-  }, [totalCount, sectionGroups?.experience]);
+  }, [totalCount, sectionGroups?.experience, onToggleCollapsed]);
 
   // Group Delete Modal state
   const [deleteModalState, setDeleteModalState] = useState({
@@ -77,10 +77,9 @@ export default function ExperienceForm({
   });
 
   const toggleCollapse = (id) => {
-    setCollapsedState((prev) => {
-      const current = prev[id] !== undefined ? prev[id] : isAutoCollapsed;
-      return { ...prev, [id]: !current };
-    });
+    if (onToggleCollapsed) {
+      onToggleCollapsed(id, isAutoCollapsed);
+    }
   };
 
   const toggleGroupCollapse = (groupName) => {
@@ -225,11 +224,11 @@ export default function ExperienceForm({
           handleAIQuery={handleAIQuery}
           optimizingField={optimizingField}
           collapsed={
-            collapsedState[exp.id] !== undefined
-              ? collapsedState[exp.id]
+            collapsedStates[exp.id] !== undefined
+              ? collapsedStates[exp.id]
               : isAutoCollapsed
           }
-          toggleCollapse={() => toggleCollapse(exp.id)}
+          toggleCollapse={() => onToggleCollapsed ? onToggleCollapsed(exp.id, isAutoCollapsed) : toggleCollapse(exp.id)}
           isHandleGrabbed={isHandleGrabbed}
           draggedCardId={draggedCardId}
           reorderArrayItem={reorderArrayItem}
@@ -259,9 +258,9 @@ export default function ExperienceForm({
         const groupItems = expList.filter(item => item.group === groupName);
         const isCollapsible = groupItems.length > 2 || isAutoCollapsed;
         const isCollapsed = isCollapsible && (
-          collapsedGroups[groupName] !== undefined
-            ? collapsedGroups[groupName]
-            : isAutoCollapsed
+          collapsedStates[`exp-group-${groupName}`] !== undefined
+            ? collapsedStates[`exp-group-${groupName}`]
+            : (collapsedGroups[groupName] !== undefined ? collapsedGroups[groupName] : isAutoCollapsed)
         );
         const isGroupDragging = draggedGroupName === groupName;
 
@@ -290,7 +289,7 @@ export default function ExperienceForm({
               onDelete={() => openDeleteModal(groupName)}
               isCollapsible={isCollapsible}
               isCollapsed={isCollapsed}
-              onToggleCollapse={() => toggleGroupCollapse(groupName)}
+              onToggleCollapse={() => { if (onToggleCollapsed) onToggleCollapsed(`exp-group-${groupName}`, isAutoCollapsed); toggleGroupCollapse(groupName); }}
               onGroupHandleGrab={(val) => { isGroupHandleGrabbed.current = val; }}
             />
 
@@ -307,11 +306,11 @@ export default function ExperienceForm({
                 handleAIQuery={handleAIQuery}
                 optimizingField={optimizingField}
                 collapsed={
-                  collapsedState[exp.id] !== undefined
-                    ? collapsedState[exp.id]
+                  collapsedStates[exp.id] !== undefined
+                    ? collapsedStates[exp.id]
                     : isAutoCollapsed
                 }
-                toggleCollapse={() => toggleCollapse(exp.id)}
+                toggleCollapse={() => onToggleCollapsed ? onToggleCollapsed(exp.id, isAutoCollapsed) : toggleCollapse(exp.id)}
                 isHandleGrabbed={isHandleGrabbed}
                 draggedCardId={draggedCardId}
                 reorderArrayItem={reorderArrayItem}
@@ -458,6 +457,7 @@ function RenderExpCard({
               type="text"
               value={exp.company || ''}
               onChange={(e) => handleArrayChange('experience', exp.id, 'company', e.target.value)}
+              maxLength={60}
               placeholder="Google"
             />
           </div>
@@ -467,6 +467,7 @@ function RenderExpCard({
               type="text"
               value={exp.role || ''}
               onChange={(e) => handleArrayChange('experience', exp.id, 'role', e.target.value)}
+              maxLength={60}
               placeholder="Software Engineering Intern"
             />
           </div>
@@ -479,6 +480,7 @@ function RenderExpCard({
               type="text"
               value={exp.location || ''}
               onChange={(e) => handleArrayChange('experience', exp.id, 'location', e.target.value)}
+              maxLength={45}
               placeholder="Bangalore, India"
             />
           </div>
@@ -490,6 +492,7 @@ function RenderExpCard({
                 type="text"
                 value={exp.startDate || ''}
                 onChange={(e) => handleArrayChange('experience', exp.id, 'startDate', e.target.value)}
+                maxLength={25}
                 placeholder="June 2024"
               />
             </div>
@@ -500,6 +503,7 @@ function RenderExpCard({
                 value={exp.endDate || ''}
                 disabled={exp.current}
                 onChange={(e) => handleArrayChange('experience', exp.id, 'endDate', e.target.value)}
+                maxLength={25}
                 placeholder={exp.current ? 'Present' : 'August 2024'}
               />
             </div>
@@ -537,6 +541,7 @@ function RenderExpCard({
             rows="4"
             value={exp.description || ''}
             onChange={(e) => handleArrayChange('experience', exp.id, 'description', e.target.value)}
+            maxLength={350}
             placeholder="Describe your achievements and tasks. E.g., Built an interactive React dashboard that reduced layout shift by 40%."
           />
         </div>
