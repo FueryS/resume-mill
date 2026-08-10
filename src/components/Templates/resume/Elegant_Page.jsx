@@ -70,16 +70,16 @@ export default function Elegant_Page({ data, pageData, showWatermark = true, sho
 
     if (showSkillRating) {
       return (
-        <div key={idx} className={styles.skillRatingRow} style={{ backgroundColor: '#ffffff', border: '1px solid #d1d5db' }}>
-          <span>{skillName}</span>
-          <span className={styles.skillRatingStars}>
+        <div key={idx} className={styles.skillRatingRow} style={{ backgroundColor: '#ffffff', border: '1px solid #1f2937' }}>
+          <span style={{ fontFamily: 'Georgia, serif', color: '#111827', fontWeight: '500' }}>{skillName}</span>
+          <span className={styles.skillRatingStars} style={{ color: '#1f2937' }}>
             {"★".repeat(skillLevel)}{"☆".repeat(5 - skillLevel)}
           </span>
         </div>
       );
     }
     return (
-      <span key={idx} className={styles.skillPill}>{skillName}</span>
+      <span key={idx} className={styles.elegantSkillPill}>{skillName}</span>
     );
   };
 
