@@ -77,18 +77,23 @@ export default function Timeline_Page({ data, pageData, showWatermark = true, sh
   };
 
   const renderSkillItem = (skillObj, idx) => {
+    const skillName = typeof skillObj === 'string' ? skillObj : (skillObj?.name || skillObj?.skill || '');
+    const rawLevel = typeof skillObj === 'object' ? skillObj?.level : 5;
+    const skillLevel = Math.max(1, Math.min(5, Number(rawLevel) || 5));
+    if (!skillName || !skillName.trim()) return null;
+
     if (showSkillRating) {
       return (
-        <div key={idx} className={styles.skillRatingRow} style={{ backgroundColor: '#ffffff', border: '1px solid #e2e8f0' }}>
-          <span style={{ color: '#1e293b', fontWeight: '500' }}>{skillObj.name}</span>
-          <span className={styles.skillRatingStars} style={{ color: '#475569' }}>
-            {"★".repeat(skillObj.level)}{"☆".repeat(5 - skillObj.level)}
+        <div key={idx} className={styles.skillRatingRow} style={{ backgroundColor: '#fafaf9', border: '1px solid #e7e5e4' }}>
+          <span style={{ color: '#1c1917', fontWeight: '600' }}>{skillName}</span>
+          <span className={styles.skillRatingStars} style={{ color: '#dc2626' }}>
+            {"★".repeat(skillLevel)}{"☆".repeat(5 - skillLevel)}
           </span>
         </div>
       );
     }
     return (
-      <span key={idx} className={styles.skillPill}>{skillObj.name}</span>
+      <span key={idx} className={styles.timelineSkillUnderlined}>{skillName}</span>
     );
   };
 
@@ -576,7 +581,7 @@ export default function Timeline_Page({ data, pageData, showWatermark = true, sh
             <div key={gName} className={styles.groupContainer}>
               <div className={styles.subCategoryTitle}>{gName}</div>
               <div className={styles.groupedItemsWrapper}>
-                <div className={showSkillRating ? styles.skillsGrid : styles.skillsPillContainer}>
+                <div className={showSkillRating ? styles.skillsGrid : styles.timelineSkillsContainer}>
                   {skillGroups[gName].map((skill, idx) => renderSkillItem(skill, idx))}
                 </div>
               </div>

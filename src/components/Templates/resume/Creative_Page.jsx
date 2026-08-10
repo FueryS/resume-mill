@@ -90,19 +90,24 @@ export default function Creative_Page({
   };
 
   const renderSkillItem = (skillObj, idx) => {
+    const skillName = typeof skillObj === 'string' ? skillObj : (skillObj?.name || skillObj?.skill || '');
+    const rawLevel = typeof skillObj === 'object' ? skillObj?.level : 5;
+    const skillLevel = Math.max(1, Math.min(5, Number(rawLevel) || 5));
+    if (!skillName || !skillName.trim()) return null;
+
     if (showSkillRating) {
       return (
         <div key={idx} className={styles.creativeMainLangRow}>
           <span style={{ color: '#0f172a', fontSize: '11px', fontWeight: '600' }}>
-            {skillObj.name}
+            {skillName}
           </span>
-          {renderStars(skillObj.level)}
+          {renderStars(skillLevel)}
         </div>
       );
     }
     return (
       <span key={idx} className={styles.creativeMainSkillItem}>
-        {skillObj.name}
+        {skillName}
       </span>
     );
   };

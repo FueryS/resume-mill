@@ -63,18 +63,23 @@ export default function Elegant_Page({ data, pageData, showWatermark = true, sho
   };
 
   const renderSkillItem = (skillObj, idx) => {
+    const skillName = typeof skillObj === 'string' ? skillObj : (skillObj?.name || skillObj?.skill || '');
+    const rawLevel = typeof skillObj === 'object' ? skillObj?.level : 5;
+    const skillLevel = Math.max(1, Math.min(5, Number(rawLevel) || 5));
+    if (!skillName || !skillName.trim()) return null;
+
     if (showSkillRating) {
       return (
         <div key={idx} className={styles.skillRatingRow} style={{ backgroundColor: '#ffffff', border: '1px solid #d1d5db' }}>
-          <span>{skillObj.name}</span>
+          <span>{skillName}</span>
           <span className={styles.skillRatingStars}>
-            {"★".repeat(skillObj.level)}{"☆".repeat(5 - skillObj.level)}
+            {"★".repeat(skillLevel)}{"☆".repeat(5 - skillLevel)}
           </span>
         </div>
       );
     }
     return (
-      <span key={idx} className={styles.skillPill}>{skillObj.name}</span>
+      <span key={idx} className={styles.skillPill}>{skillName}</span>
     );
   };
 
